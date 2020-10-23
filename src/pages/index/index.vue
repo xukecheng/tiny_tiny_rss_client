@@ -19,7 +19,6 @@
 </template>
 
 <script>
-  import {uniList,uniListItem,uniListChat} from '@dcloudio/uni-ui'
   import htmlToText from 'html-to-text'
 
 	export default {
@@ -38,20 +37,20 @@
     },
 
     onShow() {
-      this.markRead()
+      this.getRead()
+    },
+
+    onPullDownRefresh() {
+      this.getFeed()
     },
 
 		methods: {
-      markRead() {
-        console.log(this.articles)
+      getRead() {
         try {
           const is_read_list = uni.getStorageSync('is_read_list')
-          console.log(is_read_list)
           for (var index in this.articles.list) {
             if (is_read_list.indexOf(this.articles.list[index].id) > -1) {
-              console.log("修改")
               this.$set(this.articles.list[index], 'is_read', true)
-              console.log("完成修改")
             } else {
               this.$set(this.articles.list[index], 'is_read', false)
             }
@@ -103,16 +102,24 @@
         })
       },
       toDetail(id) {
-        try {
-          const is_read_list = uni.getStorageSync('is_read_list')
-          is_read_list.push(id)
-          uni.setStorageSync('is_read_list', is_read_list);
-        } catch (e) {
-          uni.setStorageSync('is_read_list', [id]);
-        }
+        uni.request({
+          url: process.env.API_URL + `/mark_read${id}`,
+          method: 'GET',
+          success: (res => {
+            try {
+              const is_read_list = uni.getStorageSync('is_read_list')
+              if(is_read_list.indexOf(id) == -1) {
+                is_read_list.push(id)
+              }              
+              uni.setStorageSync('is_read_list', is_read_list);
+            } catch (e) {
+              uni.setStorageSync('is_read_list', [id]);
+            }
+          })
+        })
         uni.navigateTo({
             url: `/pages/index/detail?id=${id}`
-        });
+        })
       }
 
 		}
