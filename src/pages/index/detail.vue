@@ -46,7 +46,7 @@ export default {
     methods: {
       getDetail(article_id) {
         uni.request({
-          url: `http://localhost:8888/article_detail?id=${article_id}`, //仅为示例，并非真实接口地址。
+          url: process.env.API_URL + `/get_unreads${article_id}`, //仅为示例，并非真实接口地址。
           method: 'GET',
           success: (res => {
             const {data} =  res.data

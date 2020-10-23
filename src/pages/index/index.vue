@@ -88,7 +88,7 @@
       },
       getFeed () {
         uni.request({
-          url: process.env.API_URL  + '/get_unreads',
+          url: process.env.API_URL + '/get_unreads',
           method: 'GET',
           success: (res => {
             const {data} =  res.data
