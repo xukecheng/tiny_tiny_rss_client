@@ -1,4 +1,4 @@
-# readrss
+# TinyTinyRSS Client
 
 ## Project setup
 ```
