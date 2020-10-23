@@ -10,13 +10,13 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "rss"
+				"navigationBarTitleText": "TinyTinyRSS"
 			}
 		},
 		{
 			"path": "pages/index/detail",
 			"style": {
-				"navigationBarTitleText": "rss"
+				"navigationBarTitleText": "详情"
 			}
 		}
 	],

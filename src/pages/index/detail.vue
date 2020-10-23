@@ -77,10 +77,6 @@ export default {
   }
 
   .detail {
-    /* padding: 40rpx 32rpx 20rpx; */
-    /* font-size: 32rpx;
-    line-height: 1.6;
-    width: 100%; */
     font-size: 30rpx;
     line-height: 1.6;
     overflow: hidden;

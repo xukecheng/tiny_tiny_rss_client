@@ -6,7 +6,7 @@
         :key="index"
         v-for="(article, index) of articles.list"
         @click="toDetail(article.id)"
-        :class="[article.is_read ? 'is_read' : 'list']"
+        :class="[article.is_read ? 'list__is_read' : 'list']"
       >
         <view slot="body" class="list__content">
           <view class="list__title">{{article.title}}</view>
@@ -134,17 +134,17 @@
 		background-color: white;
 	}
 
-	.list__content {
-		position: relative;
-	}
-
   .list {
     background-color: white;
   }
 
-  .is_read {
+  .list__is_read {
     background-color: #f7f7f7;
   }
+
+	.list__content {
+		position: relative;
+	}
 
 	.list__title {
 		font-size: 36rpx;
@@ -170,11 +170,5 @@
     -webkit-line-clamp: 2;
     overflow: hidden;
     margin-top: 10rpx;
-  }
-
-  .list__image {
-    width: 100rpx;
-    height: auto;
-    position: relative;
   }
 </style>
