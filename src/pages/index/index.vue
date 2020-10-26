@@ -1,21 +1,33 @@
 <template>
 	<view class="content">
-    <uni-list>
-      <uni-list-item 
-        clickable
-        :key="index"
-        v-for="(article, index) of articles.list"
-        @click="toDetail(article.id)"
-        :class="[article.is_read ? 'list__is_read' : 'list']"
+    <u-card
+      :key="index"
+      v-for="(article, index) of articles.list"
+      :title="article.feed_title"
+      :sub-title="article.time"
+      :thumb="article.feed_icon"
+      thumb-width="30"
+      title-size="24rpx"
+      :style="{'background-color': (article.is_read ? '#f7f7f7':'white')}"
+      @click="toDetail(article.id)"
       >
-        <view slot="body" class="list__content">
-          <view class="list__title">{{article.title}}</view>
-          <image class="list__feed_logo" :src="article.feed_icon"></image>
-          <text class="list__feed_title">{{article.feed_title}}</text>
-          <text class="list__describtion">{{article.description}}</text>
+      <view class="u-body-item u-flex u-col-between u-p-t-0" slot="body">
+        <view class="" >
+          <view class="u-body-item-title u-line-2">{{article.title}}</view>
+          <text class="article_describtion"
+            v-if="article.description=='&hellip;' ? true : false"
+          >
+          {{article.description}}
+          </text>
+          <image
+            :src="article.flavor_image"
+            mode="aspectFill"
+            v-if="article.flavor_image ? true : false"
+          >
+          </image>
         </view>
-      </uni-list-item>
-    </uni-list>
+      </view>
+    </u-card>
 	</view>
 </template>
 
@@ -25,6 +37,18 @@
 	export default {
 		data() {
 			return {
+        isReadBodyStyle: {
+          "background-color": "#f7f7f7",
+        },
+        isReadHeadStyle: {
+          "background-color": "#f7f7f7",
+          "border-bottom-color": "rgb(228, 231, 237)",
+          "border-bottom-style": "solid",
+          "border-bottom-width": "1px"
+        },
+        Style: {
+          "background-color": "white",
+        },
         articles: {
           list: []
         }
@@ -152,40 +176,28 @@
 		background-color: white;
 	}
 
-  .list {
-    background-color: white;
+  .u-card-wrap { 
+		background-color: $u-bg-color;
+		padding: 2rpx;
+	}
+	
+	.u-body-item {
+		font-size: 32rpx;
+		color: #333;
+	}
+  
+  .u-body-item image {
+		flex: 0 0 120rpx;
+		border-radius: 8rpx;
+    margin-top: 12rpx;
+    max-height: 240rpx;
   }
 
-  .list__is_read {
+  .article_describtion_is_read {
     background-color: #f7f7f7;
   }
 
-	.list__content {
-		position: relative;
-	}
-
-	.list__title {
-		font-size: 36rpx;
-    line-height: 46rpx;
-    margin-bottom: 20rpx;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    word-break: break-all;
-	}
-
-  .list__feed_title {
-    font-size: 28rpx;
-    color: #1e4b8d;
-  }
-
-  .list__feed_logo {
-    width: 30rpx;
-    height: 30rpx;
-  }
-
-  .list__describtion {
+  .article_describtion {
 		font-size: 28rpx;
     line-height: 38rpx;
 		color: #8f8f94;
@@ -193,6 +205,6 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
-    margin-top: 10rpx;
+    margin-top: 20rpx;
   }
 </style>
