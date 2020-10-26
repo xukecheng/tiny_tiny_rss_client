@@ -10,6 +10,7 @@
       >
         <view slot="body" class="list__content">
           <view class="list__title">{{article.title}}</view>
+          <image class="list__feed_logo" :src="article.feed_icon"></image>
           <text class="list__feed_title">{{article.feed_title}}</text>
           <text class="list__describtion">{{article.description}}</text>
         </view>
@@ -32,7 +33,10 @@
     
 		onLoad() {
       this.haveSubscribe()
-      this.getFeed()
+      this.getFeeds()
+      this.getArticles()
+      this.getRead()
+      this.articleSync()
     },
 
     onShow() {
@@ -40,7 +44,9 @@
     },
 
     onPullDownRefresh() {
-      this.getFeed()
+      this.getArticles()
+      this.getRead()
+      this.articleSync()
     },
 
 		methods: {
@@ -84,22 +90,39 @@
 					}
 				})
       },
-      getFeed () {
+      getFeeds () {
+        uni.request({
+          url: 'http://localhost:8888/get_feeds',
+          method: 'GET',
+          success: (res => {
+            const {data} =  res.data
+            uni.setStorageSync("feeds", data)
+          })
+        })
+      },
+      getArticles () {
         console.log(process.env.BASE_URL)
         uni.request({
           url: 'http://localhost:8888/get_unreads',
           method: 'GET',
           success: (res => {
             const {data} =  res.data
+            const feeds = uni.getStorageSync('feeds')
             for (var index in data) {
               const description = htmlToText.fromString(data[index].description, {
                 wordwrap: 130
               })
               data[index].description = description
+              const id = data[index].feed_id
+              data[index]["feed_icon"] = feeds[id].feed_icon
             }
-            this.articles.list = data
+            uni.setStorageSync("articles", data)
           })
         })
+      },
+      articleSync () {
+        const data = uni.getStorageSync('articles')
+        this.articles.list = data
       },
       toDetail(id) {
         try {
@@ -114,7 +137,8 @@
         uni.navigateTo({
             url: `/pages/index/detail?id=${id}`
         })
-      }
+      },
+
 
 		}
 	}
@@ -154,6 +178,11 @@
   .list__feed_title {
     font-size: 28rpx;
     color: #1e4b8d;
+  }
+
+  .list__feed_logo {
+    width: 30rpx;
+    height: 30rpx;
   }
 
   .list__describtion {
