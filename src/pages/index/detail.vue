@@ -39,19 +39,39 @@ export default {
         url: `http://localhost:8888/mark_read?id=${id}`,
         method: 'GET',
         success: (res => {
-          this.getDetail(id)
+          this.getLocalDetail(id)
         })
       })
     },
 
     methods: {
-      getDetail(article_id) {
+      getLocalDetail(article_id) {
+        const article_detail = uni.getStorageSync("article_details")
+        if (article_detail && article_detail[article_id]) {
+          this.article = article_detail[article_id]
+        } else {
+          this.getWebDetail(article_id)
+        }
+      },
+      getWebDetail(article_id) {
         uni.request({
           url: `http://localhost:8888/article_detail?id=${article_id}`,
           method: 'GET',
           success: (res => {
             const {data} =  res.data
-            this.article = data
+            const article_detail = uni.getStorageSync("article_details")
+            if (article_detail) {
+              article_detail[data.id] = data
+              uni.setStorageSync("article_details", article_detail)
+              this.article = data
+            } else {
+              const article_detail = {}
+              article_detail[data.id] = data
+              uni.setStorageSync("article_details", article_detail)
+              this.article = data
+            }
+
+            
           })
         })
       }

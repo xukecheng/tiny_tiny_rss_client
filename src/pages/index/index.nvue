@@ -1,0 +1,293 @@
+<template>
+  <view class="content">
+    <u-popup
+      v-model="popup_show"
+      class="popup"
+    >
+      <uni-list
+        :key="index"
+        v-for="(category, index) of feed_tree.list"
+      >
+        <uni-list-item direction="column">
+          <view slot="header" class="slot-box">
+            <text class="category_name">{{category.category_name}}</text>
+          </view>
+          <view slot="body" class="category-feed_title_list">
+            <text
+              class="category-feed_title"
+              :key="index"
+              v-for="(feed, index) of category.category_feed"
+            >
+            {{feed.feed_title}}
+            </text>
+          </view>
+        </uni-list-item>
+        <!-- <uni-list-item :title="category.category_name">
+          <uni-list-item
+            :key="index"
+            v-for="(feed, index) of category.category_feed"
+            :title="feed.feed_title"
+          >
+          </uni-list-item>
+        </uni-list-item> -->
+      </uni-list>
+    </u-popup>
+    <u-card
+      :key="index"
+      v-for="(article, index) of articles.list"
+      :style="{ 'background-color': article.is_read ? '#f7f7f7' : 'white' }"
+      @click="toDetail(article.id)"
+    >
+      <view class="u-head-item" slot="head">
+        <image class="feed_icon" :src="article.feed_icon" />
+        <view class="feed_title">{{ article.feed_title }}</view>
+        <text class="time">{{ article.time }}</text>
+      </view>
+      <view class="u-body-item u-flex u-col-between u-p-t-0" slot="body">
+        <view class="">
+          <view class="u-body-item-title u-line-2">{{ article.title }}</view>
+          <text
+            class="article_describtion"
+            v-if="article.description == '&hellip;' ? true : false"
+          >
+            {{ article.description }}
+          </text>
+          <image
+            :src="article.flavor_image"
+            mode="aspectFill"
+            v-if="article.flavor_image ? true : false"
+          >
+          </image>
+        </view>
+      </view>
+    </u-card>
+  </view>
+</template>
+
+<script>
+import htmlToText from "html-to-text";
+import popup from "./components/popup";
+
+export default {
+  components: {
+    popup,
+  },
+  data() {
+    return {
+      isReadBodyStyle: {
+        "background-color": "#f7f7f7",
+      },
+      isReadHeadStyle: {
+        "background-color": "#f7f7f7",
+        "border-bottom-color": "rgb(228, 231, 237)",
+        "border-bottom-style": "solid",
+        "border-bottom-width": "1px",
+      },
+      Style: {
+        display: "flex",
+        "flex-direction": "row",
+      },
+      articles: {
+        list: [],
+      },
+      feeds: {
+        list: [],
+      },
+      feed_tree: {
+        list: [],
+      },
+      popup_show: false,
+    };
+  },
+
+  onLoad() {
+    this.getFeeds();
+    this.getArticles();
+    this.getRead();
+    this.articleSync();
+  },
+
+  onShow() {
+    this.getRead();
+  },
+
+  onNavigationBarButtonTap() {
+    this.popup_show = true;
+  },
+
+  onPullDownRefresh() {
+    this.getArticles();
+    this.getRead();
+    this.articleSync();
+  },
+
+  methods: {
+    getRead() {
+      try {
+        const is_read_list = uni.getStorageSync("is_read_list");
+        for (var index in this.articles.list) {
+          if (is_read_list.indexOf(this.articles.list[index].id) > -1) {
+            this.$set(this.articles.list[index], "is_read", true);
+          } else {
+            this.$set(this.articles.list[index], "is_read", false);
+          }
+        }
+      } catch (e) {
+        pass;
+      }
+    },
+    getFeeds() {
+      const feeds = uni.getStorageSync("feeds");
+      if (feeds) {
+        this.feeds.list = feeds;
+        console.log(this.feeds.list);
+      } else {
+        uni.request({
+          url: "http://localhost:8888/get_feeds",
+          method: "GET",
+          success: (res) => {
+            const { feeds } = res.data;
+            uni.setStorageSync("feeds", feeds);
+            this.feeds.list = feeds;
+          },
+        });
+      }
+
+      const feed_tree = uni.getStorageSync("feed_tree");
+      if (feed_tree) {
+        this.feed_tree.list = feed_tree;
+        console.log(this.feed_tree.list);
+      } else {
+        uni.request({
+          url: "http://localhost:8888/get_feed_tree",
+          method: "GET",
+          success: (res) => {
+            const { feed_tree } = res.data;
+            uni.setStorageSync("feed_tree", feed_tree);
+            this.feed_tree.list = feed_tree;
+          },
+        });
+      }
+    },
+    getArticles() {
+      console.log(process.env.BASE_URL);
+      uni.request({
+        url: "http://localhost:8888/get_unreads",
+        method: "GET",
+        success: (res) => {
+          const { data } = res.data;
+          const feeds = uni.getStorageSync("feeds");
+          for (var index in data) {
+            const description = htmlToText.fromString(data[index].description, {
+              wordwrap: 130,
+            });
+            data[index].description = description;
+            const id = data[index].feed_id;
+            data[index]["feed_icon"] = feeds[id].feed_icon;
+          }
+          uni.setStorageSync("articles", data);
+        },
+      });
+    },
+    articleSync() {
+      const data = uni.getStorageSync("articles");
+      this.articles.list = data;
+    },
+    toDetail(id) {
+      try {
+        const is_read_list = uni.getStorageSync("is_read_list");
+        if (is_read_list.indexOf(id) == -1) {
+          is_read_list.push(id);
+        }
+        uni.setStorageSync("is_read_list", is_read_list);
+      } catch (e) {
+        uni.setStorageSync("is_read_list", [id]);
+      }
+      uni.navigateTo({
+        url: `/pages/index/detail?id=${id}`,
+      });
+    },
+  },
+};
+</script>
+
+<style>
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: white;
+}
+
+.category_name {
+  font-size: 40rpx;
+  font-weight: 500;
+}
+
+.category-feed_title_list {
+  margin: 20rpx 5rpx 0;
+  font-size: 28rpx;
+}
+
+.category-feed_title {
+  margin-bottom: 20rpx;
+}
+
+.feed_title {
+  font-size: 28rpx;
+  padding-left: 20rpx;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 365rpx;
+}
+
+.feed_icon {
+  width: 30rpx;
+  height: 30rpx;
+}
+
+.time {
+  font-size: 28rpx;
+  margin-left: auto;
+}
+
+.u-head-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.u-card-wrap {
+  background-color: $u-bg-color;
+  padding: 2rpx;
+}
+
+.u-body-item {
+  font-size: 32rpx;
+  color: #333;
+}
+
+.u-body-item image {
+  flex: 0 0 120rpx;
+  border-radius: 8rpx;
+  margin-top: 12rpx;
+  max-height: 240rpx;
+}
+
+.article_describtion_is_read {
+  background-color: #f7f7f7;
+}
+
+.article_describtion {
+  font-size: 28rpx;
+  line-height: 38rpx;
+  color: #8f8f94;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 20rpx;
+}
+</style>
