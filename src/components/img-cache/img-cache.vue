@@ -17,9 +17,9 @@
 
 <script>
 // #ifdef APP-PLUS
-import storage from "./storage";
-import download from "./download";
-import { resolveFile } from "./index";
+import storage from './storage'
+import download from './download'
+import { resolveFile } from './index'
 // #endif
 
 /**
@@ -42,115 +42,113 @@ import { resolveFile } from "./index";
  * @example <img-cache src="https://example.com/image.png"></img-cache>
  */
 export default {
-  name: "ImgCache",
+  name: 'ImgCache',
   props: {
     src: {
-      type: String,
+      type: String
     },
     mode: {
       type: String,
-      default: "scaleToFill",
+      default: 'scaleToFill'
     },
     lazyLoad: {
       type: Boolean,
-      default: false,
+      default: false
     },
     fadeShow: {
       type: Boolean,
-      default: true,
+      default: true
     },
     webp: {
       type: Boolean,
-      default: false,
+      default: false
     },
     showMenuByLongpress: {
       type: Boolean,
-      default: false,
+      default: false
     },
     dir: {
       type: String,
-      default: "imgcache",
+      default: 'imgcache'
     },
     width: {
-      type: [String, Number],
+      type: [String, Number]
     },
     height: {
-      type: [String, Number],
+      type: [String, Number]
     },
     customStyle: {
       type: Object,
-      default: () => ({}),
-    },
+      default: () => ({})
+    }
   },
   data() {
     return {
-      resource: "",
-    };
+      resource: ''
+    }
   },
   computed: {
     style() {
-      let style = { willChange: "transform" };
+      let style = { willChange: 'transform' }
 
       // 判断传过来的值不为 undefined null ''
-      if ((this.width ?? "") !== "") style.width = this.addUnit(this.width);
-      if ((this.height ?? "") !== "") style.height = this.addUnit(this.height);
+      if ((this.width ?? '') !== '') style.width = this.addUnit(this.width)
+      if ((this.height ?? '') !== '') style.height = this.addUnit(this.height)
 
       return {
         ...style,
-        ...this.customStyle,
-      };
-    },
+        ...this.customStyle
+      }
+    }
   },
   watch: {
     src: {
-      handler: "init",
-      immediate: true,
-    },
+      handler: 'init',
+      immediate: true
+    }
   },
   methods: {
     // 初始化
     init() {
       // #ifdef APP-PLUS
-      this.fnCache();
+      this.fnCache()
       // #endif
 
       // #ifndef APP-PLUS
-      this.setSrc();
+      this.setSrc()
       // #endif
     },
     // 获取缓存
     async fnCache() {
-      const url = this.src; // 赋值到新变量，避免下载时 src 更改，从而网络地址和本地地址图片不一致
+      const url = this.src // 赋值到新变量，避免下载时 src 更改，从而网络地址和本地地址图片不一致
 
-      if (!/^https?:\/\//.test(url)) return this.setSrc(); // 判断是否网络地址
+      if (!/^https?:\/\//.test(url)) return this.setSrc() // 判断是否网络地址
 
-      const [select] = storage.select({ url }); // 查询缓存是否存在
+      const [select] = storage.select({ url }) // 查询缓存是否存在
 
       if (select) {
-        const path = select.local;
-        if (await resolveFile(path)) return this.setSrc(path); // 判断本地文件是否存在 如果存在则显示本地文件
-        storage.delete(select); // 如果本地文件不存在则删除缓存数据
+        const path = select.local
+        if (await resolveFile(path)) return this.setSrc(path) // 判断本地文件是否存在 如果存在则显示本地文件
+        storage.delete(select) // 如果本地文件不存在则删除缓存数据
       }
-      this.setSrc();
+      this.setSrc()
 
-      const local = await download(url, this.dir); // 下载文件
-      if (local) storage.insert({ url, local }); // 缓存数据
+      const local = await download(url, this.dir) // 下载文件
+      if (local) storage.insert({ url, local }) // 缓存数据
     },
     // 发送事件
     fnEvent(emit, event) {
-      this.$emit(emit, event);
+      this.$emit(emit, event)
     },
     // 设置图片资源地址
     setSrc(src) {
-      this.resource = src || this.src;
+      this.resource = src || this.src
     },
     // 添加单位，如果为数值则为rpx单位，否则直接返回
     addUnit(value) {
-      value = String(value ?? "");
-      return /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value)
-        ? `${value}rpx`
-        : value;
-    },
-  },
-};
+      value = String(value ?? '')
+      return /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value) ? `${value}rpx` : value
+    }
+  }
+}
 </script>
