@@ -1,29 +1,10 @@
 <template>
   <view class="content">
-    <u-popup v-model="popup_show" class="popup">
-      <uni-list :key="index" v-for="(category, index) of feed_tree.list">
-        <uni-list-item direction="column">
-          <view slot="header" class="slot-box">
-            <text class="category_name">{{ category.category_name }}</text>
-          </view>
-          <view
-            slot="body"
-            class="category-feed_title_list"
-            :key="index"
-            v-for="(feed, index) of category.category_feed"
-          >
-            <img-cache class="feed_icon" :src="feed.feed_icon"></img-cache>
-            <text class="category-feed_title">{{ feed.feed_title }}</text>
-            <text 
-              class="unread_num"
-              v-if="feeds.list[feed.feed_id].feed_unread_num == 0 ? false : true"
-            >
-            {{ feeds.list[feed.feed_id]["feed_unread_num"] }}
-            </text>
-          </view>
-        </uni-list-item>
-      </uni-list>
-    </u-popup>
+   <Popup
+      ref="Popup"
+      :feed_tree="feed_tree.list"
+      :feeds="feeds.list"
+    />
     <u-card
       :key="index"
       v-for="(article, index) of articles.list"
@@ -31,7 +12,11 @@
       @click="toDetail(article.id)"
     >
       <view class="u-head-item" slot="head">
-        <img-cache class="feed_icon" mode="aspectFill" :src="article.feed_icon" />
+        <img-cache
+          class="feed_icon"
+          mode="aspectFill"
+          :src="article.feed_icon"
+        />
         <view class="feed_title">{{ article.feed_title }}</view>
         <text class="article_time">{{ article.time }}</text>
       </view>
@@ -58,8 +43,13 @@
 
 <script>
 import htmlToText from "html-to-text";
+import Popup from "./components/popup";
 
 export default {
+  name: 'List',
+  components: {
+    Popup,
+  },
   data() {
     return {
       isReadBodyStyle: {
@@ -80,11 +70,9 @@ export default {
       feed_tree: {
         list: [],
       },
-      popup_show: false,
       url: process.env.VUE_APP_URL,
     };
   },
-
   onLoad() {
     this.getFeeds();
     this.getArticles();
@@ -96,7 +84,7 @@ export default {
   },
 
   onNavigationBarButtonTap() {
-    this.popup_show = true;
+    this.$refs.Popup.showDrawer();
   },
 
   onPullDownRefresh() {
@@ -126,14 +114,14 @@ export default {
       if (feeds) {
         this.feeds.list = feeds;
       } else {
-        this.refreshFeeds()
+        this.refreshFeeds();
       }
 
       const feed_tree = uni.getStorageSync("feed_tree");
       if (feed_tree) {
         this.feed_tree.list = feed_tree;
       } else {
-        this.refreshFeedTree()
+        this.refreshFeedTree();
       }
     },
     refreshFeeds() {
@@ -147,7 +135,7 @@ export default {
         },
       });
     },
-    refreshFeedTree(){
+    refreshFeedTree() {
       uni.request({
         url: this.url + "/get_feed_tree",
         method: "GET",
@@ -168,7 +156,7 @@ export default {
     },
     refreshArticles() {
       uni.request({
-        url: this.url + "/get_unreads",
+        url: this.url + "get_unreads",
         method: "GET",
         success: (res) => {
           const { data } = res.data;
@@ -216,35 +204,6 @@ export default {
   background-color: white;
 }
 
-.category_name {
-  font-size: 40rpx;
-  font-weight: 500;
-}
-
-.category-feed_title_list {
-  margin: 20rpx 5rpx 0;
-  font-size: 28rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.category-feed_title {
-  font-size: 28rpx;
-  padding-left: 20rpx;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 400rpx;
-}
-
-.unread_num {
-  font-size: 24rpx;
-  margin-left: auto;
-}
-
 .feed_title {
   font-size: 28rpx;
   padding-left: 20rpx;
@@ -286,7 +245,7 @@ export default {
   flex: 0 0 120rpx;
   border-radius: 8rpx;
   margin-top: 12rpx;
-  max-height: 240rpx;
+  /* max-height: 240rpx; */
 }
 
 .article_describtion_is_read {

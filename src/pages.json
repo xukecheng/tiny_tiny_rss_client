@@ -20,10 +20,7 @@
                 "float": "left",
                 "type": "menu"
               }
-            ],
-            "backButton": { //自定义 backButton
-              "background": "#00FF00"
-            }
+            ]
           }
         }
       }

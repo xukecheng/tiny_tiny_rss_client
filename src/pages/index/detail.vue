@@ -41,7 +41,7 @@ export default {
     this.getLocalDetail(id);
     uni.hideLoading()
     uni.request({
-      url: this.url + `/mark_read?id=${id}`,
+      url: this.url + `mark_read?id=${id}`,
       method: "GET",
     });
   },
@@ -57,7 +57,7 @@ export default {
     },
     getWebDetail(article_id) {
       uni.request({
-        url: this.url + `/article_detail?id=${article_id}`,
+        url: this.url + `article_detail?id=${article_id}`,
         method: "GET",
         success: (res) => {
           const { data } = res.data;
