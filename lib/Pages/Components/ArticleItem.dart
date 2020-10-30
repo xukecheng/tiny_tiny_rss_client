@@ -1,23 +1,24 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 class ArticleItem extends StatelessWidget {
   ArticleItem(
       {this.title,
       this.feedIcon,
       this.feedTitle,
-      this.articleDescrition,
       this.flavorImage,
-      this.publishTime});
+      this.publishTime,
+      this.articleContent});
 
   final String title;
   final String feedIcon;
   final String feedTitle;
-  final String articleDescrition;
   final String flavorImage;
   final String publishTime;
+  final String articleContent;
 
   // 判断是否存在文章预览图
   Widget _getArticleImage() {
@@ -28,28 +29,55 @@ class ArticleItem extends StatelessWidget {
         flex: 2,
         child: Container(
           height: 180,
-          child: ExtendedImage.network(
-            this.flavorImage,
+          child: CachedNetworkImage(
+            imageUrl: this.flavorImage,
             fit: BoxFit.cover,
-            cache: true,
           ),
         ),
       );
     }
   }
 
-  // 判断是否存在有效的文章描述
+  // 处理文章内容，转换成可用的文章描述
   Widget _getArticleDescription() {
-    if (this.articleDescrition == "&hellip;") {
+    // 转换文章内容为文本
+    HtmlUnescape unescape = HtmlUnescape();
+    String needParserContent = unescape.convert(this.articleContent);
+    // 文本截取前 50 个字符，去掉 p 标签，结尾显示 ...
+    String needPlusContent = needParserContent
+        .substring(0, 50)
+        .replaceAll("<p>", "")
+        .replaceAll("...", "");
+    String content = needPlusContent + " ...";
+    return Text(content, style: TextStyle(fontSize: 14.0));
+  }
+
+  Widget _getFeedIcon() {
+    if (this.feedIcon.isEmpty) {
       return Visibility(visible: false, child: Text('Hello World'));
     } else {
-      return Text(this.articleDescrition, style: TextStyle(fontSize: 14.0));
+      return Row(
+        children: [
+          // 剪切 feed_icon 为圆形
+          ClipOval(
+            child: CachedNetworkImage(
+              imageUrl: this.feedIcon,
+              width: 18,
+              height: 18,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(padding: const EdgeInsets.only(left: 6.0)),
+          Text(this.feedTitle, style: TextStyle(fontSize: 12.0)),
+        ],
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Flex(
+      direction: Axis.vertical,
       children: [
         // 文章组件主体
         Row(
@@ -59,10 +87,9 @@ class ArticleItem extends StatelessWidget {
             Padding(padding: const EdgeInsets.only(left: 15.0)),
             // 文章文本信息组件
             Expanded(
-                flex: 5,
-                child: Column(
+              flex: 5,
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(padding: const EdgeInsets.only(top: 12.0)),
                     // 文章标题
@@ -75,38 +102,26 @@ class ArticleItem extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 6.0),
                     ),
                     // feed_icon 和 feed_tile
-                    Row(
-                      children: [
-                        // 剪切 feed_icon 为圆形
-                        ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl: this.feedIcon,
-                            width: 18,
-                            height: 18,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(padding: const EdgeInsets.only(left: 6.0)),
-                        Text(this.feedTitle, style: TextStyle(fontSize: 12.0)),
-                      ],
-                    ),
+                    this._getFeedIcon(),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 14.0),
+                      padding: const EdgeInsets.only(bottom: 8.0),
                     ),
                     // 文章描述
-                    _getArticleDescription(),
-                    // 文章发布时间
+                    this._getArticleDescription(),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                    ),
                     Text(this.publishTime,
                         style:
-                            TextStyle(fontSize: 12.0, color: Colors.black38)),
+                            TextStyle(fontSize: 12.0, color: Colors.black45)),
                     Padding(padding: const EdgeInsets.only(bottom: 12.0)),
-                  ],
-                )),
+                  ]),
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 15.0),
             ),
             // 文章预览图展示
-            _getArticleImage()
+            this._getArticleImage()
           ],
         ),
         // 分隔线

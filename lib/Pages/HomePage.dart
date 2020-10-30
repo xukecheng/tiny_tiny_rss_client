@@ -19,9 +19,9 @@ class _HomePageState extends State<HomePage> {
           feedIcon:
               "https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg",
           feedTitle: value['feed_title'],
-          articleDescrition: value['description'],
           flavorImage: value['flavor_image'],
-          publishTime: value["time"]);
+          publishTime: value["time"],
+          articleContent: value["content"]);
     }).toList();
   }
 
