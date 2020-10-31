@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'Components/ArticleItem.dart';
 import 'package:dio/dio.dart';
 import 'package:frefresh/frefresh.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'Article.dart';
+// const favoritesBox = 'favorite_books';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -13,13 +17,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List unreadArticleList = new List();
 
-  void getUnreadArticle() async {
-    BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.23:8888");
+  @override
+  void initState() {
+    super.initState();
+    Article().getUnread().then((res) {
+      setState(() {
+        this.unreadArticleList = res;
+        print(123);
+      });
+    });
+  }
+
+  void saveUnreadArticle() async {
+    BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.167:8888");
     Dio dio = Dio(options);
     try {
       Response response = await dio.get("/get_unreads");
       setState(() {
-        unreadArticleList = response.data["data"];
+        // article.put('unreadArticleList', response.data["data"]);
       });
     } catch (e) {
       print(e);
@@ -52,7 +67,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    getUnreadArticle();
     return ListView.builder(
         itemCount: unreadArticleList.length, //- 要生成的条数
         itemBuilder: (context, index) {
