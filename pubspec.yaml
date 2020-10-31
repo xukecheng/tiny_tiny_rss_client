@@ -31,6 +31,8 @@ dependencies:
   flutter_html: ^1.0.0
   cached_network_image: ^2.3.3
   html_unescape: ^1.0.2
+  dio: ^3.0.10
+  frefresh: ^1.1.0
   
 dev_dependencies:
   flutter_test:

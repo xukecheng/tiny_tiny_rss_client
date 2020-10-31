@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -9,6 +8,7 @@ class ArticleItem extends StatelessWidget {
       {this.title,
       this.feedIcon,
       this.feedTitle,
+      this.articleDesciption,
       this.flavorImage,
       this.publishTime,
       this.articleContent});
@@ -16,6 +16,7 @@ class ArticleItem extends StatelessWidget {
   final String title;
   final String feedIcon;
   final String feedTitle;
+  final String articleDesciption;
   final String flavorImage;
   final String publishTime;
   final String articleContent;
@@ -28,7 +29,7 @@ class ArticleItem extends StatelessWidget {
       return Expanded(
         flex: 2,
         child: Container(
-          height: 180,
+          height: 185,
           child: CachedNetworkImage(
             imageUrl: this.flavorImage,
             fit: BoxFit.cover,
@@ -40,16 +41,11 @@ class ArticleItem extends StatelessWidget {
 
   // 处理文章内容，转换成可用的文章描述
   Widget _getArticleDescription() {
-    // 转换文章内容为文本
-    HtmlUnescape unescape = HtmlUnescape();
-    String needParserContent = unescape.convert(this.articleContent);
-    // 文本截取前 50 个字符，去掉 p 标签，结尾显示 ...
-    String needPlusContent = needParserContent
-        .substring(0, 50)
-        .replaceAll("<p>", "")
-        .replaceAll("...", "");
-    String content = needPlusContent + " ...";
-    return Text(content, style: TextStyle(fontSize: 14.0));
+    if (this.articleDesciption.isEmpty) {
+      return Visibility(visible: false, child: Text('Hello World'));
+    } else {
+      return Text(this.articleDesciption, style: TextStyle(fontSize: 14.0));
+    }
   }
 
   Widget _getFeedIcon() {
