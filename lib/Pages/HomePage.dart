@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     return ListView.builder(
         itemCount: unreadArticleList.length, //- 要生成的条数
         itemBuilder: (context, index) {
-          return this._getArticleList();
+          return this._getArticleList(index);
         });
 
     //   children: this._getArticleList(),
