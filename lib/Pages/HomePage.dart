@@ -39,16 +39,9 @@ class _HomePageState extends State<HomePage> {
 
   _refresh() {
     return FRefresh(
-      /// 设置控制器
       controller: controller,
-
-      /// 构建刷新 Header
       header: Loading(),
-
-      /// 需要传入 Header 区域大小
       headerHeight: 100.0,
-
-      /// 内容区域 Widget
       child: ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
@@ -56,16 +49,12 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (context, index) {
             return this._getArticleList(index);
           }),
-
-      /// 进入 Refreshing 后会回调该函数
       onRefresh: () {
         Article().getUnread().then((res) {
           setState(() {
             this.unreadArticleList = res;
           });
         });
-
-        /// 通过 controller 结束刷新
         controller.finishRefresh();
       },
     );

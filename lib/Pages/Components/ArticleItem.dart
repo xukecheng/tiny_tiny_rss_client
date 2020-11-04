@@ -72,60 +72,63 @@ class ArticleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flex(
-      direction: Axis.vertical,
-      children: [
-        // 文章组件主体
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(padding: const EdgeInsets.only(left: 15.0)),
-            // 文章文本信息组件
-            Expanded(
-              flex: 5,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(padding: const EdgeInsets.only(top: 12.0)),
-                    // 文章标题
-                    Text(this.title,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold)),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6.0),
-                    ),
-                    // feed_icon 和 feed_tile
-                    this._getFeedIcon(),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                    ),
-                    // 文章描述
-                    this._getArticleDescription(),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                    ),
-                    Text(this.publishTime,
-                        style:
-                            TextStyle(fontSize: 12.0, color: Colors.black45)),
-                    Padding(padding: const EdgeInsets.only(bottom: 12.0)),
-                  ]),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-            ),
-            // 文章预览图展示
-            this._getArticleImage()
-          ],
-        ),
-        // 分隔线
-        Divider(
-          height: 1.0,
-          color: Colors.black26,
-        ),
-      ],
+    return InkWell(
+      onTap: () {},
+      child: Flex(
+        direction: Axis.vertical,
+        children: [
+          // 文章组件主体
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Padding(padding: const EdgeInsets.only(left: 15.0)),
+              // 文章文本信息组件
+              Expanded(
+                flex: 5,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(padding: const EdgeInsets.only(top: 12.0)),
+                      // 文章标题
+                      Text(this.title,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.bold)),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6.0),
+                      ),
+                      // feed_icon 和 feed_tile
+                      this._getFeedIcon(),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                      ),
+                      // 文章描述
+                      this._getArticleDescription(),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                      ),
+                      Text(this.publishTime,
+                          style:
+                              TextStyle(fontSize: 12.0, color: Colors.black45)),
+                      Padding(padding: const EdgeInsets.only(bottom: 12.0)),
+                    ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 15.0),
+              ),
+              // 文章预览图展示
+              this._getArticleImage()
+            ],
+          ),
+          // 分隔线
+          Divider(
+            height: 1.0,
+            color: Colors.black26,
+          ),
+        ],
+      ),
     );
   }
 }
