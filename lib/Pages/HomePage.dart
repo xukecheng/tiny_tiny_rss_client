@@ -42,6 +42,7 @@ class _HomePageState extends State<HomePage> {
       controller: controller,
       header: Loading(),
       headerHeight: 100.0,
+      headerTrigger: 300.0,
       child: ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
