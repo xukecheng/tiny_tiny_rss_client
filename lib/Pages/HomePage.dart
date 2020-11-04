@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Components/ArticleItem.dart';
-import 'Article.dart';
+import '../Object/Article.dart';
+import 'Components/Loading.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -36,10 +37,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: unreadArticleList.length, //- 要生成的条数
-        itemBuilder: (context, index) {
-          return this._getArticleList(index);
-        });
+    return unreadArticleList.length > 0
+        ? ListView.builder(
+            itemCount: unreadArticleList.length,
+            itemBuilder: (context, index) {
+              return this._getArticleList(index);
+            })
+        : Loading();
   }
 }
