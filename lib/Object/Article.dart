@@ -12,15 +12,14 @@ class Article {
     article = Hive.box(articleBox);
     BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
     Dio dio = Dio(options);
-    Response response = await dio.get("/get_unreads");
-    await article.put('unreadArticleList', response.data["data"]);
-    return article.get('unreadArticleList');
+    try {
+      Response response = await dio.get("/get_unreads");
+      await article.put('unreadArticleList', response.data["data"]);
+      return article.get('unreadArticleList');
+    } catch (e) {
+      if (article.get('unreadArticleList').isNotEmpty) {
+        return article.get('unreadArticleList');
+      }
+    }
   }
-}
-
-getData() async {
-  BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
-  Dio dio = Dio(options);
-  Response response = await dio.get("/get_unreads");
-  return response.data["data"];
 }
