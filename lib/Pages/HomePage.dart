@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'Components/ArticleItem.dart';
 import '../Object/Article.dart';
 import 'Components/Loading.dart';
-import 'package:frefresh/frefresh.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -13,7 +12,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List unreadArticleList = new List();
-  FRefreshController controller = FRefreshController();
 
   @override
   void initState() {
