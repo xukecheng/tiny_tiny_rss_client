@@ -27,7 +27,8 @@ class _HomePageState extends State<HomePage> {
 
   _getArticleList(index) {
     return ArticleItem(
-        title: unreadArticleList[index]['title'],
+        articleId: unreadArticleList[index]['id'],
+        articleTitle: unreadArticleList[index]['title'],
         feedIcon:
             "https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg",
         feedTitle: unreadArticleList[index]['feed_title'],

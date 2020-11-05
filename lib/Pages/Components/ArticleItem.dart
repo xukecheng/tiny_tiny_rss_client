@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:html_unescape/html_unescape.dart';
+import '../ArticleDetail.dart';
 
 class ArticleItem extends StatelessWidget {
   ArticleItem(
-      {this.title,
+      {this.articleId,
+      this.articleTitle,
       this.feedIcon,
       this.feedTitle,
       this.articleDesciption,
@@ -13,7 +13,8 @@ class ArticleItem extends StatelessWidget {
       this.publishTime,
       this.articleContent});
 
-  final String title;
+  final int articleId;
+  final String articleTitle;
   final String feedIcon;
   final String feedTitle;
   final String articleDesciption;
@@ -73,7 +74,15 @@ class ArticleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            //传值
+            builder: (context) =>
+                ArticleDetail(articleContent: this.articleContent)
+            //没传值
+            //builder: (context)=>Detail()
+            ));
+      },
       child: Flex(
         direction: Axis.vertical,
         children: [
@@ -91,7 +100,7 @@ class ArticleItem extends StatelessWidget {
                     children: [
                       Padding(padding: const EdgeInsets.only(top: 12.0)),
                       // 文章标题
-                      Text(this.title,
+                      Text(this.articleTitle,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                           style: TextStyle(
