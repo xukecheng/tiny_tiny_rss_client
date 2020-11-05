@@ -38,34 +38,26 @@ class _HomePageState extends State<HomePage> {
         articleContent: unreadArticleList[index]["content"]);
   }
 
-  _refresh() {
-    return FRefresh(
-      controller: controller,
-      header: Loading(),
-      headerHeight: 100.0,
-      headerTrigger: 300.0,
-      child: ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: unreadArticleList.length,
-          itemBuilder: (context, index) {
-            return this._getArticleList(index);
-          }),
-      onRefresh: () {
-        Article().getUnread().then((res) {
-          setState(() {
-            this.unreadArticleList = res;
-          });
-        });
-        controller.finishRefresh();
-      },
-    );
+  Future<void> _doRefresh() async {
+    await Article().getUnread().then((res) {
+      setState(() {
+        this.unreadArticleList = res;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return unreadArticleList.length > 0
-        ? Container(child: this._refresh())
+        ? RefreshIndicator(
+            onRefresh: this._doRefresh,
+            color: Colors.black87,
+            child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: unreadArticleList.length,
+                itemBuilder: (context, index) {
+                  return this._getArticleList(index);
+                }))
         : Loading();
   }
 }
