@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetail extends StatelessWidget {
   final articleContent;
   ArticleDetail({this.articleContent = "没有"});
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("TinyTinyRss")),
         body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
-          child: HtmlWidget(
+            padding: EdgeInsets.fromLTRB(20, 30, 20, 30),
+            child: HtmlWidget(
             this.articleContent,
             customStylesBuilder: (element) {
               if (element.localName.contains('p')) {
@@ -34,7 +44,7 @@ class ArticleDetail extends StatelessWidget {
               }
               return null;
             },
-            onTapUrl: (url) => print('tapped $url'),
+            onTapUrl: (url) => this._launchURL(url),
             textStyle: TextStyle(fontSize: 16, height: 1.6),
           ),
         )));

@@ -16,32 +16,38 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    Article().getUnread().then((res) {
+    TinyTinyRss().getArticle().then((res) {
       setState(() {
         this.unreadArticleList = res;
       });
     });
+    // TinyTinyRss().shutDownDataBase();
+    // Tiny().getUnread().then((res) {
+    //   setState(() {
+    //     this.unreadArticleList = res;
+    //   });
+    // });
   }
 
   _getArticleList(index) {
     return ArticleItem(
-        articleId: unreadArticleList[index]['id'],
-        articleTitle: unreadArticleList[index]['title'],
+        articleId: unreadArticleList[index].id,
+        articleTitle: unreadArticleList[index].title,
         feedIcon:
             "https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg",
-        feedTitle: unreadArticleList[index]['feed_title'],
-        articleDesciption: unreadArticleList[index]["description"],
-        flavorImage: unreadArticleList[index]['flavor_image'],
-        publishTime: unreadArticleList[index]["time"],
-        articleContent: unreadArticleList[index]["content"]);
+        feedTitle: "test",
+        articleDesciption: unreadArticleList[index].description,
+        flavorImage: unreadArticleList[index].flavorImage,
+        publishTime: unreadArticleList[index].publishTime,
+        articleContent: unreadArticleList[index].htmlContent);
   }
 
   Future<void> _doRefresh() async {
-    await Article().getUnread().then((res) {
-      setState(() {
-        this.unreadArticleList = res;
-      });
-    });
+    // await Article().getUnread().then((res) {
+    //   setState(() {
+    //     this.unreadArticleList = res;
+    //   });
+    // });
   }
 
   @override
@@ -51,7 +57,7 @@ class _HomePageState extends State<HomePage> {
             onRefresh: this._doRefresh,
             color: Colors.black87,
             child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 itemCount: unreadArticleList.length,
                 itemBuilder: (context, index) {
                   return this._getArticleList(index);
