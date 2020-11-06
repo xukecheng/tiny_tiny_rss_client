@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'Components/ArticleItem.dart';
 import '../Object/Article.dart';
 import 'Components/Loading.dart';
+import '../Tool/Tool.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -21,12 +22,6 @@ class _HomePageState extends State<HomePage> {
         this.unreadArticleList = res;
       });
     });
-    // TinyTinyRss().shutDownDataBase();
-    // Tiny().getUnread().then((res) {
-    //   setState(() {
-    //     this.unreadArticleList = res;
-    //   });
-    // });
   }
 
   _getArticleList(index) {
@@ -38,16 +33,17 @@ class _HomePageState extends State<HomePage> {
         feedTitle: "test",
         articleDesciption: unreadArticleList[index].description,
         flavorImage: unreadArticleList[index].flavorImage,
-        publishTime: unreadArticleList[index].publishTime,
+        publishTime:
+            Tool().timestampToDate(unreadArticleList[index].publishTime),
         articleContent: unreadArticleList[index].htmlContent);
   }
 
   Future<void> _doRefresh() async {
-    // await Article().getUnread().then((res) {
-    //   setState(() {
-    //     this.unreadArticleList = res;
-    //   });
-    // });
+    await TinyTinyRss().getArticle().then((res) {
+      setState(() {
+        this.unreadArticleList = res;
+      });
+    });
   }
 
   @override

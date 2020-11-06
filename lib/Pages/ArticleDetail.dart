@@ -28,7 +28,6 @@ class ArticleDetail extends StatelessWidget {
                   if (element.localName.contains('p')) {
                     return {
                       'white-space': 'normal',
-                      // 'text-align': 'justify',
                       'word-break': 'break-all',
                     };
                   } else if (element.localName.contains('blockquote')) {

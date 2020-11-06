@@ -7,30 +7,41 @@ const dataBaseName = 'article';
 
 class Article {
   int id;
-  String title;
   int feedId;
+  String title;
+  int isMarked;
+  int isUnread;
   String description;
-  String flavorImage;
-  String publishTime;
   String htmlContent;
+  String flavorImage;
+  String articleOriginLink;
+  int publishTime;
+
   //构造方法
-  Article(
-      {this.id,
-      this.title,
-      this.feedId,
-      this.description,
-      this.flavorImage,
-      this.publishTime,
-      this.htmlContent});
+  Article({
+    this.id,
+    this.feedId,
+    this.title,
+    this.isMarked,
+    this.isUnread,
+    this.description,
+    this.htmlContent,
+    this.flavorImage,
+    this.articleOriginLink,
+    this.publishTime,
+  });
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "title": title,
       "feedId": feedId,
+      "title": title,
+      "isMarked": isMarked,
+      "isUnread": isUnread,
       "description": description,
-      "flavorImage": flavorImage,
-      "publishTime": publishTime,
       "htmlContent": htmlContent,
+      "flavorImage": flavorImage,
+      "articleOriginLink": articleOriginLink,
+      "publishTime": publishTime,
     };
   }
 
@@ -38,12 +49,15 @@ class Article {
   factory Article.fromJson(Map<String, dynamic> parsedJson) {
     return Article(
       id: parsedJson['id'],
-      title: parsedJson['title'],
       feedId: parsedJson['feedId'],
+      title: parsedJson['title'],
+      isMarked: parsedJson['isMarked'],
+      isUnread: parsedJson['isUnread'],
       description: parsedJson['description'],
-      flavorImage: parsedJson['flavorImage'],
-      publishTime: parsedJson['publishTime'],
       htmlContent: parsedJson['htmlContent'],
+      flavorImage: parsedJson['flavorImage'],
+      articleOriginLink: parsedJson['articleOriginLink'],
+      publishTime: parsedJson['publishTime'],
     );
   }
 }
@@ -52,8 +66,19 @@ class TinyTinyRss {
   initailDataBase() async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'tiny_tiny_rss.db'),
-      onCreate: (db, version) => db.execute(
-          "CREATE TABLE article(id INTEGER PRIMARY KEY, title TEXT, feedId INTEGER, description TEXT, flavorImage TEXT, publishTime TEXT, htmlContent TEXT)"),
+      onCreate: (db, version) => db.execute('''
+          CREATE TABLE article(
+            id INTEGER PRIMARY KEY,
+            feedId INTEGER,
+            title TEXT,
+            isMarked INTEGER,
+            isUnread INTEGER,
+            description TEXT,
+            htmlContent TEXT,
+            flavorImage TEXT,
+            articleOriginLink INTEGER,
+            publishTime INTEGER)
+            '''),
       onUpgrade: (db, oldVersion, newVersion) {
         //dosth for migration
       },
@@ -86,12 +111,15 @@ class TinyTinyRss {
     response.data["data"].forEach((value) async {
       var articleData = Article(
         id: value['id'],
+        feedId: value['feedId'],
         title: value['title'],
-        feedId: value['feed_id'],
+        isMarked: value['isMarked'],
+        isUnread: value['isUnread'],
         description: value['description'],
-        flavorImage: value['flavor_image'],
-        publishTime: value['time'],
-        htmlContent: value['content'],
+        htmlContent: value['htmlContent'],
+        flavorImage: value['flavorImage'],
+        articleOriginLink: value['articleOriginLink'],
+        publishTime: value['publishTime'],
       );
       await insertArticleData(articleData);
     });
@@ -103,16 +131,15 @@ class TinyTinyRss {
     await insertArticle();
     Future<List<Article>> getArticledata() async {
       final Database db = await database;
-      final List<Map<String, dynamic>> maps = await db.query("article");
+      final List<Map<String, dynamic>> maps =
+          await db.query("article", orderBy: "publishTime DESC");
       return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
     }
 
-    //读取出数据库中插入的Student对象集合
-    // getArticledata()
-    //     .then((list) => list.forEach((value) => print(value.title)));
     await getArticledata().then((list) {
       articleList = list;
     });
+    this.shutDownDataBase();
     return articleList;
   }
 }
