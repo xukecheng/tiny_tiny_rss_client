@@ -31,7 +31,8 @@ samples, guidance on mobile development, and a full API reference.
 - [ ] 详情页图片查看预览
 - [ ] Feed Icon
 - [ ] Feed 分类
-- [ ] 数据存储机制优化
+- [ ] 骨架图加载
+- [x] 数据存储机制优化
 - [ ] 自动化交付
 - [ ] 平滑滚动
 - [ ] 优化文章列表展示

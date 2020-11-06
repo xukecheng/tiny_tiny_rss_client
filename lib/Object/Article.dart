@@ -96,7 +96,7 @@ class TinyTinyRss {
 
   insertArticle() async {
     var database = initailDataBase();
-    Future<void> insertArticleData(Article std) async {
+    Future<void> insertArticle(Article std) async {
       final Database db = await database;
       await db.insert(
         "article",
@@ -121,7 +121,7 @@ class TinyTinyRss {
         articleOriginLink: value['articleOriginLink'],
         publishTime: value['publishTime'],
       );
-      await insertArticleData(articleData);
+      await insertArticle(articleData);
     });
   }
 
@@ -129,17 +129,38 @@ class TinyTinyRss {
     var articleList;
     var database = initailDataBase();
     await insertArticle();
-    Future<List<Article>> getArticledata() async {
+    Future<List<Article>> getArticle() async {
       final Database db = await database;
       final List<Map<String, dynamic>> maps =
           await db.query("article", orderBy: "publishTime DESC");
       return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
     }
 
-    await getArticledata().then((list) {
+    await getArticle().then((list) {
       articleList = list;
     });
     this.shutDownDataBase();
     return articleList;
+  }
+
+  getDetail(id) async {
+    var htmlContent;
+    var database = initailDataBase();
+    Future<List<Article>> getDetail() async {
+      final Database db = await database;
+      final List<Map<String, dynamic>> maps =
+          await db.query("article", where: "id = $id");
+      return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
+    }
+
+    await getDetail().then((list) {
+      htmlContent = list[0].htmlContent;
+    });
+    this.shutDownDataBase();
+    return htmlContent;
+    // var htmlContent =
+    //     await db.rawQuery('SELECT htmlContent FROM article WHERE id = $id');
+    // this.shutDownDataBase();
+    // return htmlContent;
   }
 }
