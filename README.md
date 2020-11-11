@@ -21,6 +21,7 @@ samples, guidance on mobile development, and a full API reference.
 - [x] 列表下拉刷新
 - [x] 点击水波纹
 - [x] 文章详情
+- [ ] 预缓存图片
 - [ ] 解决富文本过长，内容复杂时，滑动卡顿的问题
 - [ ] 文章日期分类
 - [ ] 标记已读、未读

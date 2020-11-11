@@ -136,6 +136,7 @@ class TinyTinyRss {
       return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
     }
 
+    // precacheImage(NetworkImage(element.attributes['src']), context);
     await getArticle().then((list) {
       articleList = list;
     });
@@ -158,9 +159,5 @@ class TinyTinyRss {
     });
     this.shutDownDataBase();
     return htmlContent;
-    // var htmlContent =
-    //     await db.rawQuery('SELECT htmlContent FROM article WHERE id = $id');
-    // this.shutDownDataBase();
-    // return htmlContent;
   }
 }

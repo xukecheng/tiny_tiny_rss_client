@@ -3,7 +3,6 @@ import 'Components/ArticleItem.dart';
 import '../Object/Article.dart';
 import 'Components/Loading.dart';
 import '../Tool/Tool.dart';
-import 'Components/Html.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -26,7 +25,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   _getArticleList(index) {
-    Html(html: '');
     return ArticleItem(
         articleId: unreadArticleList[index].id,
         articleTitle: unreadArticleList[index].title,
