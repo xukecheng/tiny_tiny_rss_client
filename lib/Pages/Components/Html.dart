@@ -11,10 +11,22 @@ var unescape = new HtmlUnescape();
 class Html {
   htmlParser(html) {
     List<Flutter.Widget> parserdList = new List();
+    List nodeList = new List();
     Document document = parse(html);
-    var nodeList = document.nodes[0].nodes[1].nodes;
+
+    findBody(value) {
+      value.forEach((element) {
+        if (element.toString() == '<html body>') {
+          return element.nodes;
+        } else {
+          findBody(element.nodes);
+        }
+      });
+    }
+    
+    nodeList = findBody(document.nodes[0].nodes);
     nodeList.forEach((value) {
-      // 每一个 Node 查看标签，是否为标题
+      // 查看每一个 Node 标签，是否为标题类型
       if (value.toString() == '<html h2>') {
         parserdList.add(Flutter.Text(unescape.convert(value.text),
             style: TextStyle(fontSize: 22.0)));
