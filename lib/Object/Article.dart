@@ -94,7 +94,7 @@ class TinyTinyRss {
     db.close();
   }
 
-  insertArticle() async {
+  _insertArticle() async {
     var database = initailDataBase();
     Future<void> insertArticle(Article std) async {
       final Database db = await database;
@@ -107,28 +107,32 @@ class TinyTinyRss {
 
     BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
     Dio dio = Dio(options);
-    Response response = await dio.get("/get_unreads");
-    response.data["data"].forEach((value) async {
-      var articleData = Article(
-        id: value['id'],
-        feedId: value['feedId'],
-        title: value['title'],
-        isMarked: value['isMarked'],
-        isUnread: value['isUnread'],
-        description: value['description'],
-        htmlContent: value['htmlContent'],
-        flavorImage: value['flavorImage'],
-        articleOriginLink: value['articleOriginLink'],
-        publishTime: value['publishTime'],
-      );
-      await insertArticle(articleData);
-    });
+    try {
+      Response response = await dio.get("/get_unreads");
+      response.data["data"].forEach((value) async {
+        var articleData = Article(
+          id: value['id'],
+          feedId: value['feedId'],
+          title: value['title'],
+          isMarked: value['isMarked'],
+          isUnread: value['isUnread'],
+          description: value['description'],
+          htmlContent: value['htmlContent'],
+          flavorImage: value['flavorImage'],
+          articleOriginLink: value['articleOriginLink'],
+          publishTime: value['publishTime'],
+        );
+        await insertArticle(articleData);
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   getArticle() async {
     var articleList;
     var database = initailDataBase();
-    await insertArticle();
+    await this._insertArticle();
     Future<List<Article>> getArticle() async {
       final Database db = await database;
       final List<Map<String, dynamic>> maps =
