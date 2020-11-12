@@ -25,11 +25,13 @@ class ArticleDetail extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text("TinyTinyRss")),
       body: SingleChildScrollView(
+        // 增加回弹效果
         physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            // 文章标题
             Padding(
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),
               child: Text(
@@ -37,10 +39,12 @@ class ArticleDetail extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
+            // 分割线
             Divider(
               height: 1.0,
               color: Colors.black26,
             ),
+            // 富文本渲染内容
             Padding(
               padding: EdgeInsets.fromLTRB(15, 10, 15, 30),
               child: Html(
@@ -54,6 +58,7 @@ class ArticleDetail extends StatelessWidget {
                   "h3": Style(fontSize: FontSize.xLarge),
                 },
                 customRender: {
+                  // 处理无序列表中的图片样式，示例 feed -> 游戏时光
                   "li": (context, child, attributes, _) {
                     if (_.nodes.toString() == '[<html img>]') {
                       return Padding(
@@ -67,9 +72,9 @@ class ArticleDetail extends StatelessWidget {
                       return child;
                     }
                   },
+                  // 处理引用内容样式
                   "blockquote": (context, child, attributes, _) {
                     List<Widget> quoteList = new List();
-
                     findQuoteText(node) {
                       return Padding(
                         padding: EdgeInsets.only(bottom: 10),

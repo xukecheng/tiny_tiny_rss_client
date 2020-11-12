@@ -131,8 +131,11 @@ class TinyTinyRss {
 
   getArticle() async {
     var articleList;
+    // 等待完成数据库初始化
     var database = initailDataBase();
+    // 等待完成数据请求和插入
     await this._insertArticle();
+    // 该方法返回单条数据为 Map 的 List
     Future<List<Article>> getArticle() async {
       final Database db = await database;
       final List<Map<String, dynamic>> maps =
@@ -146,22 +149,5 @@ class TinyTinyRss {
     });
     this.shutDownDataBase();
     return articleList;
-  }
-
-  getDetail(id) async {
-    var htmlContent;
-    var database = initailDataBase();
-    Future<List<Article>> getDetail() async {
-      final Database db = await database;
-      final List<Map<String, dynamic>> maps =
-          await db.query("article", where: "id = $id");
-      return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
-    }
-
-    await getDetail().then((list) {
-      htmlContent = list[0].htmlContent;
-    });
-    this.shutDownDataBase();
-    return htmlContent;
   }
 }
