@@ -48,6 +48,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 当文章列表长度大于 0 时，结束加载
     return unreadArticleList.length > 0
         ? RefreshIndicator(
             onRefresh: this._doRefresh,

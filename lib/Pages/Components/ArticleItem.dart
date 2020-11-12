@@ -74,14 +74,17 @@ class ArticleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      // 点击跳转详情页
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
+        Navigator.of(context).push(
+          MaterialPageRoute(
             //传值
-            builder: (context) =>
-                ArticleDetail(articleContent: this.articleContent)
-            //没传值
-            //builder: (context)=>Detail()
-            ));
+            builder: (context) => ArticleDetail(
+                articleTitle: this.articleTitle,
+                flavorImage: this.flavorImage,
+                articleContent: this.articleContent),
+          ),
+        );
       },
       child: Flex(
         direction: Axis.vertical,
