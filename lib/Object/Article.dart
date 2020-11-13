@@ -129,7 +129,8 @@ class TinyTinyRss {
     }
   }
 
-  getArticle() async {
+  getArticle({isUnread}) async {
+    bool isUnread = true;
     var articleList;
     // 等待完成数据库初始化
     var database = initailDataBase();
@@ -138,8 +139,10 @@ class TinyTinyRss {
     // 该方法返回单条数据为 Map 的 List
     Future<List<Article>> getArticle() async {
       final Database db = await database;
-      final List<Map<String, dynamic>> maps =
-          await db.query("article", orderBy: "publishTime DESC");
+      final List<Map<String, dynamic>> maps = isUnread
+          ? await db.query("article",
+              where: "isUnread = 1", orderBy: "publishTime DESC")
+          : await db.query("article", orderBy: "publishTime DESC");
       return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
     }
 

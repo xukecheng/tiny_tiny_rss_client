@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+import 'Components/PhotoViewer.dart';
 
 class ArticleDetail extends StatelessWidget {
   final articleTitle;
   final flavorImage;
   final articleContent;
-  ArticleDetail({this.articleTitle, this.flavorImage, this.articleContent});
+  const ArticleDetail(
+      {this.articleTitle, this.flavorImage, this.articleContent});
 
   _launchURL(url) async {
     if (url) if (await canLaunch(url)) {
@@ -46,7 +46,7 @@ class ArticleDetail extends StatelessWidget {
             ),
             // 富文本渲染内容
             Padding(
-              padding: EdgeInsets.fromLTRB(15, 10, 15, 30),
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 30),
               child: Html(
                 data: this.articleContent,
                 style: {
@@ -98,7 +98,14 @@ class ArticleDetail extends StatelessWidget {
                   this._launchURL(url);
                 },
                 onImageTap: (src) {
-                  print(src);
+                  // 跳转到图片预览页
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => PhotoViewer(
+                        imageUrl: src,
+                      ),
+                    ),
+                  );
                 },
                 onImageError: (exception, stackTrace) {
                   print(exception);
