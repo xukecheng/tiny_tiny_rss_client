@@ -96,6 +96,7 @@ class TinyTinyRss {
 
   _insertArticle() async {
     var database = initailDataBase();
+    List unreadIds = new List();
     Future<void> insertArticle(Article std) async {
       final Database db = await database;
       await db.insert(
@@ -109,6 +110,7 @@ class TinyTinyRss {
     try {
       Response response = await dio.get("/get_unreads");
       response.data["data"].forEach((value) async {
+        unreadIds.add(value['id']);
         var articleData = Article(
           id: value['id'],
           feedId: value['feedId'],
@@ -126,10 +128,16 @@ class TinyTinyRss {
     } catch (e) {
       print(e);
     }
+    Future<int> updateRead() async {
+      final Database db = await database;
+      return await db.update("article", {"isRead": 1},
+          where: 'id not in ?', whereArgs: [unreadIds]);
+    }
+
+    await updateRead();
   }
 
-  getArticle({isRead}) async {
-    bool isRead = false;
+  getArticle({bool isRead = false}) async {
     var articleList;
     // 等待完成数据库初始化
     var database = initailDataBase();
@@ -155,13 +163,12 @@ class TinyTinyRss {
     return articleList;
   }
 
-  void markRead(articleId) async {
-    int articleId;
+  void markRead(int articleId) async {
     var database = initailDataBase();
     Dio dio = Dio(options);
     // 调用接口设置已读
     try {
-      await dio.get("/mark_read");
+      await dio.get('/mark_read?id=$articleId');
     } catch (e) {
       print(e);
     }
@@ -169,7 +176,7 @@ class TinyTinyRss {
     Future<int> markRead() async {
       final Database db = await database;
       return await db.update("article", {"isRead": 1},
-          where: '$this.id = ?', whereArgs: [articleId]);
+          where: 'id = ?', whereArgs: [articleId]);
     }
 
     await markRead();
