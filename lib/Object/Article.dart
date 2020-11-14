@@ -2,15 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-const articleBox = 'articles';
 const dataBaseName = 'article';
+BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
 
 class Article {
   int id;
   int feedId;
   String title;
   int isMarked;
-  int isUnread;
+  int isRead;
   String description;
   String htmlContent;
   String flavorImage;
@@ -23,7 +23,7 @@ class Article {
     this.feedId,
     this.title,
     this.isMarked,
-    this.isUnread,
+    this.isRead,
     this.description,
     this.htmlContent,
     this.flavorImage,
@@ -36,7 +36,7 @@ class Article {
       "feedId": feedId,
       "title": title,
       "isMarked": isMarked,
-      "isUnread": isUnread,
+      "isRead": isRead,
       "description": description,
       "htmlContent": htmlContent,
       "flavorImage": flavorImage,
@@ -52,7 +52,7 @@ class Article {
       feedId: parsedJson['feedId'],
       title: parsedJson['title'],
       isMarked: parsedJson['isMarked'],
-      isUnread: parsedJson['isUnread'],
+      isRead: parsedJson['isRead'],
       description: parsedJson['description'],
       htmlContent: parsedJson['htmlContent'],
       flavorImage: parsedJson['flavorImage'],
@@ -72,7 +72,7 @@ class TinyTinyRss {
             feedId INTEGER,
             title TEXT,
             isMarked INTEGER,
-            isUnread INTEGER,
+            isRead INTEGER,
             description TEXT,
             htmlContent TEXT,
             flavorImage TEXT,
@@ -105,7 +105,6 @@ class TinyTinyRss {
       );
     }
 
-    BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
     Dio dio = Dio(options);
     try {
       Response response = await dio.get("/get_unreads");
@@ -115,7 +114,7 @@ class TinyTinyRss {
           feedId: value['feedId'],
           title: value['title'],
           isMarked: value['isMarked'],
-          isUnread: value['isUnread'],
+          isRead: value['isRead'],
           description: value['description'],
           htmlContent: value['htmlContent'],
           flavorImage: value['flavorImage'],
@@ -129,8 +128,8 @@ class TinyTinyRss {
     }
   }
 
-  getArticle({isUnread}) async {
-    bool isUnread = true;
+  getArticle({isRead}) async {
+    bool isRead = false;
     var articleList;
     // 等待完成数据库初始化
     var database = initailDataBase();
@@ -139,10 +138,12 @@ class TinyTinyRss {
     // 该方法返回单条数据为 Map 的 List
     Future<List<Article>> getArticle() async {
       final Database db = await database;
-      final List<Map<String, dynamic>> maps = isUnread
-          ? await db.query("article",
-              where: "isUnread = 1", orderBy: "publishTime DESC")
-          : await db.query("article", orderBy: "publishTime DESC");
+      final List<Map<String, dynamic>> maps = isRead
+          // 全部文章获取
+          ? await db.query("article", orderBy: "publishTime DESC")
+          // 未读文章获取
+          : await db.query("article",
+              where: "isRead = 0", orderBy: "publishTime DESC");
       return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
     }
 
@@ -152,5 +153,26 @@ class TinyTinyRss {
     });
     this.shutDownDataBase();
     return articleList;
+  }
+
+  void markRead(articleId) async {
+    int articleId;
+    var database = initailDataBase();
+    Dio dio = Dio(options);
+    // 调用接口设置已读
+    try {
+      await dio.get("/mark_read");
+    } catch (e) {
+      print(e);
+    }
+    // 本地数据库标记已读
+    Future<int> markRead() async {
+      final Database db = await database;
+      return await db.update("article", {"isRead": 1},
+          where: '$this.id = ?', whereArgs: [articleId]);
+    }
+
+    await markRead();
+    this.shutDownDataBase();
   }
 }

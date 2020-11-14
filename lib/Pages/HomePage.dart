@@ -3,6 +3,7 @@ import 'Components/ArticleItem.dart';
 import '../Object/Article.dart';
 import 'Components/Loading.dart';
 import '../Tool/Tool.dart';
+import './ArticleDetail.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
         flavorImage: unreadArticleList[index].flavorImage,
         publishTime:
             Tool().timestampToDate(unreadArticleList[index].publishTime),
-        articleContent: unreadArticleList[index].htmlContent);
+        htmlContent: unreadArticleList[index].htmlContent);
   }
 
   Future<void> _doRefresh() async {
@@ -57,7 +58,32 @@ class _HomePageState extends State<HomePage> {
                 physics: const BouncingScrollPhysics(),
                 itemCount: unreadArticleList.length,
                 itemBuilder: (context, index) {
-                  return this._getArticleList(index);
+                  return InkWell(
+                      onTap: () {
+                        // 设置文章为已读
+                        setState(() {
+                          TinyTinyRss().markRead(unreadArticleList[index].id);
+                          unreadArticleList[index].isRead = 1;
+                        });
+                        // 点击跳转详情页
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            //传值
+                            builder: (context) => ArticleDetail(
+                                articleTitle: unreadArticleList[index].title,
+                                flavorImage:
+                                    unreadArticleList[index].flavorImage,
+                                articleContent:
+                                    unreadArticleList[index].htmlContent),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        color: unreadArticleList[index].isRead == 1
+                            ? Colors.grey[100]
+                            : Colors.white,
+                        child: this._getArticleList(index),
+                      ));
                 }))
         : Loading();
   }
