@@ -96,7 +96,15 @@ class TinyTinyRss {
 
   _insertArticle() async {
     var database = initailDataBase();
-    List unreadIds = new List();
+
+    // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去更新阅读状态
+    Future<int> updateRead() async {
+      final Database db = await database;
+      return await db.update('article', {'isRead': 1});
+    }
+
+    await updateRead();
+
     Future<void> insertArticle(Article std) async {
       final Database db = await database;
       await db.insert(
@@ -110,7 +118,6 @@ class TinyTinyRss {
     try {
       Response response = await dio.get("/get_unreads");
       response.data["data"].forEach((value) async {
-        unreadIds.add(value['id']);
         var articleData = Article(
           id: value['id'],
           feedId: value['feedId'],
@@ -128,13 +135,6 @@ class TinyTinyRss {
     } catch (e) {
       print(e);
     }
-    Future<int> updateRead() async {
-      final Database db = await database;
-      return await db.update("article", {"isRead": 1},
-          where: 'id not in ?', whereArgs: [unreadIds]);
-    }
-
-    await updateRead();
   }
 
   getArticle({bool isRead = false}) async {
@@ -155,7 +155,6 @@ class TinyTinyRss {
       return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
     }
 
-    // precacheImage(NetworkImage(element.attributes['src']), context);
     await getArticle().then((list) {
       articleList = list;
     });
