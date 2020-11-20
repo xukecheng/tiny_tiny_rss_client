@@ -55,36 +55,39 @@ class _HomePageState extends State<HomePage> {
             onRefresh: this._doRefresh,
             color: Colors.black87,
             child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: unreadArticleList.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                      onTap: () {
-                        // 设置文章为已读
-                        setState(() {
-                          TinyTinyRss().markRead(unreadArticleList[index].id);
-                          unreadArticleList[index].isRead = 1;
-                        });
-                        // 点击跳转详情页
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            //传值
-                            builder: (context) => ArticleDetail(
-                                articleTitle: unreadArticleList[index].title,
-                                flavorImage:
-                                    unreadArticleList[index].flavorImage,
-                                articleContent:
-                                    unreadArticleList[index].htmlContent),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        color: unreadArticleList[index].isRead == 1
-                            ? Colors.grey[100]
-                            : Colors.white,
-                        child: this._getArticleList(index),
-                      ));
-                }))
+              physics: const BouncingScrollPhysics(),
+              itemCount: unreadArticleList.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    // 设置文章为已读
+                    setState(() {
+                      TinyTinyRss().markRead(unreadArticleList[index].id);
+                      unreadArticleList[index].isRead = 1;
+                    });
+                    // 点击跳转详情页
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        //传值
+                        builder: (context) => ArticleDetail(
+                            articleTitle: unreadArticleList[index].title,
+                            flavorImage: unreadArticleList[index].flavorImage,
+                            articleContent:
+                                unreadArticleList[index].htmlContent),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    color: unreadArticleList[index].isRead == 1
+                        // 已读文章变色
+                        ? Colors.grey[100]
+                        : Colors.white,
+                    child: this._getArticleList(index),
+                  ),
+                );
+              },
+            ),
+          )
         : Loading();
   }
 }

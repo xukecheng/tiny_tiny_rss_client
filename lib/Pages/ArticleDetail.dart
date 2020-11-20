@@ -6,11 +6,10 @@ import 'package:flutter_html/style.dart';
 import 'Components/PhotoViewer.dart';
 
 class ArticleDetail extends StatelessWidget {
-  final articleTitle;
-  final flavorImage;
-  final articleContent;
-  const ArticleDetail(
-      {this.articleTitle, this.flavorImage, this.articleContent});
+  final String articleTitle;
+  final String flavorImage;
+  final String articleContent;
+  ArticleDetail({this.articleTitle, this.flavorImage, this.articleContent});
 
   _launchURL(url) async {
     if (url) if (await canLaunch(url)) {
@@ -23,7 +22,7 @@ class ArticleDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("TinyTinyRss")),
+      appBar: AppBar(title: Text(this.articleTitle)),
       body: SingleChildScrollView(
         // 增加回弹效果
         physics: const BouncingScrollPhysics(),
@@ -31,6 +30,16 @@ class ArticleDetail extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            // 文章图片
+            this.flavorImage.isNotEmpty
+                ? ConstrainedBox(
+                    constraints: BoxConstraints(
+                        minWidth: double.infinity, maxHeight: 150.0),
+                    child: CachedNetworkImage(
+                      imageUrl: this.flavorImage,
+                      fit: BoxFit.fitWidth,
+                    ))
+                : Visibility(visible: false, child: Text('Hello World')),
             // 文章标题
             Padding(
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),

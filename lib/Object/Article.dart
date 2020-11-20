@@ -97,7 +97,7 @@ class TinyTinyRss {
   _insertArticle() async {
     var database = initailDataBase();
 
-    // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去更新阅读状态
+    // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去拉取未读文章并更新
     Future<int> updateRead() async {
       final Database db = await database;
       return await db.update('article', {'isRead': 1});
