@@ -28,13 +28,13 @@ samples, guidance on mobile development, and a full API reference.
 - [ ] 星标文章
 - [ ] 所有文章列表
 - [ ] 星标文章列表
-- [ ] 详情页 Url 跳转
-- [ ] 详情页图片查看预览
+- [x] 详情页 Url 跳转
+- [x] 详情页图片查看预览
 - [ ] Feed Icon
 - [ ] Feed 分类
 - [ ] 骨架图加载
 - [x] 数据存储机制优化
 - [ ] 自动化交付
-- [ ] 平滑滚动
+- [x] 平滑滚动
 - [ ] 优化文章列表展示
 - [ ] 线性动画
