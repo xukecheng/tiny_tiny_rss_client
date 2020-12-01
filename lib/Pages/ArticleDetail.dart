@@ -7,9 +7,8 @@ import 'Components/PhotoViewer.dart';
 
 class ArticleDetail extends StatelessWidget {
   final String articleTitle;
-  final String flavorImage;
   final String articleContent;
-  ArticleDetail({this.articleTitle, this.flavorImage, this.articleContent});
+  ArticleDetail({this.articleTitle, this.articleContent});
 
   _launchURL(url) async {
     if (url) if (await canLaunch(url)) {
@@ -30,16 +29,6 @@ class ArticleDetail extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // 文章图片
-            this.flavorImage.isNotEmpty
-                ? ConstrainedBox(
-                    constraints: BoxConstraints(
-                        minWidth: double.infinity, maxHeight: 150.0),
-                    child: CachedNetworkImage(
-                      imageUrl: this.flavorImage,
-                      fit: BoxFit.fitWidth,
-                    ))
-                : Visibility(visible: false, child: Text('Hello World')),
             // 文章标题
             Padding(
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),
@@ -96,6 +85,7 @@ class ArticleDetail extends StatelessWidget {
                     _.nodes.forEach(
                         (element) => quoteList.add(findQuoteText(element)));
                     return Container(
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       color: Colors.grey[200],
                       child: Column(
                         children: quoteList,
