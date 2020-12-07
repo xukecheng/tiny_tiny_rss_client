@@ -34,7 +34,7 @@ class ArticleDetail extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),
               child: Text(
                 this.articleTitle,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.normal),
               ),
             ),
             // 分割线
@@ -50,7 +50,9 @@ class ArticleDetail extends StatelessWidget {
                 style: {
                   "img": Style(alignment: Alignment.center),
                   "p": Style(fontSize: FontSize.large),
-                  "a": Style(fontSize: FontSize.large),
+                  "a": Style(
+                      fontSize: FontSize.large,
+                      textDecoration: TextDecoration.none),
                   "h1": Style(fontSize: FontSize.xxLarge),
                   "h2": Style(fontSize: FontSize.xxLarge),
                   "h3": Style(fontSize: FontSize.xLarge),

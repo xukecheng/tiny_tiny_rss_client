@@ -55,7 +55,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果
     return this.isLoadComplete
+        // 然后再判断是否有可用文章，没有的话展示无可读文章提示
         ? unreadArticleList.length > 0
             ? RefreshIndicator(
                 // 下拉刷新
@@ -95,16 +97,18 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               )
+            // 没有列表组件的下拉刷新
             : RefreshIndicator(
-                // 没有列表组件的下拉刷新
                 onRefresh: this._doRefresh,
                 color: Colors.black87,
                 child: SingleChildScrollView(
-                  // 高度不足时
+                  // 总是可以滚动，用以保证可以下拉刷新
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Container(
                     // 撑满整个屏幕，保证居中效果
-                    height: MediaQuery.of(context).size.height,
+                    height: MediaQuery.of(context).size.height -
+                        AppBar().preferredSize.height -
+                        24.0,
                     child: Center(
                       child: Text(
                         "没有新文章",
