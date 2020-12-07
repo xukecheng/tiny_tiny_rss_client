@@ -72,7 +72,10 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         // 设置文章为已读
                         setState(() {
-                          TinyTinyRss().markRead(unreadArticleList[index].id);
+                          List needReadArticleIdList = new List();
+                          needReadArticleIdList
+                              .add(unreadArticleList[index].id);
+                          TinyTinyRss().markRead(needReadArticleIdList);
                           unreadArticleList[index].isRead = 1;
                         });
                         // 点击跳转详情页

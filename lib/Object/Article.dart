@@ -162,20 +162,31 @@ class TinyTinyRss {
     return articleList;
   }
 
-  void markRead(int articleId) async {
+  void markRead(List articleIdList) async {
     var database = initailDataBase();
     Dio dio = Dio(options);
     // 调用接口设置已读
     try {
-      await dio.get('/mark_read?id=$articleId');
+      print(articleIdList);
+      String articleIdString = articleIdList.join(',');
+      print(articleIdString);
+      await dio.get('/mark_read?article_id_string=$articleIdString');
     } catch (e) {
       print(e);
     }
     // 本地数据库标记已读
     Future<int> markRead() async {
       final Database db = await database;
-      return await db.update("article", {"isRead": 1},
-          where: 'id = ?', whereArgs: [articleId]);
+      try {
+        articleIdList.forEach((articleId) async {
+          await db.update("article", {"isRead": 1},
+              where: 'id = ?', whereArgs: [articleId]);
+        });
+        return 1;
+      } catch (e) {
+        print(e);
+        return 0;
+      }
     }
 
     await markRead();
