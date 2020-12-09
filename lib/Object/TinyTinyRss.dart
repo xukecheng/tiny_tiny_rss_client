@@ -83,7 +83,7 @@ class Article {
 }
 
 class TinyTinyRss {
-  initailDataBase() async {
+  _initailDataBase() async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'tiny_tiny_rss.db'),
       onCreate: (db, version) {
@@ -115,26 +115,22 @@ class TinyTinyRss {
     return database;
   }
 
-  shutDownDataBase() async {
+  _shutDownDataBase() async {
     //释放数据库资源
-    var database = initailDataBase();
+    var database = this._initailDataBase();
     final Database db = await database;
     db.close();
   }
 
-  _insertArticle() async {
-    var database = initailDataBase();
-
+  _insertArticle(db) async {
     // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去拉取未读文章并更新
     Future<int> updateRead() async {
-      final Database db = await database;
       return await db.update('article', {'isRead': 1});
     }
 
     await updateRead();
 
     Future<void> insertArticle(Article std) async {
-      final Database db = await database;
       await db.insert(
         "article",
         std.toJson(),
@@ -165,84 +161,8 @@ class TinyTinyRss {
     }
   }
 
-  Future<List> getArticle({bool isUnread = true}) async {
-    var articleList;
-    // 等待完成数据库初始化
-    var database = initailDataBase();
-    // 等待完成数据请求和插入
-    // await Feeds().insertFeed();
-    await this._insertArticle();
-    // 该方法返回单条数据为 Map 的 List
-    Future<List> getArticle() async {
-      final Database db = await database;
-
-      String sql = '''SELECT 
-          article.id,
-          article.title,
-          article.description,
-          article.flavorImage,
-          article.publishTime,
-          article.htmlContent,
-          article.isRead,
-          feed.feedIcon,
-          feed.feedTitle 
-          FROM article INNER JOIN feed ON article.feedId = feed.id
-          WHERE article.isRead = ? 
-          ORDERBY publishTime DESC
-          ''';
-      final List<Map> maps = isUnread
-          // 未读文章获取
-          ? await db.rawQuery(sql, [0])
-          // 已读文章获取
-          : await db.rawQuery(sql);
-
-      return List.generate(maps.length, (i) {
-        Map articleData = {};
-        maps[i].forEach((key, value) => articleData[key] = value);
-        return articleData;
-      });
-    }
-
-    await getArticle().then((list) {
-      articleList = list;
-    });
-    this.shutDownDataBase();
-    return articleList;
-  }
-
-  void markRead(List articleIdList) async {
-    var database = initailDataBase();
-    Dio dio = Dio(options);
-    // 调用接口设置已读
-    try {
-      String articleIdString = articleIdList.join(',');
-      await dio.get('/mark_read?article_id_string=$articleIdString');
-    } catch (e) {
-      print(e);
-    }
-    // 本地数据库标记已读
-    Future<int> markRead() async {
-      final Database db = await database;
-      try {
-        articleIdList.forEach((articleId) async {
-          await db.update("article", {"isRead": 1},
-              where: 'id = ?', whereArgs: [articleId]);
-        });
-        return 1;
-      } catch (e) {
-        print(e);
-        return 0;
-      }
-    }
-
-    await markRead();
-    this.shutDownDataBase();
-  }
-
-  insertFeed() async {
-    var database = initailDataBase();
+  _insertFeed(db) async {
     Future<void> insertFeed(Feed std) async {
-      final Database db = await database;
       await db.insert(
         "feed",
         std.toJson(),
@@ -265,5 +185,78 @@ class TinyTinyRss {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<List> getArticle({bool isUnread = true}) async {
+    var articleList;
+    // 等待完成数据库初始化
+    var database = this._initailDataBase();
+    final Database db = await database;
+    // 等待完成数据请求和插入
+    await this._insertFeed(db);
+    await this._insertArticle(db);
+    // 该方法返回单条数据为 Map 的 List
+    Future<List> getArticle() async {
+      String sql = '''SELECT 
+          article.id,
+          article.title,
+          article.description,
+          article.flavorImage,
+          article.publishTime,
+          article.htmlContent,
+          article.isRead,
+          feed.feedIcon,
+          feed.feedTitle 
+          FROM article INNER JOIN feed ON article.feedId = feed.id
+          WHERE article.isRead = ? 
+          ORDER BY publishTime DESC
+          ''';
+      final List<Map> maps = isUnread
+          // 未读文章获取
+          ? await db.rawQuery(sql, [0])
+          // 已读文章获取
+          : await db.rawQuery(sql);
+
+      return List.generate(maps.length, (i) {
+        Map articleData = {};
+        maps[i].forEach((key, value) => articleData[key] = value);
+        return articleData;
+      });
+    }
+
+    await getArticle().then((list) {
+      articleList = list;
+    });
+    this._shutDownDataBase();
+    return articleList;
+  }
+
+  void markRead(List articleIdList) async {
+    var database = this._initailDataBase();
+    final Database db = await database;
+    Dio dio = Dio(options);
+    // 调用接口设置已读
+    try {
+      String articleIdString = articleIdList.join(',');
+      await dio.get('/mark_read?article_id_string=$articleIdString');
+    } catch (e) {
+      print(e);
+    }
+    // 本地数据库标记已读
+    Future<int> markRead() async {
+      try {
+        articleIdList.forEach((articleId) async {
+          await db.update("article", {"isRead": 1},
+              where: 'id = ?', whereArgs: [articleId]);
+        });
+        return 1;
+      } catch (e) {
+        print(e);
+        return 0;
+      }
+    }
+
+    await markRead();
+    this._shutDownDataBase();
   }
 }

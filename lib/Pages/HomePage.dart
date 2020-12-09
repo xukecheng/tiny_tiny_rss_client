@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // 初始化 Feed
-    TinyTinyRss().insertFeed().then((res) {});
+    // TinyTinyRss().insertFeed().then((res) {});
     // 初始化未读文章
     TinyTinyRss().getArticle(isUnread: true).then((res) {
       setState(() {
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _doRefresh() async {
-    TinyTinyRss().insertFeed().then((res) {});
+    // TinyTinyRss().insertFeed().then((res) {});
     await TinyTinyRss().getArticle(isUnread: true).then((res) {
       setState(() {
         this.isLoadComplete = false;
