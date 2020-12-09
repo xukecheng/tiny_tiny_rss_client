@@ -2,8 +2,28 @@ import 'package:dio/dio.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-const dataBaseName = 'article';
 BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
+
+class Feed {
+  int id;
+  String feedTitle;
+  String feedIcon;
+
+  //构造方法
+  Feed({this.id, this.feedTitle, this.feedIcon});
+  Map<String, dynamic> toJson() {
+    return {"id": id, "feedTitle": feedTitle, "feedIcon": feedIcon};
+  }
+
+  //用于将JSON字典转换成类对象的工厂类方法
+  factory Feed.fromJson(Map<String, dynamic> parsedJson) {
+    return Feed(
+      id: parsedJson['id'],
+      feedTitle: parsedJson['feedTitle'],
+      feedIcon: parsedJson['feedIcon'],
+    );
+  }
+}
 
 class Article {
   int id;
@@ -66,7 +86,8 @@ class TinyTinyRss {
   initailDataBase() async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'tiny_tiny_rss.db'),
-      onCreate: (db, version) => db.execute('''
+      onCreate: (db, version) {
+        db.execute('''
           CREATE TABLE article(
             id INTEGER PRIMARY KEY,
             feedId INTEGER,
@@ -78,7 +99,14 @@ class TinyTinyRss {
             flavorImage TEXT,
             articleOriginLink INTEGER,
             publishTime INTEGER)
-            '''),
+            ''');
+        db.execute('''
+          CREATE TABLE feed(
+            id INTEGER PRIMARY KEY,
+            feedTitle TEXT,
+            feedIcon TEXT)
+            ''');
+      },
       onUpgrade: (db, oldVersion, newVersion) {
         //dosth for migration
       },
@@ -137,22 +165,42 @@ class TinyTinyRss {
     }
   }
 
-  getArticle({bool isUnread = true}) async {
+  Future<List> getArticle({bool isUnread = true}) async {
     var articleList;
     // 等待完成数据库初始化
     var database = initailDataBase();
     // 等待完成数据请求和插入
+    // await Feeds().insertFeed();
     await this._insertArticle();
     // 该方法返回单条数据为 Map 的 List
-    Future<List<Article>> getArticle() async {
+    Future<List> getArticle() async {
       final Database db = await database;
-      final List<Map<String, dynamic>> maps = isUnread
+
+      String sql = '''SELECT 
+          article.id,
+          article.title,
+          article.description,
+          article.flavorImage,
+          article.publishTime,
+          article.htmlContent,
+          article.isRead,
+          feed.feedIcon,
+          feed.feedTitle 
+          FROM article INNER JOIN feed ON article.feedId = feed.id
+          WHERE article.isRead = ? 
+          ORDERBY publishTime DESC
+          ''';
+      final List<Map> maps = isUnread
           // 未读文章获取
-          ? await db.query("article",
-              where: "isRead = 0", orderBy: "publishTime DESC")
+          ? await db.rawQuery(sql, [0])
           // 已读文章获取
-          : await db.query("article", orderBy: "publishTime DESC");
-      return List.generate(maps.length, (i) => Article.fromJson(maps[i]));
+          : await db.rawQuery(sql);
+
+      return List.generate(maps.length, (i) {
+        Map articleData = {};
+        maps[i].forEach((key, value) => articleData[key] = value);
+        return articleData;
+      });
     }
 
     await getArticle().then((list) {
@@ -167,9 +215,7 @@ class TinyTinyRss {
     Dio dio = Dio(options);
     // 调用接口设置已读
     try {
-      print(articleIdList);
       String articleIdString = articleIdList.join(',');
-      print(articleIdString);
       await dio.get('/mark_read?article_id_string=$articleIdString');
     } catch (e) {
       print(e);
@@ -191,5 +237,33 @@ class TinyTinyRss {
 
     await markRead();
     this.shutDownDataBase();
+  }
+
+  insertFeed() async {
+    var database = initailDataBase();
+    Future<void> insertFeed(Feed std) async {
+      final Database db = await database;
+      await db.insert(
+        "feed",
+        std.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    Dio dio = Dio(options);
+    try {
+      Response response = await dio.get("/get_feed_tree");
+      response.data["data"].forEach((category) async {
+        category['categoryFeed'].forEach((feed) async {
+          var feedData = Feed(
+              id: feed['feedId'],
+              feedTitle: feed['feedTitle'],
+              feedIcon: feed['feedIcon']);
+          await insertFeed(feedData);
+        });
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 }
