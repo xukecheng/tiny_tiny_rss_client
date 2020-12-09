@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Components/ArticleItem.dart';
-import '../Object/Article.dart';
 import 'Components/Loading.dart';
+import '../Object/TinyTinyRss.dart';
 import '../Tool/Tool.dart';
 import './ArticleDetail.dart';
 
@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // 初始化 Feed
+    TinyTinyRss().insertFeed().then((res) {});
     // 初始化未读文章
     TinyTinyRss().getArticle(isUnread: true).then((res) {
       setState(() {
@@ -29,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _doRefresh() async {
+    TinyTinyRss().insertFeed().then((res) {});
     await TinyTinyRss().getArticle(isUnread: true).then((res) {
       setState(() {
         this.isLoadComplete = false;
@@ -41,16 +44,15 @@ class _HomePageState extends State<HomePage> {
   // 文章构造
   _getArticleList(index) {
     return ArticleItem(
-        articleId: unreadArticleList[index].id,
-        articleTitle: unreadArticleList[index].title,
-        feedIcon:
-            "https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg",
-        feedTitle: "test",
-        articleDesciption: unreadArticleList[index].description,
-        flavorImage: unreadArticleList[index].flavorImage,
+        articleId: unreadArticleList[index]['id'],
+        articleTitle: unreadArticleList[index]['title'],
+        feedIcon: unreadArticleList[index]['feedIcon'],
+        feedTitle: unreadArticleList[index]['feedTitle'],
+        articleDesciption: unreadArticleList[index]['description'],
+        flavorImage: unreadArticleList[index]['flavorImage'],
         publishTime:
-            Tool().timestampToDate(unreadArticleList[index].publishTime),
-        htmlContent: unreadArticleList[index].htmlContent);
+            Tool().timestampToDate(unreadArticleList[index]['publishTime']),
+        htmlContent: unreadArticleList[index]['htmlContent']);
   }
 
   @override
@@ -74,23 +76,23 @@ class _HomePageState extends State<HomePage> {
                         setState(() {
                           List needReadArticleIdList = new List();
                           needReadArticleIdList
-                              .add(unreadArticleList[index].id);
+                              .add(unreadArticleList[index]['id']);
                           TinyTinyRss().markRead(needReadArticleIdList);
-                          unreadArticleList[index].isRead = 1;
+                          unreadArticleList[index]['isRead'] = 1;
                         });
                         // 点击跳转详情页
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             //传值
                             builder: (context) => ArticleDetail(
-                                articleTitle: unreadArticleList[index].title,
-                                articleContent:
-                                    unreadArticleList[index].htmlContent),
+                                articleTitle: unreadArticleList[index]['title'],
+                                articleContent: unreadArticleList[index]
+                                    ['htmlContent']),
                           ),
                         );
                       },
                       child: Container(
-                        color: unreadArticleList[index].isRead == 1
+                        color: unreadArticleList[index]['isRead'] == 1
                             // 已读文章变色
                             ? Colors.grey[100]
                             : Colors.white,
