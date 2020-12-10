@@ -259,4 +259,66 @@ class TinyTinyRss {
     await markRead();
     this._shutDownDataBase();
   }
+
+  Future<List> getArticleNew() async {
+    // 等待完成数据库初始化
+    var database = this._initailDataBase();
+    final Database db = await database;
+    // 等待完成数据请求和插入
+    await this._insertFeed(db);
+    await this._insertArticle(db);
+
+    Future<List<Map>> getFeed({bool isUnread = true}) async {
+      String sql = '''SELECT 
+            article.feedId, 
+            feed.feedTitle,
+            feed.feedIcon
+            FROM article INNER JOIN feed ON article.feedId = feed.id
+            WHERE article.isRead = ? 
+            GROUP BY feedId 
+            ORDER BY publishTime DESC
+            ''';
+      final List<Map> maps = isUnread
+          // 未读文章获取
+          ? await db.rawQuery(sql, [0])
+          // 已读文章获取
+          : await db.rawQuery(sql);
+
+      return List.generate(maps.length, (i) {
+        Map feedData = {};
+        maps[i].forEach((key, value) => feedData[key] = value);
+        return feedData;
+      });
+    }
+
+    List feedList = await getFeed(isUnread: true);
+    String sql = '''SELECT 
+          article.id,
+          article.title,
+          article.description,
+          article.flavorImage,
+          article.publishTime,
+          article.htmlContent,
+          article.isRead,
+          feed.feedIcon,
+          feed.feedTitle 
+          FROM article INNER JOIN feed ON article.feedId = feed.id
+          WHERE article.isRead = ? 
+          AND article.feedId = ?
+          ORDER BY publishTime DESC
+          ''';
+    await Future.forEach(feedList, (feed) async {
+      final List<Map> maps = await db.rawQuery(
+        sql,
+        [0, feed['feedId']],
+      );
+      feed["feedArticles"] = List.generate(maps.length, (i) {
+        Map articleData = new Map();
+        maps[i].forEach((key, value) => articleData[key] = value);
+        return articleData;
+      });
+    });
+    this._shutDownDataBase();
+    return feedList;
+  }
 }

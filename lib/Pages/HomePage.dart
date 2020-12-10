@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Components/ArticleItem.dart';
+import 'Components/ArticleItemNew.dart';
 import 'Components/Loading.dart';
 import '../Object/TinyTinyRss.dart';
 import '../Tool/Tool.dart';
@@ -15,44 +15,57 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List unreadArticleList = new List();
   bool isLoadComplete = false;
+  List unreadArticleListNew = new List();
 
   @override
   void initState() {
     super.initState();
-    // 初始化 Feed
-    // TinyTinyRss().insertFeed().then((res) {});
     // 初始化未读文章
-    TinyTinyRss().getArticle(isUnread: true).then((res) {
+    TinyTinyRss().getArticleNew().then((value) {
       setState(() {
-        this.unreadArticleList = res;
+        this.unreadArticleList = value;
         this.isLoadComplete = true;
       });
     });
+    // TinyTinyRss().getArticle(isUnread: true).then((res) {
+    //   setState(() {
+    //     this.unreadArticleList = res;
+    //     this.isLoadComplete = true;
+    //   });
+    // });
   }
 
   Future<void> _doRefresh() async {
-    // TinyTinyRss().insertFeed().then((res) {});
-    await TinyTinyRss().getArticle(isUnread: true).then((res) {
+    await TinyTinyRss().getArticleNew().then((value) {
       setState(() {
         this.isLoadComplete = false;
-        this.unreadArticleList = res;
+        this.unreadArticleList = value;
         this.isLoadComplete = true;
       });
     });
+    // await TinyTinyRss().getArticle(isUnread: true).then((res) {
+    //   setState(() {
+    //     this.isLoadComplete = false;
+    //     this.unreadArticleList = res;
+    //     this.isLoadComplete = true;
+    //   });
+    // });
   }
 
   // 文章构造
   _getArticleList(index) {
     return ArticleItem(
-        articleId: unreadArticleList[index]['id'],
-        articleTitle: unreadArticleList[index]['title'],
         feedIcon: unreadArticleList[index]['feedIcon'],
         feedTitle: unreadArticleList[index]['feedTitle'],
-        articleDesciption: unreadArticleList[index]['description'],
-        flavorImage: unreadArticleList[index]['flavorImage'],
-        publishTime:
-            Tool().timestampToDate(unreadArticleList[index]['publishTime']),
-        htmlContent: unreadArticleList[index]['htmlContent']);
+        feedArticles: unreadArticleList[index]['feedArticles']);
+    // articleId: unreadArticleList[index]['id'],
+    // articleTitle: unreadArticleList[index]['title'],
+
+    // articleDesciption: unreadArticleList[index]['description'],
+    // flavorImage: unreadArticleList[index]['flavorImage'],
+    // publishTime:
+    //     Tool().timestampToDate(unreadArticleList[index]['publishTime']),
+    // htmlContent: unreadArticleList[index]['htmlContent']);
   }
 
   @override
@@ -71,31 +84,31 @@ class _HomePageState extends State<HomePage> {
                   itemCount: unreadArticleList.length,
                   itemBuilder: (context, index) {
                     return InkWell(
-                      onTap: () {
-                        // 设置文章为已读
-                        setState(() {
-                          List needReadArticleIdList = new List();
-                          needReadArticleIdList
-                              .add(unreadArticleList[index]['id']);
-                          TinyTinyRss().markRead(needReadArticleIdList);
-                          unreadArticleList[index]['isRead'] = 1;
-                        });
-                        // 点击跳转详情页
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            //传值
-                            builder: (context) => ArticleDetail(
-                                articleTitle: unreadArticleList[index]['title'],
-                                articleContent: unreadArticleList[index]
-                                    ['htmlContent']),
-                          ),
-                        );
-                      },
+                      // onTap: () {
+                      //   // 设置文章为已读
+                      //   setState(() {
+                      //     List needReadArticleIdList = new List();
+                      //     needReadArticleIdList
+                      //         .add(unreadArticleList[index]['id']);
+                      //     TinyTinyRss().markRead(needReadArticleIdList);
+                      //     unreadArticleList[index]['isRead'] = 1;
+                      //   });
+                      //   // 点击跳转详情页
+                      //   Navigator.of(context).push(
+                      //     MaterialPageRoute(
+                      //       //传值
+                      //       builder: (context) => ArticleDetail(
+                      //           articleTitle: unreadArticleList[index]['title'],
+                      //           articleContent: unreadArticleList[index]
+                      //               ['htmlContent']),
+                      //     ),
+                      //   );
+                      // },
                       child: Container(
-                        color: unreadArticleList[index]['isRead'] == 1
-                            // 已读文章变色
-                            ? Colors.grey[100]
-                            : Colors.white,
+                        // color: unreadArticleList[index]['isRead'] == 1
+                        //     // 已读文章变色
+                        //     ? Colors.grey[100]
+                        //     : Colors.white,
                         child: this._getArticleList(index),
                       ),
                     );
