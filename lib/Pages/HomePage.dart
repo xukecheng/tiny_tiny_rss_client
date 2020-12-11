@@ -27,12 +27,6 @@ class _HomePageState extends State<HomePage> {
         this.isLoadComplete = true;
       });
     });
-    // TinyTinyRss().getArticle(isUnread: true).then((res) {
-    //   setState(() {
-    //     this.unreadArticleList = res;
-    //     this.isLoadComplete = true;
-    //   });
-    // });
   }
 
   Future<void> _doRefresh() async {
@@ -43,13 +37,6 @@ class _HomePageState extends State<HomePage> {
         this.isLoadComplete = true;
       });
     });
-    // await TinyTinyRss().getArticle(isUnread: true).then((res) {
-    //   setState(() {
-    //     this.isLoadComplete = false;
-    //     this.unreadArticleList = res;
-    //     this.isLoadComplete = true;
-    //   });
-    // });
   }
 
   // 文章构造
@@ -58,14 +45,6 @@ class _HomePageState extends State<HomePage> {
         feedIcon: unreadArticleList[index]['feedIcon'],
         feedTitle: unreadArticleList[index]['feedTitle'],
         feedArticles: unreadArticleList[index]['feedArticles']);
-    // articleId: unreadArticleList[index]['id'],
-    // articleTitle: unreadArticleList[index]['title'],
-
-    // articleDesciption: unreadArticleList[index]['description'],
-    // flavorImage: unreadArticleList[index]['flavorImage'],
-    // publishTime:
-    //     Tool().timestampToDate(unreadArticleList[index]['publishTime']),
-    // htmlContent: unreadArticleList[index]['htmlContent']);
   }
 
   @override
@@ -83,35 +62,7 @@ class _HomePageState extends State<HomePage> {
                   physics: new AlwaysScrollableScrollPhysics(),
                   itemCount: unreadArticleList.length,
                   itemBuilder: (context, index) {
-                    return InkWell(
-                      // onTap: () {
-                      //   // 设置文章为已读
-                      //   setState(() {
-                      //     List needReadArticleIdList = new List();
-                      //     needReadArticleIdList
-                      //         .add(unreadArticleList[index]['id']);
-                      //     TinyTinyRss().markRead(needReadArticleIdList);
-                      //     unreadArticleList[index]['isRead'] = 1;
-                      //   });
-                      //   // 点击跳转详情页
-                      //   Navigator.of(context).push(
-                      //     MaterialPageRoute(
-                      //       //传值
-                      //       builder: (context) => ArticleDetail(
-                      //           articleTitle: unreadArticleList[index]['title'],
-                      //           articleContent: unreadArticleList[index]
-                      //               ['htmlContent']),
-                      //     ),
-                      //   );
-                      // },
-                      child: Container(
-                        // color: unreadArticleList[index]['isRead'] == 1
-                        //     // 已读文章变色
-                        //     ? Colors.grey[100]
-                        //     : Colors.white,
-                        child: this._getArticleList(index),
-                      ),
-                    );
+                    return this._getArticleList(index);
                   },
                 ),
               )
@@ -126,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                     // 撑满整个屏幕，保证居中效果
                     height: MediaQuery.of(context).size.height -
                         AppBar().preferredSize.height -
-                        24.0,
+                        28.0,
                     child: Center(
                       child: Text(
                         "没有新文章",

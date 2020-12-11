@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../Tool/Tool.dart';
+import '../ArticleDetail.dart';
+import '../../Object/TinyTinyRss.dart';
 
 class ArticleItem extends StatelessWidget {
   ArticleItem({this.feedTitle, this.feedIcon, this.feedArticles});
@@ -9,72 +12,208 @@ class ArticleItem extends StatelessWidget {
   final List<Map> feedArticles;
 
   List<Widget> _getArticleTile() {
-    return this.feedArticles.map((value) {
+    List<Widget> articles = this.feedArticles.map((value) {
       return ListItem(
-        title: value['title'],
-        flavorImage: value['flavorImage'],
-      );
+          id: value['id'],
+          title: value['title'],
+          isRead: value['isRead'],
+          flavorImage: value['flavorImage'],
+          publishTime: value['publishTime'],
+          htmlContent: value['htmlContent']);
     }).toList();
+
+    if (this.feedArticles.length > 3) {
+      return [
+        Column(
+          children: articles.sublist(0, 3),
+        ),
+        Divider(
+          height: 0,
+          indent: 20,
+          endIndent: 20,
+        ),
+        ExpansionArticles(articles: articles.sublist(3)),
+      ];
+    }
+    return articles;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: ClipOval(
-              child: CachedNetworkImage(
-                imageUrl: this.feedIcon,
-                width: 30,
-                height: 30,
-                fit: BoxFit.fill,
+    return Column(children: [
+      Card(
+        margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+        child: Column(
+          children: [
+            // 卡片顶部 -> Feed 信息
+            Container(
+              margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
+              height: 40,
+              child: Row(
+                children: [
+                  // Feed Icon
+                  ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: this.feedIcon,
+                      width: 23,
+                      height: 23,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10.0),
+                  ),
+                  // Feed 标题
+                  Text(
+                    this.feedTitle,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blueGrey[700]),
+                  )
+                ],
               ),
             ),
-            title: Text(this.feedTitle, style: TextStyle(color: Colors.red)),
-          ),
-          Divider(
-            height: 0,
-          ),
-          Column(children: this._getArticleTile())
-        ],
+            Divider(
+              height: 0,
+            ),
+            // Feed 下的文章列表
+            Column(children: this._getArticleTile()),
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10.0),
+      ),
+    ]);
+  }
+}
+
+class ExpansionArticles extends StatefulWidget {
+  ExpansionArticles({Key key, this.articles}) : super(key: key);
+  final List<Widget> articles;
+
+  @override
+  _ExpansionArticlesState createState() => _ExpansionArticlesState();
+}
+
+class _ExpansionArticlesState extends State<ExpansionArticles> {
+  bool expandedStatus = false;
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: Theme(
+        data: Theme.of(context).copyWith(cardColor: Colors.white),
+        child: ExpansionPanelList(
+          expansionCallback: (int index, bool isExpanded) {
+            setState(() {
+              this.expandedStatus = !this.expandedStatus;
+            });
+          },
+          children: [
+            ExpansionPanel(
+                canTapOnHeader: true,
+                headerBuilder: (BuildContext context, bool isExpanded) {
+                  return ListTile(
+                    title: isExpanded ? Text("收起") : Text("展开"),
+                  );
+                },
+                body: Column(
+                  children: widget.articles,
+                ),
+                isExpanded: this.expandedStatus)
+          ],
+        ),
       ),
     );
   }
 }
 
-class ListItem extends StatelessWidget {
-  ListItem({this.title, this.flavorImage});
+class ListItem extends StatefulWidget {
+  ListItem(
+      {Key key,
+      this.id,
+      this.title,
+      this.isRead,
+      this.flavorImage,
+      this.publishTime,
+      this.htmlContent})
+      : super(key: key);
 
+  final int id;
   final String title;
+  final int isRead;
   final String flavorImage;
+  final int publishTime;
+  final String htmlContent;
+
+  @override
+  _ListItemState createState() => _ListItemState(this.isRead);
+}
+
+class _ListItemState extends State<ListItem> {
+  _ListItemState(isRead);
+  int isRead;
+
+  void _toArticleDetail(context) {
+    // 设置文章为已读
+    setState(() {
+      List markReadArticleIdList = new List();
+      markReadArticleIdList.add(widget.id);
+      TinyTinyRss().markRead(markReadArticleIdList);
+      this.isRead = 1;
+    });
+
+    // 点击跳转详情页
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        //传值
+        builder: (context) => ArticleDetail(
+            articleTitle: widget.title, articleContent: widget.htmlContent),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return flavorImage.isNotEmpty
-        ? Column(
-            children: [
-              Divider(
-                height: 0,
-              ),
-              Padding(padding: const EdgeInsets.only(top: 14.0)),
-              Container(
-                height: 70,
-                child: ListTile(
-                  title: Text(this.title),
-                  trailing: CachedNetworkImage(
-                    imageUrl: this.flavorImage,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.fill,
-                  ),
+    return Column(
+      children: [
+        Divider(
+          height: 0,
+          indent: 20,
+          endIndent: 20,
+        ),
+        ListTile(
+          // 文章标题
+          contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+          title: this.isRead == 1
+              ? Text(widget.title,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                  style: TextStyle(color: Colors.grey))
+              : Text(
+                  widget.title,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
-              )
-            ],
-          )
-        : ListTile(
-            // trailing: Icon(Icons.chevron_right),
-            title: Text(this.title),
-          );
+          subtitle: Text(Tool().timestampToDate(widget.publishTime)),
+          // 文章题图
+          trailing: widget.flavorImage.isNotEmpty
+              ? CachedNetworkImage(
+                  imageUrl: widget.flavorImage,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                )
+              : Icon(Icons.chevron_right),
+          // 点击事件
+          onTap: () {
+            this._toArticleDetail(context);
+          },
+        ),
+      ],
+    );
   }
 }
