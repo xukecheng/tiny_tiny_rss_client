@@ -23,22 +23,21 @@ class ArticleItem extends StatelessWidget {
     }).toList();
 
     // 当 Feed 的文章超过 3 篇时，后面的文章收起
-    if (this.feedArticles.length > 3) {
-      return [
-        // 前三篇文章
-        Column(
-          children: articles.sublist(0, 3),
-        ),
-        Divider(
-          height: 0,
-          indent: 20,
-          endIndent: 20,
-        ),
-        // 第三篇之后的文章
-        ExpansionArticles(articles: articles.sublist(3)),
-      ];
-    }
-    return articles;
+    return this.feedArticles.length > 3
+        ? [
+            // 前三篇文章
+            Column(
+              children: articles.sublist(0, 3),
+            ),
+            Divider(
+              height: 0,
+              indent: 20,
+              endIndent: 20,
+            ),
+            // 第三篇之后的文章
+            ExpansionArticles(articles: articles.sublist(3)),
+          ]
+        : articles;
   }
 
   @override
