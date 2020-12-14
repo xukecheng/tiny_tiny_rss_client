@@ -50,15 +50,15 @@ class ArticleItem extends StatelessWidget {
             // 卡片顶部 -> Feed 信息
             Container(
               margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
-              height: 40,
+              height: 60,
               child: Row(
                 children: [
                   // Feed Icon
                   ClipOval(
                     child: CachedNetworkImage(
                       imageUrl: this.feedIcon,
-                      width: 23,
-                      height: 23,
+                      width: 30,
+                      height: 30,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -71,7 +71,7 @@ class ArticleItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.blueGrey[700]),
                   )

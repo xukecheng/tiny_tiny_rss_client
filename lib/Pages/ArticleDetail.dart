@@ -34,7 +34,7 @@ class ArticleDetail extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),
               child: Text(
                 this.articleTitle,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.normal),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ),
             // 分割线
@@ -50,12 +50,16 @@ class ArticleDetail extends StatelessWidget {
                 style: {
                   "img": Style(alignment: Alignment.center),
                   "p": Style(fontSize: FontSize.large),
+                  "span": Style(fontSize: FontSize.large),
+                  "div": Style(fontSize: FontSize.large),
+                  "b": Style(fontSize: FontSize.large),
                   "a": Style(
                       fontSize: FontSize.large,
                       textDecoration: TextDecoration.none),
-                  "h1": Style(fontSize: FontSize.xxLarge),
-                  "h2": Style(fontSize: FontSize.xxLarge),
-                  "h3": Style(fontSize: FontSize.xLarge),
+                  "h1": Style(fontSize: FontSize.xLarge),
+                  "h2": Style(fontSize: FontSize(18)),
+                  "h3": Style(
+                      fontSize: FontSize.large, fontWeight: FontWeight.bold),
                 },
                 customRender: {
                   // 处理无序列表中的图片样式，示例 feed -> 游戏时光
