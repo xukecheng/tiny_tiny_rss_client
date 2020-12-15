@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/style.dart';
 import 'Components/PhotoViewer.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class ArticleDetail extends StatelessWidget {
-  final String articleTitle;
-  final String articleContent;
-  ArticleDetail({this.articleTitle, this.articleContent});
+  final String title;
+  final String htmlContent;
+  ArticleDetail({this.title, this.htmlContent});
 
   _launchURL(url) async {
     if (url) if (await canLaunch(url)) {
@@ -22,7 +20,7 @@ class ArticleDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text(this.articleTitle)),
+      appBar: AppBar(title: Text(this.title)),
       body: SingleChildScrollView(
         // 增加回弹效果
         // physics: const BouncingScrollPhysics(),
@@ -34,7 +32,7 @@ class ArticleDetail extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),
               child: Text(
-                this.articleTitle,
+                this.title,
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ),
@@ -45,82 +43,65 @@ class ArticleDetail extends StatelessWidget {
             ),
             // 富文本渲染内容
             Padding(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 30),
-              child: Html(
-                data: this.articleContent,
-                style: {
-                  "img": Style(alignment: Alignment.center),
-                  "p": Style(fontSize: FontSize.large),
-                  "span": Style(fontSize: FontSize.large),
-                  "div": Style(fontSize: FontSize.large),
-                  "b": Style(fontSize: FontSize.large),
-                  "a": Style(
-                      fontSize: FontSize.large,
-                      textDecoration: TextDecoration.none),
-                  "h1": Style(fontSize: FontSize.xLarge),
-                  "h2": Style(fontSize: FontSize(18)),
-                  "h3": Style(
-                      fontSize: FontSize.large, fontWeight: FontWeight.bold),
-                },
-                customRender: {
-                  // 处理无序列表中的图片样式，示例 feed -> 游戏时光
-                  "li": (context, child, attributes, _) {
-                    if (_.nodes.toString() == '[<html img>]') {
-                      return Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: CachedNetworkImage(
-                          imageUrl: _.nodes[0].attributes['src'],
-                          fit: BoxFit.cover,
-                        ),
-                      );
-                    } else {
-                      return child;
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 30),
+                child: HtmlWidget(
+                  this.htmlContent,
+                  // 捕捉点击图片事件
+                  factoryBuilder: () => _WidgetFactory(context: context),
+                  customStylesBuilder: (element) {
+                    if (element.localName.contains('p')) {
+                      return {
+                        'white-space': 'normal',
+                        // 'text-align': 'justify',
+                        'word-break': 'break-all',
+                      };
+                    } else if (element.localName.contains('blockquote')) {
+                      return {
+                        'background-color': 'rgba(0, 0, 0, 0.04)',
+                        'margin': '0',
+                        'padding': '0.5em 0.5em'
+                      };
+                    } else if (element.localName.contains('ul')) {
+                      return {'padding': '0 0 0 25px'};
+                    } else if (element.localName.contains('li')) {
+                      return {'margin-bottom': '10px'};
+                    } else if (element.localName.contains('a')) {
+                      return {'border-bottom': ''};
                     }
+                    return null;
                   },
-                  // 处理引用内容样式
-                  "blockquote": (context, child, attributes, _) {
-                    List<Widget> quoteList = new List();
-                    findQuoteText(node) {
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Text(node.text,
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.black)),
-                      );
-                    }
-
-                    _.nodes.forEach(
-                        (element) => quoteList.add(findQuoteText(element)));
-                    return Container(
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      color: Colors.grey[200],
-                      child: Column(
-                        children: quoteList,
-                      ),
-                    );
-                  }
-                },
-                onLinkTap: (url) {
-                  this._launchURL(url);
-                },
-                onImageTap: (src) {
-                  // 跳转到图片预览页
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PhotoViewer(
-                        imageUrl: src,
-                      ),
-                    ),
-                  );
-                },
-                onImageError: (exception, stackTrace) {
-                  print(exception);
-                },
-              ),
-            ),
+                  onTapUrl: (url) => this._launchURL(url),
+                  textStyle: TextStyle(fontSize: 16, height: 1.6),
+                )),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _WidgetFactory extends WidgetFactory {
+  _WidgetFactory({@required this.context});
+  final context;
+
+  @override
+  Widget buildImage(BuildMetadata meta, Object provider, ImageMetadata image) {
+    final built = super.buildImage(meta, provider, image);
+    if (built == null) return built;
+
+    return GestureDetector(
+      child: built,
+      onTap: () {
+        print(image.sources.first.url);
+        // 跳转到图片预览页
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PhotoViewer(
+              imageUrl: image.sources.first.url,
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PhotoViewer extends StatelessWidget {
   final imageUrl;
@@ -8,8 +9,11 @@ class PhotoViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: PhotoView(
-      imageProvider: NetworkImage(imageUrl),
-    ));
+      child: PhotoView(
+        imageProvider: CachedNetworkImageProvider(
+          imageUrl,
+        ),
+      ),
+    );
   }
 }

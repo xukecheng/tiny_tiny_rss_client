@@ -36,8 +36,8 @@ class FeedItem extends StatelessWidget {
                 MaterialPageRoute(
                   //传值
                   builder: (context) => ArticleDetail(
-                      articleTitle: article['title'],
-                      articleContent: article['htmlContent']),
+                      title: article['title'],
+                      htmlContent: article['htmlContent']),
                 ),
               );
             },
