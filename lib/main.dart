@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: Text("TinyTinyRss")),
         body: HomePage(),
-        backgroundColor: Tool().colorFromHex("#efefef"),
+        backgroundColor: Colors.white,
       ),
     );
   }

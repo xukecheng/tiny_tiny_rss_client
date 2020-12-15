@@ -3,18 +3,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class ArticleItem extends StatelessWidget {
   ArticleItem(
-      {this.articleId,
-      this.articleTitle,
+      {this.id,
+      this.title,
       this.isRead,
-      this.articleDesciption,
+      this.description,
       this.flavorImage,
       this.publishTime,
       this.htmlContent});
 
-  final int articleId;
-  final String articleTitle;
+  final int id;
+  final String title;
   final int isRead;
-  final String articleDesciption;
+  final String description;
   final String flavorImage;
   final String publishTime;
   final String htmlContent;
@@ -39,10 +39,10 @@ class ArticleItem extends StatelessWidget {
 
   // 处理文章内容，转换成可用的文章描述
   Widget _getArticleDescription() {
-    if (this.articleDesciption.isEmpty) {
+    if (this.description.isEmpty) {
       return Visibility(visible: false, child: Text('Hello World'));
     } else {
-      return Text(this.articleDesciption, style: TextStyle(fontSize: 14.0));
+      return Text(this.description, style: TextStyle(fontSize: 14.0));
     }
   }
 
@@ -66,7 +66,7 @@ class ArticleItem extends StatelessWidget {
                     Padding(padding: const EdgeInsets.only(top: 12.0)),
                     // 文章标题
                     Text(
-                      this.articleTitle,
+                      this.title,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       style: isRead == 1

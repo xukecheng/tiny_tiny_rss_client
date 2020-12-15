@@ -42,10 +42,10 @@ class FeedItem extends StatelessWidget {
               );
             },
             child: ArticleItem(
-                articleId: article['id'],
-                articleTitle: article['title'],
+                id: article['id'],
+                title: article['title'],
                 isRead: article['isRead'],
-                articleDesciption: article['description'],
+                description: article['description'],
                 flavorImage: article['flavorImage'],
                 publishTime: Tool().timestampToDate(article['publishTime']),
                 htmlContent: article['htmlContent']),
