@@ -43,7 +43,7 @@ class ArticleDetail extends StatelessWidget {
             ),
             // 富文本渲染内容
             Padding(
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 30),
+                padding: EdgeInsets.fromLTRB(15, 10, 15, 30),
                 child: HtmlWidget(
                   this.htmlContent,
                   // 捕捉点击图片事件
@@ -52,7 +52,6 @@ class ArticleDetail extends StatelessWidget {
                     if (element.localName.contains('p')) {
                       return {
                         'white-space': 'normal',
-                        // 'text-align': 'justify',
                         'word-break': 'break-all',
                       };
                     } else if (element.localName.contains('blockquote')) {
