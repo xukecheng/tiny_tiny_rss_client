@@ -1,223 +1,110 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../Tool/Tool.dart';
-import '../ArticleDetail.dart';
-import '../../Object/TinyTinyRss.dart';
 
 class ArticleItem extends StatelessWidget {
-  ArticleItem({this.feedTitle, this.feedIcon, this.feedArticles});
-
-  final String feedIcon;
-  final String feedTitle;
-  final List<Map> feedArticles;
-
-  List<Widget> _getArticleTile() {
-    List<Widget> articles = this.feedArticles.map((value) {
-      return ListItem(
-          id: value['id'],
-          title: value['title'],
-          isRead: value['isRead'],
-          flavorImage: value['flavorImage'],
-          publishTime: value['publishTime'],
-          htmlContent: value['htmlContent']);
-    }).toList();
-
-    // 当 Feed 的文章超过 3 篇时，后面的文章收起
-    return this.feedArticles.length > 3
-        ? [
-            // 前三篇文章
-            Column(
-              children: articles.sublist(0, 3),
-            ),
-            Divider(
-              height: 0,
-              indent: 20,
-              endIndent: 20,
-            ),
-            // 第三篇之后的文章
-            ExpansionArticles(articles: articles.sublist(3)),
-          ]
-        : articles;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      Card(
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-        child: Column(
-          children: [
-            // 卡片顶部 -> Feed 信息
-            Container(
-              margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
-              height: 60,
-              child: Row(
-                children: [
-                  // Feed Icon
-                  ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: this.feedIcon,
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                  ),
-                  // Feed 标题
-                  Text(
-                    this.feedTitle,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blueGrey[700]),
-                  )
-                ],
-              ),
-            ),
-            Divider(
-              height: 0,
-            ),
-            // Feed 下的文章列表
-            Column(children: this._getArticleTile()),
-          ],
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-      ),
-    ]);
-  }
-}
-
-// 第三篇之后的文章组件，因为要控制展开收起，所以只能是有状态
-class ExpansionArticles extends StatefulWidget {
-  ExpansionArticles({Key key, this.articles}) : super(key: key);
-  // 接收第三篇之后的所有文章
-  final List<Widget> articles;
-
-  @override
-  _ExpansionArticlesState createState() => _ExpansionArticlesState();
-}
-
-class _ExpansionArticlesState extends State<ExpansionArticles> {
-  // 默认收起
-  bool expandedStatus = false;
-  @override
-  Widget build(BuildContext context) {
-    // 用 ClipRect 剪裁 ExpansionPanelList，用于去除边框阴影
-    return ClipRect(
-      child: Theme(
-        data: Theme.of(context).copyWith(cardColor: Colors.white),
-        child: ExpansionPanelList(
-          expansionCallback: (int index, bool isExpanded) {
-            setState(() {
-              this.expandedStatus = !this.expandedStatus;
-            });
-          },
-          children: [
-            ExpansionPanel(
-                canTapOnHeader: true,
-                headerBuilder: (BuildContext context, bool isExpanded) {
-                  return ListTile(
-                    title: isExpanded ? Text("收起") : Text("展开"),
-                  );
-                },
-                body: Column(
-                  children: widget.articles,
-                ),
-                isExpanded: this.expandedStatus)
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ListItem extends StatefulWidget {
-  ListItem(
-      {Key key,
-      this.id,
-      this.title,
+  ArticleItem(
+      {this.articleId,
+      this.articleTitle,
       this.isRead,
+      this.articleDesciption,
       this.flavorImage,
       this.publishTime,
-      this.htmlContent})
-      : super(key: key);
+      this.htmlContent});
 
-  final int id;
-  final String title;
+  final int articleId;
+  final String articleTitle;
   final int isRead;
+  final String articleDesciption;
   final String flavorImage;
-  final int publishTime;
+  final String publishTime;
   final String htmlContent;
 
-  @override
-  _ListItemState createState() => _ListItemState(this.isRead);
-}
+  // 判断是否存在文章预览图
+  Widget _getArticleImage() {
+    if (this.flavorImage.isEmpty) {
+      return Visibility(visible: false, child: Text('Hello World'));
+    } else {
+      return Expanded(
+        flex: 2,
+        child: Container(
+          height: 170,
+          child: CachedNetworkImage(
+            imageUrl: this.flavorImage,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+  }
 
-class _ListItemState extends State<ListItem> {
-  _ListItemState(isRead);
-  int isRead;
-
-  void _toArticleDetail(context) {
-    // 设置文章为已读
-    setState(() {
-      List markReadArticleIdList = new List();
-      markReadArticleIdList.add(widget.id);
-      TinyTinyRss().markRead(markReadArticleIdList);
-      this.isRead = 1;
-    });
-
-    // 点击跳转详情页
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        //传值
-        builder: (context) => ArticleDetail(
-            articleTitle: widget.title, articleContent: widget.htmlContent),
-      ),
-    );
+  // 处理文章内容，转换成可用的文章描述
+  Widget _getArticleDescription() {
+    if (this.articleDesciption.isEmpty) {
+      return Visibility(visible: false, child: Text('Hello World'));
+    } else {
+      return Text(this.articleDesciption, style: TextStyle(fontSize: 14.0));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Flex(
+      direction: Axis.vertical,
       children: [
-        Divider(
-          height: 0,
-          indent: 20,
-          endIndent: 20,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            // 文章组件主体
+            Padding(padding: const EdgeInsets.only(left: 15.0)),
+            // 文章文本信息组件
+            Expanded(
+              flex: 5,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(padding: const EdgeInsets.only(top: 12.0)),
+                    // 文章标题
+                    Text(
+                      this.articleTitle,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      style: isRead == 1
+                          ? TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold)
+                          : TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.bold),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6.0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                    ),
+                    // 文章描述
+                    this._getArticleDescription(),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                    ),
+                    Text(this.publishTime,
+                        style:
+                            TextStyle(fontSize: 12.0, color: Colors.black45)),
+                    Padding(padding: const EdgeInsets.only(bottom: 12.0)),
+                  ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 15.0),
+            ),
+            // 文章预览图展示
+            this._getArticleImage()
+          ],
         ),
-        ListTile(
-          // 文章标题
-          contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          title: this.isRead == 1
-              ? Text(widget.title,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                  style: TextStyle(color: Colors.grey))
-              : Text(
-                  widget.title,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-          subtitle: Text(Tool().timestampToDate(widget.publishTime)),
-          // 文章题图
-          trailing: widget.flavorImage.isNotEmpty
-              ? CachedNetworkImage(
-                  imageUrl: widget.flavorImage,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                )
-              : Icon(Icons.chevron_right),
-          // 点击事件
-          onTap: () {
-            this._toArticleDetail(context);
-          },
+        // 分隔线
+        Divider(
+          height: 1.0,
+          color: Colors.black26,
         ),
       ],
     );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Components/ArticleItem.dart';
+import 'Components/FeedItem.dart';
 import 'Components/Loading.dart';
 import '../Object/TinyTinyRss.dart';
 
@@ -37,9 +37,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // 文章构造
+  // 文章列表构造
   _getArticleList(index) {
-    return ArticleItem(
+    // 生成 Feed 流
+    return FeedItem(
         feedIcon: unreadArticleList[index]['feedIcon'],
         feedTitle: unreadArticleList[index]['feedTitle'],
         feedArticles: unreadArticleList[index]['feedArticles']);
