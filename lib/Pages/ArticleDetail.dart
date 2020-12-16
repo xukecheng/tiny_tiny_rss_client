@@ -6,7 +6,8 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 class ArticleDetail extends StatelessWidget {
   final String title;
   final String htmlContent;
-  ArticleDetail({this.title, this.htmlContent});
+  final String articleOriginLink;
+  ArticleDetail({this.title, this.htmlContent, this.articleOriginLink});
 
   _launchURL(url) async {
     if (await canLaunch(url)) {
@@ -20,10 +21,18 @@ class ArticleDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text(this.title)),
+      appBar: AppBar(
+        actions: [
+          // 打开原文
+          IconButton(
+            icon: Icon(Icons.open_in_browser),
+            onPressed: () {
+              this._launchURL(articleOriginLink);
+            },
+          )
+        ],
+      ),
       body: SingleChildScrollView(
-        // 增加回弹效果
-        // physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -38,7 +47,9 @@ class ArticleDetail extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black),
+                      // 标记颜色和下划线，防止 hero 动画出现变色和下划线
+                      color: Colors.black,
+                      decoration: TextDecoration.none),
                 ),
               ),
             ),

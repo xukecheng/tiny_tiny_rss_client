@@ -300,6 +300,7 @@ class TinyTinyRss {
           article.publishTime,
           article.htmlContent,
           article.isRead,
+          article.articleOriginLink,
           feed.feedIcon,
           feed.feedTitle 
           FROM article INNER JOIN feed ON article.feedId = feed.id

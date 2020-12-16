@@ -5,52 +5,72 @@ import '../ArticleDetail.dart';
 import '../../Object/TinyTinyRss.dart';
 import 'ArticleItem.dart';
 
-class FeedItem extends StatelessWidget {
-  FeedItem({this.feedTitle, this.feedIcon, this.feedArticles});
-
+class FeedItem extends StatefulWidget {
+  FeedItem({Key key, this.feedTitle, this.feedIcon, this.feedArticles})
+      : super(key: key);
   final String feedIcon;
   final String feedTitle;
   final List<Map> feedArticles;
 
+  @override
+  _FeedItemState createState() => _FeedItemState();
+}
+
+class _FeedItemState extends State<FeedItem> {
+  List<Map> feedArticles = new List();
+  @override
+  void initState() {
+    super.initState();
+    feedArticles = widget.feedArticles;
+  }
+
+  // Feed 下标记全部已读
+  void _markFeedRead() {
+    List feedArticlesId = new List();
+    this.feedArticles.forEach((article) {
+      feedArticlesId.add(article['id']);
+      setState(() {
+        article['isRead'] = 1;
+      });
+    });
+    TinyTinyRss().markRead(feedArticlesId);
+  }
+
+  // 生成单 Feed 下的文章流和文章跳转
   List<Widget> _getArticleTile() {
     List<Widget> articles = this.feedArticles.map(
       (article) {
-        // 生成单 Feed 下的文章流和文章跳转，以及用 StatefulBuilder 修改每篇文章的阅读状态
-
-        // 不能在子组件 ArticleItem 里进行阅读状态修改，因为滑动时，Flutter 会销毁已经生
-        // 成的 ArticleItem 组件，导致回到条目时，组件是新生成的，而父组件的值此时并没有被改变
-        return StatefulBuilder(builder: (BuildContext context, setState) {
-          return InkWell(
-            onTap: () {
-              setState(() {
-                List markReadArticleIdList = new List();
-                markReadArticleIdList.add(
-                  article['id'],
-                );
-                TinyTinyRss().markRead(markReadArticleIdList);
-                article['isRead'] = 1;
-              });
-
-              // 点击跳转详情页
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  //传值
-                  builder: (context) => ArticleDetail(
-                      title: article['title'],
-                      htmlContent: article['htmlContent']),
-                ),
+        return InkWell(
+          onTap: () {
+            setState(() {
+              List markReadArticleIdList = new List();
+              markReadArticleIdList.add(
+                article['id'],
               );
-            },
-            child: ArticleItem(
-                id: article['id'],
-                title: article['title'],
-                isRead: article['isRead'],
-                description: article['description'],
-                flavorImage: article['flavorImage'],
-                publishTime: Tool().timestampToDate(article['publishTime']),
-                htmlContent: article['htmlContent']),
-          );
-        });
+              TinyTinyRss().markRead(markReadArticleIdList);
+              article['isRead'] = 1;
+            });
+
+            // 点击跳转详情页
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                //传值
+                builder: (context) => ArticleDetail(
+                    title: article['title'],
+                    htmlContent: article['htmlContent'],
+                    articleOriginLink: article['articleOriginLink']),
+              ),
+            );
+          },
+          child: ArticleItem(
+            id: article['id'],
+            title: article['title'],
+            isRead: article['isRead'],
+            description: article['description'],
+            flavorImage: article['flavorImage'],
+            publishTime: Tool().timestampToDate(article['publishTime']),
+          ),
+        );
       },
     ).toList();
 
@@ -83,30 +103,43 @@ class FeedItem extends StatelessWidget {
             Container(
               margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
               height: 60,
-              child: Row(
+              child: Flex(
+                direction: Axis.horizontal,
                 children: [
                   // Feed Icon
-                  ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: this.feedIcon,
-                      width: 30,
-                      height: 30,
-                      fit: BoxFit.fill,
+                  Expanded(
+                    flex: 1,
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: widget.feedIcon,
+                        width: 28,
+                        height: 28,
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
+                  Expanded(
+                    flex: 10,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      // Feed 标题
+                      child: Text(
+                        widget.feedTitle,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blueGrey[700]),
+                      ),
+                    ),
                   ),
-                  // Feed 标题
-                  Text(
-                    this.feedTitle,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blueGrey[700]),
-                  )
+                  IconButton(
+                    icon: Icon(Icons.done),
+                    onPressed: () {
+                      this._markFeedRead();
+                    },
+                  ),
                 ],
               ),
             ),
@@ -125,7 +158,7 @@ class FeedItem extends StatelessWidget {
   }
 }
 
-// 第三篇之后的文章组件，因为要控制展开收起，所以只能是有状态
+// 第三篇之后的展开收起文章组件
 class ExpansionArticles extends StatefulWidget {
   ExpansionArticles({Key key, this.articles}) : super(key: key);
   // 接收第三篇之后的所有文章
@@ -152,16 +185,17 @@ class _ExpansionArticlesState extends State<ExpansionArticles> {
           },
           children: [
             ExpansionPanel(
-                canTapOnHeader: true,
-                headerBuilder: (BuildContext context, bool isExpanded) {
-                  return ListTile(
-                    title: isExpanded ? Text("收起") : Text("展开"),
-                  );
-                },
-                body: Column(
-                  children: widget.articles,
-                ),
-                isExpanded: this.expandedStatus)
+              canTapOnHeader: true,
+              headerBuilder: (BuildContext context, bool isExpanded) {
+                return ListTile(
+                  title: isExpanded ? Text("收起") : Text("展开"),
+                );
+              },
+              body: Column(
+                children: widget.articles,
+              ),
+              isExpanded: this.expandedStatus,
+            )
           ],
         ),
       ),
