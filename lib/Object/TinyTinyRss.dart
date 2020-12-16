@@ -260,7 +260,7 @@ class TinyTinyRss {
     this._shutDownDataBase();
   }
 
-  Future<List> getArticleNew() async {
+  Future<List> getArticleInFeed() async {
     // 等待完成数据库初始化
     var database = this._initailDataBase();
     final Database db = await database;

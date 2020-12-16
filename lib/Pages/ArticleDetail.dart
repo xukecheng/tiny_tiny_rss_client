@@ -9,7 +9,7 @@ class ArticleDetail extends StatelessWidget {
   ArticleDetail({this.title, this.htmlContent});
 
   _launchURL(url) async {
-    if (url) if (await canLaunch(url)) {
+    if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not launch $url';
@@ -31,9 +31,15 @@ class ArticleDetail extends StatelessWidget {
             // 文章标题
             Padding(
               padding: EdgeInsets.fromLTRB(15, 20, 15, 10),
-              child: Text(
-                this.title,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              child: Hero(
+                tag: this.title,
+                child: Text(
+                  this.title,
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                ),
               ),
             ),
             // 分割线
