@@ -21,7 +21,7 @@ class _FeedItemState extends State<FeedItem> {
   @override
   void initState() {
     super.initState();
-    feedArticles = widget.feedArticles;
+    this.feedArticles = widget.feedArticles;
   }
 
   // Feed 下标记全部已读
@@ -38,6 +38,9 @@ class _FeedItemState extends State<FeedItem> {
 
   // 生成单 Feed 下的文章流和文章跳转
   List<Widget> _getArticleTile() {
+    setState(() {
+      this.feedArticles = widget.feedArticles;
+    });
     List<Widget> articles = this.feedArticles.map(
       (article) {
         return InkWell(

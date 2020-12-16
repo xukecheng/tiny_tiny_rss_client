@@ -108,7 +108,6 @@ class _WidgetFactory extends WidgetFactory {
     return GestureDetector(
       child: built,
       onTap: () {
-        print(image.sources.first.url);
         // 跳转到图片预览页
         Navigator.of(context).push(
           MaterialPageRoute(

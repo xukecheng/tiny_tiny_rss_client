@@ -30,9 +30,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _doRefresh() async {
     await TinyTinyRss().getArticleInFeed().then((value) {
       setState(() {
-        this.isLoadComplete = false;
         this.unreadArticleList = value;
-        this.isLoadComplete = true;
       });
     });
   }
@@ -58,8 +56,8 @@ class _HomePageState extends State<HomePage> {
                 unreadArticleList.length > 0
                     ? ListView.builder(
                         // 设置回弹效果
-                        physics: BouncingScrollPhysics(),
-                        itemCount: unreadArticleList.length,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: this.unreadArticleList.length,
                         itemBuilder: (context, index) {
                           return this._getArticleList(index);
                         },
