@@ -56,7 +56,8 @@ class _HomePageState extends State<HomePage> {
                 unreadArticleList.length > 0
                     ? ListView.builder(
                         // 设置回弹效果
-                        physics: AlwaysScrollableScrollPhysics(),
+                        physics: BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
                         itemCount: this.unreadArticleList.length,
                         itemBuilder: (context, index) {
                           return this._getArticleList(index);
