@@ -55,9 +55,7 @@ class _HomePageState extends State<HomePage> {
             child: // 然后再判断是否有可用文章，没有的话展示无可读文章提示
                 unreadArticleList.length > 0
                     ? ListView.builder(
-                        // 设置回弹效果
-                        physics: BouncingScrollPhysics(
-                            parent: AlwaysScrollableScrollPhysics()),
+                        physics: AlwaysScrollableScrollPhysics(),
                         itemCount: this.unreadArticleList.length,
                         itemBuilder: (context, index) {
                           return this._getArticleList(index);
