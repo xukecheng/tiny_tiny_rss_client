@@ -123,7 +123,7 @@ class TinyTinyRss {
     db.close();
   }
 
-  void _insertArticle(db) async {
+  _insertArticle(db) async {
     // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去拉取未读文章并更新
     Future<int> updateRead() async {
       return await db.update('article', {'isRead': 1});
@@ -162,7 +162,7 @@ class TinyTinyRss {
     }
   }
 
-  void _insertFeed(db) async {
+  _insertFeed(db) async {
     Future<void> insertFeed(Feed std) async {
       await db.insert(
         "feed",
@@ -228,7 +228,7 @@ class TinyTinyRss {
     await getArticle().then((list) {
       articleList = list;
     });
-    this._shutDownDataBase();
+    // this._shutDownDataBase();
     return articleList;
   }
 
@@ -258,7 +258,7 @@ class TinyTinyRss {
     }
 
     await markRead();
-    this._shutDownDataBase();
+    // this._shutDownDataBase();
   }
 
   Future<List> getArticleInFeed() async {
@@ -320,7 +320,7 @@ class TinyTinyRss {
         return articleData;
       });
     });
-    this._shutDownDataBase();
+    // this._shutDownDataBase();
     return feedList;
   }
 }

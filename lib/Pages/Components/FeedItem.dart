@@ -36,6 +36,71 @@ class _FeedItemState extends State<FeedItem> {
     TinyTinyRss().markRead(feedArticlesId);
   }
 
+  void _longPressArticle(int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          backgroundColor: Colors.white,
+          children: [
+            SimpleDialogOption(
+              onPressed: () {
+                List feedArticlesId = new List();
+                for (Map article in this.feedArticles) {
+                  if (article['id'] != id) {
+                    feedArticlesId.add(article['id']);
+                    setState(() {
+                      article['isRead'] = 1;
+                    });
+                  } else {
+                    break;
+                  }
+                }
+                TinyTinyRss().markRead(feedArticlesId);
+                Navigator.pop(context);
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_upward),
+                  Text(
+                    '将以上文章全部标记为已读',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                List feedArticlesId = new List();
+                for (Map article in this.feedArticles.reversed) {
+                  if (article['id'] != id) {
+                    feedArticlesId.add(article['id']);
+                    setState(() {
+                      article['isRead'] = 1;
+                    });
+                  } else {
+                    break;
+                  }
+                }
+                TinyTinyRss().markRead(feedArticlesId);
+                Navigator.pop(context);
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_downward),
+                  Text(
+                    '将以下文章全部标记为已读',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 生成单 Feed 下的文章流和文章跳转
   List<Widget> _getArticleTile() {
     setState(() {
@@ -53,7 +118,6 @@ class _FeedItemState extends State<FeedItem> {
               TinyTinyRss().markRead(markReadArticleIdList);
               article['isRead'] = 1;
             });
-
             // 点击跳转详情页
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -65,6 +129,7 @@ class _FeedItemState extends State<FeedItem> {
               ),
             );
           },
+          onLongPress: () => this._longPressArticle(article['id']),
           child: ArticleItem(
             id: article['id'],
             title: article['title'],
