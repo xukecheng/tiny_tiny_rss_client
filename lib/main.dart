@@ -3,8 +3,10 @@ import 'Tool/Tool.dart';
 import 'Pages/HomePage.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'utils/config.dart';
 
 void main() async {
+  Config.env = Env.PROD;
   runApp(MyApp());
   if (Platform.isAndroid) {
     SystemUiOverlayStyle systemUiOverlayStyle =

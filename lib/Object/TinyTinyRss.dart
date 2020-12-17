@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../utils/config.dart';
 
-BaseOptions options = BaseOptions(baseUrl: "http://192.168.2.214:8888");
+BaseOptions options = BaseOptions(baseUrl: Config.apiHost);
 
 class Feed {
   int id;
@@ -83,7 +84,7 @@ class Article {
 }
 
 class TinyTinyRss {
-  _initailDataBase() async {
+  Future<Database> _initailDataBase() async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'tiny_tiny_rss.db'),
       onCreate: (db, version) {
@@ -115,14 +116,14 @@ class TinyTinyRss {
     return database;
   }
 
-  _shutDownDataBase() async {
+  void _shutDownDataBase() async {
     //释放数据库资源
     var database = this._initailDataBase();
     final Database db = await database;
     db.close();
   }
 
-  _insertArticle(db) async {
+  void _insertArticle(db) async {
     // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去拉取未读文章并更新
     Future<int> updateRead() async {
       return await db.update('article', {'isRead': 1});
@@ -161,7 +162,7 @@ class TinyTinyRss {
     }
   }
 
-  _insertFeed(db) async {
+  void _insertFeed(db) async {
     Future<void> insertFeed(Feed std) async {
       await db.insert(
         "feed",

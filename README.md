@@ -15,9 +15,9 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-## Roadmap
+## Todo
 - [x] 未读文章列表
-- [x] 数据缓存
+- [x] SQLite 数据缓存
 - [x] 列表下拉刷新
 - [x] 点击水波纹
 - [x] 文章详情
@@ -39,3 +39,4 @@ samples, guidance on mobile development, and a full API reference.
 - [x] 优化文章列表展示
 - [ ] 线性动画
 - [ ] 图片预览，下滑关闭
+- [ ] 文章滑动，切换到上一篇或下一篇文章（Feed 内）
