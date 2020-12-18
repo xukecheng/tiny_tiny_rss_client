@@ -99,20 +99,24 @@ class ArticleDetail extends StatelessWidget {
 class _WidgetFactory extends WidgetFactory {
   _WidgetFactory({@required this.context});
   final context;
-
+  List imageList = new List();
   @override
   Widget buildImage(BuildMetadata meta, Object provider, ImageMetadata image) {
     final built = super.buildImage(meta, provider, image);
     if (built == null) return built;
-
+    imageList.add(image.sources.first.url);
     return GestureDetector(
-      child: built,
+      child: Hero(
+        tag: image.sources.first.url,
+        child: built,
+      ),
       onTap: () {
         // 跳转到图片预览页
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => PhotoViewer(
-              imageUrl: image.sources.first.url,
+              imageList,
+              initialPage: imageList.indexOf(image.sources.first.url),
             ),
           ),
         );

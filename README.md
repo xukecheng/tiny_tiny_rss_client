@@ -38,5 +38,5 @@ samples, guidance on mobile development, and a full API reference.
 - [x] 平滑滚动
 - [x] 优化文章列表展示
 - [ ] 线性动画
-- [ ] 图片预览，下滑关闭
+- [x] 图片预览，下滑关闭
 - [ ] 文章滑动，切换到上一篇或下一篇文章（Feed 内）
