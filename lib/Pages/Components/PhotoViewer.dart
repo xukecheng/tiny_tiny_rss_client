@@ -67,42 +67,44 @@ class _PhotoViewerState extends State<PhotoViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onVerticalDragUpdate: (DragUpdateDetails details) {
-        // 向下垂直滑动关闭预览
-        if (details.delta.dy > 15) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: <Widget>[
-          PhotoViewGallery.builder(
-            onPageChanged: (index) {
-              setState(() {
-                nowPosition = index;
-                _initData();
-              });
-            },
-            scrollPhysics: const BouncingScrollPhysics(),
-            builder: (BuildContext context, int index) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider:
-                    CachedNetworkImageProvider(widget.imageList[index]),
-                heroAttributes:
-                    PhotoViewHeroAttributes(tag: widget.imageList[index]),
-              );
-            },
-            itemCount: widget.imageList.length,
-            pageController: pageController,
-          ),
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            child: Wrap(
-              children: dotWidgets,
+    return Container(
+      child: GestureDetector(
+        onVerticalDragUpdate: (DragUpdateDetails details) {
+          // 向下垂直滑动关闭预览
+          if (details.delta.dy > 0) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: <Widget>[
+            PhotoViewGallery.builder(
+              onPageChanged: (index) {
+                setState(() {
+                  nowPosition = index;
+                  _initData();
+                });
+              },
+              scrollPhysics: const BouncingScrollPhysics(),
+              builder: (BuildContext context, int index) {
+                return PhotoViewGalleryPageOptions(
+                  imageProvider:
+                      CachedNetworkImageProvider(widget.imageList[index]),
+                  heroAttributes:
+                      PhotoViewHeroAttributes(tag: widget.imageList[index]),
+                );
+              },
+              itemCount: widget.imageList.length,
+              pageController: pageController,
             ),
-          ),
-        ],
+            Container(
+              margin: EdgeInsets.only(bottom: 10),
+              child: Wrap(
+                children: dotWidgets,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

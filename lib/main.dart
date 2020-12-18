@@ -9,8 +9,11 @@ void main() async {
   Config.env = Env.PROD;
   runApp(MyApp());
   if (Platform.isAndroid) {
-    SystemUiOverlayStyle systemUiOverlayStyle =
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent);
+    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+    );
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   }
 }

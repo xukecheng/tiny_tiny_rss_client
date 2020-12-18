@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                           // 撑满整个屏幕，保证居中效果
                           height: MediaQuery.of(context).size.height -
                               AppBar().preferredSize.height -
-                              28.0,
+                              30.0,
                           child: Center(
                             child: Text(
                               "没有新文章",
