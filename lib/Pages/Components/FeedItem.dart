@@ -36,7 +36,42 @@ class _FeedItemState extends State<FeedItem> {
     TinyTinyRss().markRead(feedArticlesId);
   }
 
+  // 长按文章的菜单栏
   void _longPressArticle(int id) {
+    void markReads(bool isUp) {
+      List feedArticlesId = new List();
+      for (Map article
+          in isUp ? this.feedArticles : this.feedArticles.reversed) {
+        if (article['id'] != id) {
+          feedArticlesId.add(article['id']);
+          setState(() {
+            article['isRead'] = 1;
+          });
+        } else {
+          break;
+        }
+      }
+      TinyTinyRss().markRead(feedArticlesId);
+      Navigator.pop(context);
+    }
+
+    Widget markReadsItem(bool isUp) {
+      return Row(
+        children: [
+          Icon(
+            isUp ? Icons.arrow_upward : Icons.arrow_downward,
+            color: Tool().colorFromHex("#f5712c"),
+          ),
+          Text(
+            isUp ? '将以上文章全部标记为已读' : '将以下文章全部标记为已读',
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+        ],
+      );
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -45,55 +80,15 @@ class _FeedItemState extends State<FeedItem> {
           children: [
             SimpleDialogOption(
               onPressed: () {
-                List feedArticlesId = new List();
-                for (Map article in this.feedArticles) {
-                  if (article['id'] != id) {
-                    feedArticlesId.add(article['id']);
-                    setState(() {
-                      article['isRead'] = 1;
-                    });
-                  } else {
-                    break;
-                  }
-                }
-                TinyTinyRss().markRead(feedArticlesId);
-                Navigator.pop(context);
+                markReads(true);
               },
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_upward),
-                  Text(
-                    '将以上文章全部标记为已读',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
+              child: markReadsItem(true),
             ),
             SimpleDialogOption(
               onPressed: () {
-                List feedArticlesId = new List();
-                for (Map article in this.feedArticles.reversed) {
-                  if (article['id'] != id) {
-                    feedArticlesId.add(article['id']);
-                    setState(() {
-                      article['isRead'] = 1;
-                    });
-                  } else {
-                    break;
-                  }
-                }
-                TinyTinyRss().markRead(feedArticlesId);
-                Navigator.pop(context);
+                markReads(false);
               },
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_downward),
-                  Text(
-                    '将以下文章全部标记为已读',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
+              child: markReadsItem(false),
             ),
           ],
         );
@@ -196,14 +191,18 @@ class _FeedItemState extends State<FeedItem> {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blueGrey[700]),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blueGrey[700],
+                        ),
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.done),
+                    icon: Icon(
+                      Icons.done_all,
+                      color: Tool().colorFromHex("#f5712c"),
+                    ),
                     onPressed: () {
                       this._markFeedRead();
                     },

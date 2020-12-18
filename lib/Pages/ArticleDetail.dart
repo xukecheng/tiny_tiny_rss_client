@@ -45,7 +45,7 @@ class ArticleDetail extends StatelessWidget {
                 child: Text(
                   this.title,
                   style: TextStyle(
-                      fontSize: 28,
+                      fontSize: 27,
                       fontWeight: FontWeight.bold,
                       // 标记颜色和下划线，防止 hero 动画出现变色和下划线
                       color: Colors.black,

@@ -20,14 +20,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: new ThemeData(
-        primaryColor: Colors.blueGrey[500],
+        primaryColor: Colors.white,
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text("TinyTinyRss"),
+          title: Text(
+            "TinyTinyRSS",
+            style: TextStyle(
+              color: Tool().colorFromHex("#f5712c"),
+            ),
+          ),
         ),
         body: HomePage(),
-        backgroundColor: Tool().colorFromHex("#efefef"),
+        backgroundColor: Tool().colorFromHex("#f5f5f5"),
       ),
     );
   }
