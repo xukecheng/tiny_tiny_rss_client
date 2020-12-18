@@ -115,7 +115,7 @@ class _WidgetFactory extends WidgetFactory {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => PhotoViewer(
-              imageList,
+              this.imageList,
               initialPage: imageList.indexOf(image.sources.first.url),
             ),
           ),

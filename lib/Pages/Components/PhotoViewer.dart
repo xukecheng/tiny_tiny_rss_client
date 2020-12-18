@@ -38,35 +38,13 @@ class _PhotoViewerState extends State<PhotoViewer> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    nowPosition = initialPage;
+    nowPosition = initialPage + 1;
     pageController = PageController(initialPage: initialPage);
-    _initData();
   }
-
-  void _initData() {
-    dotWidgets = [];
-    if (widget.imageList.length > 1) {
-      for (int i = 0; i < widget.imageList.length; i++) {
-        dotWidgets.add(_buildDots(i));
-      }
-    }
-  }
-
-  Widget _buildDots(int index) => Container(
-        margin: EdgeInsets.all(5),
-        child: ClipOval(
-          child: Container(
-            color: index == nowPosition
-                ? widget.checkedColor
-                : widget.uncheckedColor,
-            width: 5.0,
-            height: 5.0,
-          ),
-        ),
-      );
 
   @override
   Widget build(BuildContext context) {
+    int imageNum = widget.imageList.length;
     return Container(
       child: GestureDetector(
         onVerticalDragUpdate: (DragUpdateDetails details) {
@@ -81,8 +59,7 @@ class _PhotoViewerState extends State<PhotoViewer> {
             PhotoViewGallery.builder(
               onPageChanged: (index) {
                 setState(() {
-                  nowPosition = index;
-                  _initData();
+                  nowPosition = index + 1;
                 });
               },
               scrollPhysics: const BouncingScrollPhysics(),
@@ -98,9 +75,14 @@ class _PhotoViewerState extends State<PhotoViewer> {
               pageController: pageController,
             ),
             Container(
-              margin: EdgeInsets.only(bottom: 10),
-              child: Wrap(
-                children: dotWidgets,
+              margin: EdgeInsets.only(bottom: 50),
+              child: Text(
+                '$nowPosition / $imageNum',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                ),
               ),
             ),
           ],
