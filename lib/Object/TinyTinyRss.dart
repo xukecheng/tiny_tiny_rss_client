@@ -2,27 +2,37 @@ import 'package:dio/dio.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../utils/config.dart';
+import 'dart:convert';
+import '../Tool/Tool.dart';
 
 BaseOptions options = BaseOptions(baseUrl: Config.apiHost);
+Dio dio = Dio(options);
+String sessionId;
 
 class Feed {
   int id;
   String feedTitle;
   String feedIcon;
+  int categoryId;
 
   //构造方法
-  Feed({this.id, this.feedTitle, this.feedIcon});
+  Feed({this.id, this.feedTitle, this.feedIcon, this.categoryId});
   Map<String, dynamic> toJson() {
-    return {"id": id, "feedTitle": feedTitle, "feedIcon": feedIcon};
+    return {
+      "id": id,
+      "feedTitle": feedTitle,
+      "feedIcon": feedIcon,
+      'categoryId': categoryId
+    };
   }
 
   //用于将JSON字典转换成类对象的工厂类方法
   factory Feed.fromJson(Map<String, dynamic> parsedJson) {
     return Feed(
-      id: parsedJson['id'],
-      feedTitle: parsedJson['feedTitle'],
-      feedIcon: parsedJson['feedIcon'],
-    );
+        id: parsedJson['id'],
+        feedTitle: parsedJson['feedTitle'],
+        feedIcon: parsedJson['feedIcon'],
+        categoryId: parsedJson['categoryId']);
   }
 }
 
@@ -84,6 +94,32 @@ class Article {
 }
 
 class TinyTinyRss {
+  _login() async {
+    Response res = await dio.post(
+      "api/",
+      data: {
+        "op": "login",
+        "user": Config.userName,
+        "password": Config.passWord
+      },
+    );
+    print(json.decode(res.data));
+    sessionId = json.decode(res.data)["content"]["session_id"];
+  }
+
+  _checkLoginStatus() async {
+    Response response = await dio.post(
+      "api/",
+      data: {
+        "op": "isLoggedIn",
+        "sid": sessionId,
+      },
+    );
+    if (!response.data['status']) {
+      await this._login();
+    }
+  }
+
   Future<Database> _initailDataBase() async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'tiny_tiny_rss.db'),
@@ -139,23 +175,36 @@ class TinyTinyRss {
       );
     }
 
-    Dio dio = Dio(options);
     try {
-      Response response = await dio.get("/get_unreads");
-      response.data["data"].forEach((value) async {
-        var articleData = Article(
-          id: value['id'],
-          feedId: value['feedId'],
-          title: value['title'],
-          isMarked: value['isMarked'],
-          isRead: value['isRead'],
-          description: value['description'],
-          htmlContent: value['htmlContent'],
-          flavorImage: value['flavorImage'],
-          articleOriginLink: value['articleOriginLink'],
-          publishTime: value['publishTime'],
+      Response response = await dio.post(
+        "api/",
+        data: {
+          "op": "getHeadlines",
+          "sid": sessionId,
+          "view_mode": "unread",
+          "feed_id": -4,
+          "show_content": true,
+        },
+      );
+      json.decode(response.data)['content'].forEach((articleData) async {
+        var article = Article(
+          id: articleData['id'],
+          feedId: articleData['feed_id'],
+          title: articleData['title'],
+          description: articleData['content'].isNotEmpty()
+              ? Tool()
+                      .parseHtmlString(articleData["content"])
+                      .substring(0, 51) +
+                  "..."
+              : '',
+          isMarked: articleData['marked'],
+          isRead: articleData['unread'] ? 0 : 1,
+          htmlContent: articleData['content'],
+          flavorImage: articleData['flavor_image'],
+          articleOriginLink: articleData['link'],
+          publishTime: articleData['updated'],
         );
-        await insertArticle(articleData);
+        await insertArticle(article);
       });
     } catch (e) {
       print(e);
@@ -163,6 +212,7 @@ class TinyTinyRss {
   }
 
   _insertFeed(db) async {
+    List categoryList = new List();
     Future<void> insertFeed(Feed std) async {
       await db.insert(
         "feed",
@@ -171,16 +221,33 @@ class TinyTinyRss {
       );
     }
 
-    Dio dio = Dio(options);
     try {
-      Response response = await dio.get("/get_feed_tree");
-      response.data["data"].forEach((category) async {
-        category['categoryFeed'].forEach((feed) async {
-          var feedData = Feed(
-              id: feed['feedId'],
-              feedTitle: feed['feedTitle'],
-              feedIcon: feed['feedIcon']);
-          await insertFeed(feedData);
+      Response response = await dio.post(
+        "api/",
+        data: {
+          "op": "getFeedTree",
+          "sid": sessionId,
+          "include_empty": false,
+        },
+      );
+
+      var feedTreeData =
+          json.decode(response.data)['content']['categories']['items'];
+      feedTreeData.removeAt(0);
+      feedTreeData.forEach((categoryData) async {
+        var category = {
+          "title": categoryData["name"],
+          "id": categoryData["bare_id"],
+        };
+        categoryList.add(category);
+        categoryData['items'].forEach((feedData) async {
+          var feed = Feed(
+            id: feedData["bare_id"],
+            feedTitle: feedData["name"],
+            feedIcon: feedData["icon"],
+            categoryId: categoryData["bare_id"],
+          );
+          await insertFeed(feed);
         });
       });
     } catch (e) {
@@ -188,58 +255,24 @@ class TinyTinyRss {
     }
   }
 
-  Future<List> getArticle({bool isUnread = true}) async {
-    var articleList;
-    // 等待完成数据库初始化
-    var database = this._initailDataBase();
-    final Database db = await database;
-    // 等待完成数据请求和插入
-    await this._insertFeed(db);
-    await this._insertArticle(db);
-    // 该方法返回单条数据为 Map 的 List
-    Future<List> getArticle() async {
-      String sql = '''SELECT 
-          article.id,
-          article.title,
-          article.description,
-          article.flavorImage,
-          article.publishTime,
-          article.htmlContent,
-          article.isRead,
-          feed.feedIcon,
-          feed.feedTitle 
-          FROM article INNER JOIN feed ON article.feedId = feed.id
-          WHERE article.isRead = ? 
-          ORDER BY publishTime DESC
-          ''';
-      final List<Map> maps = isUnread
-          // 未读文章获取
-          ? await db.rawQuery(sql, [0])
-          // 已读文章获取
-          : await db.rawQuery(sql);
-
-      return List.generate(maps.length, (i) {
-        Map articleData = {};
-        maps[i].forEach((key, value) => articleData[key] = value);
-        return articleData;
-      });
-    }
-
-    await getArticle().then((list) {
-      articleList = list;
-    });
-    // this._shutDownDataBase();
-    return articleList;
-  }
-
   void markRead(List articleIdList) async {
     var database = this._initailDataBase();
     final Database db = await database;
-    Dio dio = Dio(options);
+    await this._checkLoginStatus();
     // 调用接口设置已读
     try {
       String articleIdString = articleIdList.join(',');
-      await dio.get('/mark_read?article_id_string=$articleIdString');
+      Response response = await dio.post(
+        "api/",
+        data: {
+          "op": "updateArticle",
+          "sid": sessionId,
+          "article_ids": articleIdString,
+          "mode": 0,
+          "field": 2
+        },
+      );
+      print(response.data);
     } catch (e) {
       print(e);
     }
@@ -266,6 +299,7 @@ class TinyTinyRss {
     var database = this._initailDataBase();
     final Database db = await database;
     // 等待完成数据请求和插入
+    await this._checkLoginStatus();
     await this._insertFeed(db);
     await this._insertArticle(db);
 
@@ -323,4 +357,48 @@ class TinyTinyRss {
     // this._shutDownDataBase();
     return feedList;
   }
+
+  // Future<List> getArticle({bool isUnread = true}) async {
+  //   var articleList;
+  //   // 等待完成数据库初始化
+  //   var database = this._initailDataBase();
+  //   final Database db = await database;
+  //   // 等待完成数据请求和插入
+  //   await this._insertFeed(db);
+  //   await this._insertArticle(db);
+  //   // 该方法返回单条数据为 Map 的 List
+  //   Future<List> getArticle() async {
+  //     String sql = '''SELECT
+  //         article.id,
+  //         article.title,
+  //         article.description,
+  //         article.flavorImage,
+  //         article.publishTime,
+  //         article.htmlContent,
+  //         article.isRead,
+  //         feed.feedIcon,
+  //         feed.feedTitle
+  //         FROM article INNER JOIN feed ON article.feedId = feed.id
+  //         WHERE article.isRead = ?
+  //         ORDER BY publishTime DESC
+  //         ''';
+  //     final List<Map> maps = isUnread
+  //         // 未读文章获取
+  //         ? await db.rawQuery(sql, [0])
+  //         // 已读文章获取
+  //         : await db.rawQuery(sql);
+
+  //     return List.generate(maps.length, (i) {
+  //       Map articleData = {};
+  //       maps[i].forEach((key, value) => articleData[key] = value);
+  //       return articleData;
+  //     });
+  //   }
+
+  //   await getArticle().then((list) {
+  //     articleList = list;
+  //   });
+  //   // this._shutDownDataBase();
+  //   return articleList;
+  // }
 }

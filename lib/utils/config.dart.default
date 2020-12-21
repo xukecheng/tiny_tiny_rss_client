@@ -18,4 +18,11 @@ class Config {
         return "http://local.yuanxuxu.com";
     }
   }
+  static String get userName {
+    return "test";
+  }
+
+  static String get passWord {
+    return "test";
+  }
 }
