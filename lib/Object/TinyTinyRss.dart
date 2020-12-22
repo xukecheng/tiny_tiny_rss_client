@@ -12,7 +12,7 @@ Dio dio = Dio(options);
 // Category Feed Article 是自定义对象，用于整理数据插入到数据库中
 class Category {
   int id;
-  int categoryName;
+  String categoryName;
 
   //构造方法
   Category({this.id, this.categoryName});
@@ -121,8 +121,12 @@ class TinyTinyRss {
   SharedPreferences session;
   SharedPreferences account;
 
-  main() async {
-    // 初始化登录数据和用户名密码
+  TinyTinyRss({this.session, this.account}) {
+    this._init();
+  }
+
+  // 初始化登录数据和用户名密码
+  void _init() async {
     this.session = await SharedPreferences.getInstance();
     this.account = await SharedPreferences.getInstance();
     await this.account.setString('username', Config.userName);
@@ -142,6 +146,7 @@ class TinyTinyRss {
     await this
         .session
         .setString('id', json.decode(res.data)["content"]["session_id"]);
+    print(this.session.getString('id'));
   }
 
   _checkLoginStatus() async {
@@ -149,12 +154,14 @@ class TinyTinyRss {
       "api/",
       data: {
         "op": "isLoggedIn",
-        "sid": this.session.getString('id'),
+        "sid": this.session.getString('id') ?? '',
       },
     );
     if (!json.decode(response.data)['content']['status']) {
       print('未登录');
       await this._login();
+    } else {
+      print('已登录');
     }
   }
 
@@ -300,7 +307,7 @@ class TinyTinyRss {
               id: feedData["bare_id"],
               feedTitle: feedData["name"],
               feedIcon: feedData["icon"].toString() == 'false'
-                  ? ''
+                  ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1608049658.ico'
                   : Config.apiHost + feedData["icon"],
               categoryId: categoryData["bare_id"],
             ),
@@ -329,7 +336,6 @@ class TinyTinyRss {
           "field": 2
         },
       );
-      print(response.data);
     } catch (e) {
       print(e);
     }
