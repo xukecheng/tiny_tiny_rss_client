@@ -9,6 +9,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 BaseOptions options = BaseOptions(baseUrl: Config.apiHost);
 Dio dio = Dio(options);
 
+// Category Feed Article 是自定义对象，用于整理数据插入到数据库中
+class Category {
+  int id;
+  int categoryName;
+
+  //构造方法
+  Category({this.id, this.categoryName});
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "categoryName": categoryName,
+    };
+  }
+
+  //用于将JSON字典转换成类对象的工厂类方法
+  factory Category.fromJson(Map<String, dynamic> parsedJson) {
+    return Category(
+      id: parsedJson['id'],
+      categoryName: parsedJson['categoryName'],
+    );
+  }
+}
+
 class Feed {
   int id;
   String feedTitle;
@@ -93,11 +116,13 @@ class Article {
   }
 }
 
+// TinyTinyRss 主功能
 class TinyTinyRss {
   SharedPreferences session;
   SharedPreferences account;
 
   main() async {
+    // 初始化登录数据和用户名密码
     this.session = await SharedPreferences.getInstance();
     this.account = await SharedPreferences.getInstance();
     await this.account.setString('username', Config.userName);
@@ -157,6 +182,11 @@ class TinyTinyRss {
             feedIcon TEXT,
             categoryId INTEGER)
             ''');
+        db.execute('''
+          CREATE TABLE category(
+            id INTEGER PRIMARY KEY,
+            categoryName INTEGER)
+            ''');
       },
       onUpgrade: (db, oldVersion, newVersion) {
         //dosth for migration
@@ -201,32 +231,40 @@ class TinyTinyRss {
         },
       );
       json.decode(response.data)['content'].forEach((articleData) async {
-        var article = Article(
-          id: articleData['id'],
-          feedId: articleData['feed_id'],
-          title: articleData['title'],
-          description: articleData['content'].toString() != 'false'
-              ? Tool()
-                      .parseHtmlString(articleData["content"])
-                      .substring(0, 51) +
-                  "..."
-              : '',
-          isMarked: articleData['marked'] ? 1 : 0,
-          isRead: articleData['unread'] ? 0 : 1,
-          htmlContent: articleData['content'],
-          flavorImage: articleData['flavor_image'],
-          articleOriginLink: articleData['link'],
-          publishTime: articleData['updated'],
+        await insertArticle(
+          Article(
+            id: articleData['id'],
+            feedId: articleData['feed_id'],
+            title: articleData['title'],
+            description: articleData['content'].toString() != 'false'
+                ? Tool()
+                        .parseHtmlString(articleData["content"])
+                        .substring(0, 51) +
+                    "..."
+                : '',
+            isMarked: articleData['marked'] ? 1 : 0,
+            isRead: articleData['unread'] ? 0 : 1,
+            htmlContent: articleData['content'],
+            flavorImage: articleData['flavor_image'],
+            articleOriginLink: articleData['link'],
+            publishTime: articleData['updated'],
+          ),
         );
-        await insertArticle(article);
       });
     } catch (e) {
       print(e);
     }
   }
 
-  _insertFeed(db) async {
-    List categoryList = new List();
+  _insertCategoryAndFeed(db) async {
+    Future<void> insertCategory(Category std) async {
+      await db.insert(
+        "category",
+        std.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
     Future<void> insertFeed(Feed std) async {
       await db.insert(
         "feed",
@@ -249,21 +287,24 @@ class TinyTinyRss {
           json.decode(response.data)['content']['categories']['items'];
       feedTreeData.removeAt(0);
       feedTreeData.forEach((categoryData) async {
-        var category = {
-          "title": categoryData["name"],
-          "id": categoryData["bare_id"],
-        };
-        categoryList.add(category);
+        await insertCategory(
+          Category(
+            id: categoryData["bare_id"],
+            categoryName: categoryData["name"],
+          ),
+        );
+
         categoryData['items'].forEach((feedData) async {
-          var feed = Feed(
-            id: feedData["bare_id"],
-            feedTitle: feedData["name"],
-            feedIcon: feedData["icon"].toString() == 'false'
-                ? ''
-                : Config.apiHost + feedData["icon"],
-            categoryId: categoryData["bare_id"],
+          await insertFeed(
+            Feed(
+              id: feedData["bare_id"],
+              feedTitle: feedData["name"],
+              feedIcon: feedData["icon"].toString() == 'false'
+                  ? ''
+                  : Config.apiHost + feedData["icon"],
+              categoryId: categoryData["bare_id"],
+            ),
           );
-          await insertFeed(feed);
         });
       });
     } catch (e) {
@@ -316,7 +357,7 @@ class TinyTinyRss {
     final Database db = await database;
     // 等待完成数据请求和插入
     await this._checkLoginStatus();
-    await this._insertFeed(db);
+    await this._insertCategoryAndFeed(db);
     await this._insertArticle(db);
 
     Future<List<Map>> getFeed({bool isUnread = true}) async {

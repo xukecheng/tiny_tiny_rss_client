@@ -36,7 +36,6 @@ class _PhotoViewerState extends State<PhotoViewer> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     nowPosition = initialPage + 1;
     pageController = PageController(initialPage: initialPage);
@@ -93,7 +92,6 @@ class _PhotoViewerState extends State<PhotoViewer> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     pageController.dispose();
   }
