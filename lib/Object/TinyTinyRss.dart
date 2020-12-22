@@ -4,10 +4,10 @@ import 'package:path/path.dart';
 import '../utils/config.dart';
 import 'dart:convert';
 import '../Tool/Tool.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 BaseOptions options = BaseOptions(baseUrl: Config.apiHost);
 Dio dio = Dio(options);
-String sessionId;
 
 class Feed {
   int id;
@@ -94,17 +94,29 @@ class Article {
 }
 
 class TinyTinyRss {
+  SharedPreferences session;
+  SharedPreferences account;
+
+  main() async {
+    this.session = await SharedPreferences.getInstance();
+    this.account = await SharedPreferences.getInstance();
+    await this.account.setString('username', Config.userName);
+    await this.account.setString('password', Config.passWord);
+  }
+
   _login() async {
     Response res = await dio.post(
       "api/",
       data: {
         "op": "login",
-        "user": Config.userName,
-        "password": Config.passWord
+        "user": this.account.getString('username'),
+        "password": this.account.getString('password')
       },
     );
-    print(json.decode(res.data));
-    sessionId = json.decode(res.data)["content"]["session_id"];
+
+    await this
+        .session
+        .setString('id', json.decode(res.data)["content"]["session_id"]);
   }
 
   _checkLoginStatus() async {
@@ -112,10 +124,11 @@ class TinyTinyRss {
       "api/",
       data: {
         "op": "isLoggedIn",
-        "sid": sessionId,
+        "sid": this.session.getString('id'),
       },
     );
-    if (!response.data['status']) {
+    if (!json.decode(response.data)['content']['status']) {
+      print('未登录');
       await this._login();
     }
   }
@@ -141,7 +154,8 @@ class TinyTinyRss {
           CREATE TABLE feed(
             id INTEGER PRIMARY KEY,
             feedTitle TEXT,
-            feedIcon TEXT)
+            feedIcon TEXT,
+            categoryId INTEGER)
             ''');
       },
       onUpgrade: (db, oldVersion, newVersion) {
@@ -180,7 +194,7 @@ class TinyTinyRss {
         "api/",
         data: {
           "op": "getHeadlines",
-          "sid": sessionId,
+          "sid": this.session.getString('id'),
           "view_mode": "unread",
           "feed_id": -4,
           "show_content": true,
@@ -191,13 +205,13 @@ class TinyTinyRss {
           id: articleData['id'],
           feedId: articleData['feed_id'],
           title: articleData['title'],
-          description: articleData['content'].isNotEmpty()
+          description: articleData['content'].toString() != 'false'
               ? Tool()
                       .parseHtmlString(articleData["content"])
                       .substring(0, 51) +
                   "..."
               : '',
-          isMarked: articleData['marked'],
+          isMarked: articleData['marked'] ? 1 : 0,
           isRead: articleData['unread'] ? 0 : 1,
           htmlContent: articleData['content'],
           flavorImage: articleData['flavor_image'],
@@ -226,7 +240,7 @@ class TinyTinyRss {
         "api/",
         data: {
           "op": "getFeedTree",
-          "sid": sessionId,
+          "sid": this.session.getString('id'),
           "include_empty": false,
         },
       );
@@ -244,7 +258,9 @@ class TinyTinyRss {
           var feed = Feed(
             id: feedData["bare_id"],
             feedTitle: feedData["name"],
-            feedIcon: feedData["icon"],
+            feedIcon: feedData["icon"].toString() == 'false'
+                ? ''
+                : Config.apiHost + feedData["icon"],
             categoryId: categoryData["bare_id"],
           );
           await insertFeed(feed);
@@ -266,7 +282,7 @@ class TinyTinyRss {
         "api/",
         data: {
           "op": "updateArticle",
-          "sid": sessionId,
+          "sid": this.session.getString('id'),
           "article_ids": articleIdString,
           "mode": 0,
           "field": 2
