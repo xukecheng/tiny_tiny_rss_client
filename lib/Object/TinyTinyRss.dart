@@ -4,7 +4,6 @@ import 'package:path/path.dart';
 import '../utils/config.dart';
 import 'dart:convert';
 import '../Tool/Tool.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 BaseOptions options = BaseOptions(baseUrl: Config.apiHost);
 Dio dio = Dio(options);
@@ -118,50 +117,38 @@ class Article {
 
 // TinyTinyRss 主功能
 class TinyTinyRss {
-  SharedPreferences session;
-  SharedPreferences account;
-
-  TinyTinyRss({this.session, this.account}) {
-    this._init();
-  }
-
-  // 初始化登录数据和用户名密码
-  void _init() async {
-    this.session = await SharedPreferences.getInstance();
-    this.account = await SharedPreferences.getInstance();
-    await this.account.setString('username', Config.userName);
-    await this.account.setString('password', Config.passWord);
-  }
-
   _login() async {
     Response res = await dio.post(
       "api/",
       data: {
         "op": "login",
-        "user": this.account.getString('username'),
-        "password": this.account.getString('password')
+        "user": Config.userName,
+        "password": Config.passWord,
       },
     );
-
-    await this
-        .session
-        .setString('id', json.decode(res.data)["content"]["session_id"]);
-    print(this.session.getString('id'));
+    await SharedPreferencesUtil.saveData<String>(
+        'sessionId', json.decode(res.data)["content"]["session_id"]);
+    print('登录中');
   }
 
-  _checkLoginStatus() async {
-    Response response = await dio.post(
-      "api/",
-      data: {
-        "op": "isLoggedIn",
-        "sid": this.session.getString('id') ?? '',
-      },
-    );
-    if (!json.decode(response.data)['content']['status']) {
+  _checkLoginStatus(sessionId) async {
+    if (sessionId != null) {
+      Response response = await dio.post(
+        "api/",
+        data: {
+          "op": "isLoggedIn",
+          "sid": sessionId ?? '',
+        },
+      );
+      if (!json.decode(response.data)['content']['status']) {
+        print('未登录');
+        await this._login();
+      } else {
+        print('已登录');
+      }
+    } else {
       print('未登录');
       await this._login();
-    } else {
-      print('已登录');
     }
   }
 
@@ -210,7 +197,7 @@ class TinyTinyRss {
     db.close();
   }
 
-  _insertArticle(db) async {
+  _insertArticle(db, sessionId) async {
     // 再插入新数据之前，把老数据全部标记为已读，再由 insertArticle 去拉取未读文章并更新
     Future<int> updateRead() async {
       return await db.update('article', {'isRead': 1});
@@ -231,7 +218,7 @@ class TinyTinyRss {
         "api/",
         data: {
           "op": "getHeadlines",
-          "sid": this.session.getString('id'),
+          "sid": sessionId,
           "view_mode": "unread",
           "feed_id": -4,
           "show_content": true,
@@ -259,11 +246,11 @@ class TinyTinyRss {
         );
       });
     } catch (e) {
-      print(e);
+      print('错误$e');
     }
   }
 
-  _insertCategoryAndFeed(db) async {
+  _insertCategoryAndFeed(db, sessionId) async {
     Future<void> insertCategory(Category std) async {
       await db.insert(
         "category",
@@ -285,7 +272,7 @@ class TinyTinyRss {
         "api/",
         data: {
           "op": "getFeedTree",
-          "sid": this.session.getString('id'),
+          "sid": sessionId,
           "include_empty": false,
         },
       );
@@ -322,15 +309,18 @@ class TinyTinyRss {
   void markRead(List articleIdList) async {
     var database = this._initailDataBase();
     final Database db = await database;
-    await this._checkLoginStatus();
+    String sessionId;
+    await SharedPreferencesUtil.getData<String>('sessionId')
+        .then((value) => sessionId = value);
+    await this._checkLoginStatus(sessionId);
     // 调用接口设置已读
     try {
       String articleIdString = articleIdList.join(',');
-      Response response = await dio.post(
+      await dio.post(
         "api/",
         data: {
           "op": "updateArticle",
-          "sid": this.session.getString('id'),
+          "sid": sessionId,
           "article_ids": articleIdString,
           "mode": 0,
           "field": 2
@@ -361,21 +351,30 @@ class TinyTinyRss {
     // 等待完成数据库初始化
     var database = this._initailDataBase();
     final Database db = await database;
+    String sessionId;
+    await SharedPreferencesUtil.getData<String>('sessionId')
+        .then((value) => sessionId = value);
+    await this._checkLoginStatus(sessionId);
     // 等待完成数据请求和插入
-    await this._checkLoginStatus();
-    await this._insertCategoryAndFeed(db);
-    await this._insertArticle(db);
+    await this._insertCategoryAndFeed(db, sessionId);
+    await this._insertArticle(db, sessionId);
 
     Future<List<Map>> getFeed({bool isUnread = true}) async {
       String sql = '''SELECT 
-            article.feedId, 
-            feed.feedTitle,
-            feed.feedIcon
-            FROM article INNER JOIN feed ON article.feedId = feed.id
-            WHERE article.isRead = ? 
-            GROUP BY feedId 
-            ORDER BY publishTime DESC
-            ''';
+                        article.feedId, 
+                        feed.feedTitle,
+                        feed.feedIcon
+                      FROM 
+                        article 
+                      INNER JOIN 
+                        feed 
+                        ON article.feedId = feed.id
+                      WHERE 
+                        article.isRead = ? 
+                      GROUP BY 
+                        feedId 
+                      ORDER BY 
+                        publishTime DESC''';
       final List<Map> maps = isUnread
           // 未读文章获取
           ? await db.rawQuery(sql, [0])
@@ -391,21 +390,27 @@ class TinyTinyRss {
 
     List feedList = await getFeed(isUnread: true);
     String sql = '''SELECT 
-          article.id,
-          article.title,
-          article.description,
-          article.flavorImage,
-          article.publishTime,
-          article.htmlContent,
-          article.isRead,
-          article.articleOriginLink,
-          feed.feedIcon,
-          feed.feedTitle 
-          FROM article INNER JOIN feed ON article.feedId = feed.id
-          WHERE article.isRead = ? 
-          AND article.feedId = ?
-          ORDER BY publishTime DESC
-          ''';
+                        article.id,
+                        article.title,
+                        article.description,
+                        article.flavorImage,
+                        article.publishTime,
+                        article.htmlContent,
+                        article.isRead,
+                        article.articleOriginLink,
+                        feed.feedIcon,
+                        feed.feedTitle 
+                      FROM 
+                        article 
+                      INNER JOIN 
+                        feed 
+                        ON article.feedId = feed.id
+                      WHERE 
+                        article.isRead = ? 
+                      AND 
+                        article.feedId = ?
+                      ORDER BY 
+                        publishTime DESC''';
     await Future.forEach(feedList, (feed) async {
       final List<Map> maps = await db.rawQuery(
         sql,
