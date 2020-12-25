@@ -126,7 +126,7 @@ class TinyTinyRss {
         "password": Config.passWord,
       },
     );
-    await SharedPreferencesUtil.saveData<String>(
+    await Tool.saveData<String>(
         'sessionId', json.decode(res.data)["content"]["session_id"]);
     print('登录中');
   }
@@ -310,8 +310,7 @@ class TinyTinyRss {
     var database = this._initailDataBase();
     final Database db = await database;
     String sessionId;
-    await SharedPreferencesUtil.getData<String>('sessionId')
-        .then((value) => sessionId = value);
+    await Tool.getData<String>('sessionId').then((value) => sessionId = value);
     await this._checkLoginStatus(sessionId);
     // 调用接口设置已读
     try {
@@ -330,34 +329,31 @@ class TinyTinyRss {
       print(e);
     }
     // 本地数据库标记已读
-    Future<int> markRead() async {
-      try {
-        articleIdList.forEach((articleId) async {
-          await db.update("article", {"isRead": 1},
-              where: 'id = ?', whereArgs: [articleId]);
-        });
-        return 1;
-      } catch (e) {
-        print(e);
-        return 0;
-      }
+    try {
+      articleIdList.forEach((articleId) async {
+        await db.update("article", {"isRead": 1},
+            where: 'id = ?', whereArgs: [articleId]);
+      });
+    } catch (e) {
+      print(e);
     }
 
-    await markRead();
     // this._shutDownDataBase();
   }
 
-  Future<List> getArticleInFeed() async {
+  Future<List> getArticleInFeed({bool isLaunch = false}) async {
     // 等待完成数据库初始化
     var database = this._initailDataBase();
     final Database db = await database;
-    String sessionId;
-    await SharedPreferencesUtil.getData<String>('sessionId')
-        .then((value) => sessionId = value);
-    await this._checkLoginStatus(sessionId);
-    // 等待完成数据请求和插入
-    await this._insertCategoryAndFeed(db, sessionId);
-    await this._insertArticle(db, sessionId);
+    if (isLaunch == false) {
+      String sessionId;
+      await Tool.getData<String>('sessionId')
+          .then((value) => sessionId = value);
+      await this._checkLoginStatus(sessionId);
+      // 等待完成数据请求和插入
+      await this._insertCategoryAndFeed(db, sessionId);
+      await this._insertArticle(db, sessionId);
+    }
 
     Future<List<Map>> getFeed({bool isUnread = true}) async {
       String sql = '''SELECT 
@@ -395,11 +391,7 @@ class TinyTinyRss {
                         article.description,
                         article.flavorImage,
                         article.publishTime,
-                        article.htmlContent,
-                        article.isRead,
-                        article.articleOriginLink,
-                        feed.feedIcon,
-                        feed.feedTitle 
+                        article.isRead
                       FROM 
                         article 
                       INNER JOIN 
@@ -426,6 +418,17 @@ class TinyTinyRss {
     return feedList;
   }
 
+  Future<Map> getArticleDetail(int articleId) async {
+    var database = this._initailDataBase();
+    final Database db = await database;
+    List<Map> articleDetail =
+        await db.query('article', where: 'id = ?', whereArgs: [articleId]);
+    if (articleDetail.length > 0) {
+      return articleDetail.first;
+    } else {
+      return {'title': '', 'htmlContent': '', 'articleOriginLink': ''};
+    }
+  }
   // Future<List> getArticle({bool isUnread = true}) async {
   //   var articleList;
   //   // 等待完成数据库初始化

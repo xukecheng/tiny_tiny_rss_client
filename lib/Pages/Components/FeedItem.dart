@@ -84,6 +84,9 @@ class _FeedItemState extends State<FeedItem> {
               },
               child: markReadsItem(true),
             ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+            ),
             SimpleDialogOption(
               onPressed: () {
                 markReads(false);
@@ -118,9 +121,8 @@ class _FeedItemState extends State<FeedItem> {
               MaterialPageRoute(
                 //传值
                 builder: (context) => ArticleDetail(
-                    title: article['title'],
-                    htmlContent: article['htmlContent'],
-                    articleOriginLink: article['articleOriginLink']),
+                  id: article['id'],
+                ),
               ),
             );
           },

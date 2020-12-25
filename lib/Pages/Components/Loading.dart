@@ -8,8 +8,8 @@ class Loading extends StatelessWidget {
     return Container(
       child: Center(
           child: Image.asset(
-        "images/Spinner-1s-200px.gif",
-        width: 100,
+        "images/Rolling-1s-200px.gif",
+        width: 50,
       )),
     );
   }

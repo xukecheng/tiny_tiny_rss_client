@@ -19,9 +19,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // 初始化未读文章
-    TinyTinyRss().getArticleInFeed().then((value) {
+    TinyTinyRss().getArticleInFeed(isLaunch: true).then((savedValue) {
       setState(() {
-        this.unreadArticleList = value;
+        this.unreadArticleList = savedValue;
         this.isLoadComplete = true;
       });
     });

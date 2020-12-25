@@ -19,10 +19,7 @@ class Tool {
     final String parsedString = parse(document.body.text).documentElement.text;
     return parsedString.replaceAll("\n", "").replaceAll(new RegExp(r"\s+"), "");
   }
-}
 
-class SharedPreferencesUtil {
-  /// 保存数据
   static saveData<T>(String key, T value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
