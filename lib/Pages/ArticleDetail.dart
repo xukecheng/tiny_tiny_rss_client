@@ -33,11 +33,11 @@ class ArticleDetail extends StatelessWidget {
             backgroundColor: Colors.white,
             appBar: AppBar(
               actions: [
-                // 打开原文
                 snapshot.hasError
                     ? Center(
                         child: Text("Error: ${snapshot.error}"),
                       )
+                    // 打开原文
                     : IconButton(
                         icon: Icon(Icons.open_in_browser),
                         onPressed: () {
@@ -103,6 +103,13 @@ class ArticleDetail extends StatelessWidget {
                                   return {'margin-bottom': '10px'};
                                 } else if (element.localName.contains('a')) {
                                   return {'border-bottom': ''};
+                                } else if (element.localName
+                                    .contains('figure')) {
+                                  return {
+                                    'margin': '0',
+                                    'font-size': '0.857em',
+                                    'color': 'grey'
+                                  };
                                 }
                                 return null;
                               },
