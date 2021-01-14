@@ -183,11 +183,11 @@ class _FeedItemState extends State<FeedItem> {
                       ),
                     ),
                   ),
+                  // Feed 标题
                   Expanded(
                     flex: 10,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 10.0),
-                      // Feed 标题
                       child: Text(
                         widget.feedTitle,
                         overflow: TextOverflow.ellipsis,
@@ -200,6 +200,7 @@ class _FeedItemState extends State<FeedItem> {
                       ),
                     ),
                   ),
+                  // 全部已读 Icon
                   IconButton(
                     icon: Icon(
                       Icons.done_all,

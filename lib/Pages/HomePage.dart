@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'Components/FeedItem.dart';
 import 'Components/Loading.dart';
 import '../Object/TinyTinyRss.dart';
+import '../Tool/Tool.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -73,7 +74,10 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               "没有新文章",
                               style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Tool().colorFromHex("#f5712c"),
+                              ),
                             ),
                           ),
                         ),
