@@ -78,20 +78,65 @@ class _FeedItemState extends State<FeedItem> {
         return SimpleDialog(
           backgroundColor: Colors.white,
           children: [
+            // 上面的文章标记为已读
             SimpleDialogOption(
               onPressed: () {
                 markReads(true);
               },
               child: markReadsItem(true),
             ),
+
             Padding(
               padding: const EdgeInsets.only(top: 10.0),
             ),
+            // 下面的文章标记为已读
             SimpleDialogOption(
               onPressed: () {
                 markReads(false);
               },
               child: markReadsItem(false),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+            ),
+            // 标记为未读/已读
+            SimpleDialogOption(
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.arrow_right,
+                    color: Tool().colorFromHex("#f5712c"),
+                  ),
+                  Text(
+                    "标记为未读",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+            ),
+            // 标记为星标
+            SimpleDialogOption(
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.arrow_right,
+                    color: Tool().colorFromHex("#f5712c"),
+                  ),
+                  Text(
+                    "标记为星标",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         );
