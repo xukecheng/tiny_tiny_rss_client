@@ -55,6 +55,32 @@ class _FeedItemState extends State<FeedItem> {
       Navigator.pop(context);
     }
 
+    void markRead() {
+      List feedArticlesId = new List();
+      for (Map article in this.feedArticles) {
+        if (article['id'] == id) {
+          feedArticlesId.add(article['id']);
+          setState(() {
+            article['isRead'] = isRead == 0 ? 1 : 0;
+          });
+        }
+      }
+      TinyTinyRss().markRead(feedArticlesId, isRead: isRead);
+      Navigator.pop(context);
+    }
+
+    void markStar() {
+      for (Map article in this.feedArticles) {
+        if (article['id'] != id) {
+          setState(() {
+            article['isStar'] = isStar == 0 ? 1 : 0;
+          });
+        }
+      }
+      TinyTinyRss().markStar(id, isStar);
+      Navigator.pop(context);
+    }
+
     Widget markReadsItem(bool isUp) {
       return Row(
         children: [
@@ -102,9 +128,7 @@ class _FeedItemState extends State<FeedItem> {
             // 标记为未读/已读
             SimpleDialogOption(
               onPressed: () {
-                List idList = new List();
-                idList.add(id);
-                TinyTinyRss().markRead(idList, isRead: isRead);
+                markRead();
               },
               child: Row(
                 children: [
@@ -127,7 +151,7 @@ class _FeedItemState extends State<FeedItem> {
             // 标记为星标
             SimpleDialogOption(
               onPressed: () {
-                TinyTinyRss().markStar(id, isStar);
+                markStar();
               },
               child: Row(
                 children: [

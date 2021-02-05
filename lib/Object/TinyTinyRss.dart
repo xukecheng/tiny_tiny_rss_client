@@ -355,8 +355,8 @@ class TinyTinyRss {
           "op": "updateArticle",
           "sid": sessionId,
           "article_ids": id.toString(),
-          "mode": 1,
-          "field": isStar == 0 ? 1 : 0
+          "mode": isStar == 0 ? 1 : 0,
+          "field": 0
         },
       );
     } catch (e) {
@@ -423,7 +423,8 @@ class TinyTinyRss {
                         article.description,
                         article.flavorImage,
                         article.publishTime,
-                        article.isRead
+                        article.isRead,
+                        article.isStar
                       FROM 
                         article 
                       INNER JOIN 
