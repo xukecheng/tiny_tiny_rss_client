@@ -62,7 +62,7 @@ class Article {
   int id;
   int feedId;
   String title;
-  int isMarked;
+  int isStar;
   int isRead;
   String description;
   String htmlContent;
@@ -75,7 +75,7 @@ class Article {
     this.id,
     this.feedId,
     this.title,
-    this.isMarked,
+    this.isStar,
     this.isRead,
     this.description,
     this.htmlContent,
@@ -88,7 +88,7 @@ class Article {
       "id": id,
       "feedId": feedId,
       "title": title,
-      "isMarked": isMarked,
+      "isStar": isStar,
       "isRead": isRead,
       "description": description,
       "htmlContent": htmlContent,
@@ -104,7 +104,7 @@ class Article {
       id: parsedJson['id'],
       feedId: parsedJson['feedId'],
       title: parsedJson['title'],
-      isMarked: parsedJson['isMarked'],
+      isStar: parsedJson['isStar'],
       isRead: parsedJson['isRead'],
       description: parsedJson['description'],
       htmlContent: parsedJson['htmlContent'],
@@ -161,7 +161,7 @@ class TinyTinyRss {
             id INTEGER PRIMARY KEY,
             feedId INTEGER,
             title TEXT,
-            isMarked INTEGER,
+            isStar INTEGER,
             isRead INTEGER,
             description TEXT,
             htmlContent TEXT,
@@ -236,7 +236,7 @@ class TinyTinyRss {
                         .substring(0, 51) +
                     "..."
                 : '',
-            isMarked: articleData['marked'] ? 1 : 0,
+            isStar: articleData['marked'] ? 1 : 0,
             isRead: articleData['unread'] ? 0 : 1,
             htmlContent: articleData['content'],
             flavorImage: articleData['flavor_image'],
@@ -306,7 +306,7 @@ class TinyTinyRss {
     }
   }
 
-  void markRead(List articleIdList) async {
+  void markRead(List articleIdList, {int isRead = 0}) async {
     var database = this._initailDataBase();
     final Database db = await database;
     String sessionId;
@@ -321,7 +321,7 @@ class TinyTinyRss {
           "op": "updateArticle",
           "sid": sessionId,
           "article_ids": articleIdString,
-          "mode": 0,
+          "mode": isRead == 0 ? 0 : 1,
           "field": 2
         },
       );
@@ -334,6 +334,38 @@ class TinyTinyRss {
         await db.update("article", {"isRead": 1},
             where: 'id = ?', whereArgs: [articleId]);
       });
+    } catch (e) {
+      print(e);
+    }
+
+    // this._shutDownDataBase();
+  }
+
+  void markStar(int id, int isStar) async {
+    var database = this._initailDataBase();
+    final Database db = await database;
+    String sessionId;
+    await Tool.getData<String>('sessionId').then((value) => sessionId = value);
+    await this._checkLoginStatus(sessionId);
+    // 调用接口设置已读
+    try {
+      await dio.post(
+        "api/",
+        data: {
+          "op": "updateArticle",
+          "sid": sessionId,
+          "article_ids": id.toString(),
+          "mode": 1,
+          "field": isStar == 0 ? 1 : 0
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
+    // 本地数据库标记星标
+    try {
+      await db.update("article", {"isStar": 1},
+          where: 'id = ?', whereArgs: [id]);
     } catch (e) {
       print(e);
     }

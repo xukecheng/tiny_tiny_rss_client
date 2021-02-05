@@ -37,7 +37,7 @@ class _FeedItemState extends State<FeedItem> {
   }
 
   // 长按文章的菜单栏
-  void _longPressArticle(int id) {
+  void _longPressArticle(int id, int isStar, int isRead) {
     void markReads(bool isUp) {
       List feedArticlesId = new List();
       for (Map article
@@ -101,7 +101,11 @@ class _FeedItemState extends State<FeedItem> {
             ),
             // 标记为未读/已读
             SimpleDialogOption(
-              onPressed: () {},
+              onPressed: () {
+                List idList = new List();
+                idList.add(id);
+                TinyTinyRss().markRead(idList, isRead: isRead);
+              },
               child: Row(
                 children: [
                   Icon(
@@ -109,7 +113,7 @@ class _FeedItemState extends State<FeedItem> {
                     color: Tool().colorFromHex("#f5712c"),
                   ),
                   Text(
-                    "标记为未读",
+                    isRead == 0 ? "标记为已读" : "标记为未读",
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -122,7 +126,9 @@ class _FeedItemState extends State<FeedItem> {
             ),
             // 标记为星标
             SimpleDialogOption(
-              onPressed: () {},
+              onPressed: () {
+                TinyTinyRss().markStar(id, isStar);
+              },
               child: Row(
                 children: [
                   Icon(
@@ -130,7 +136,7 @@ class _FeedItemState extends State<FeedItem> {
                     color: Tool().colorFromHex("#f5712c"),
                   ),
                   Text(
-                    "标记为星标",
+                    isStar == 0 ? "标记为星标" : "取消星标",
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -171,7 +177,8 @@ class _FeedItemState extends State<FeedItem> {
               ),
             );
           },
-          onLongPress: () => this._longPressArticle(article['id']),
+          onLongPress: () => this._longPressArticle(
+              article['id'], article['isStar'], article['isRead']),
           child: ArticleItem(
             id: article['id'],
             title: article['title'],
