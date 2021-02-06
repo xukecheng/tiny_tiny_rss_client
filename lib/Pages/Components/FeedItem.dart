@@ -71,7 +71,7 @@ class _FeedItemState extends State<FeedItem> {
 
     void markStar() {
       for (Map article in this.feedArticles) {
-        if (article['id'] != id) {
+        if (article['id'] == id) {
           setState(() {
             article['isStar'] = isStar == 0 ? 1 : 0;
           });
