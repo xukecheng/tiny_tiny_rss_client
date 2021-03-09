@@ -17,7 +17,7 @@ class FeedItem extends StatefulWidget {
 }
 
 class _FeedItemState extends State<FeedItem> {
-  List<Map> feedArticles = new List();
+  List<Map> feedArticles = [];
   @override
   void initState() {
     super.initState();
@@ -26,7 +26,7 @@ class _FeedItemState extends State<FeedItem> {
 
   // Feed 下标记全部已读
   void _markFeedRead() {
-    List feedArticlesId = new List();
+    List feedArticlesId = [];
     this.feedArticles.forEach((article) {
       feedArticlesId.add(article['id']);
       setState(() {
@@ -39,7 +39,7 @@ class _FeedItemState extends State<FeedItem> {
   // 长按文章的菜单栏
   void _longPressArticle(int id, int isStar, int isRead) {
     void markReads(bool isUp) {
-      List feedArticlesId = new List();
+      List feedArticlesId = [];
       for (Map article
           in isUp ? this.feedArticles : this.feedArticles.reversed) {
         if (article['id'] != id) {
@@ -56,7 +56,7 @@ class _FeedItemState extends State<FeedItem> {
     }
 
     void markRead() {
-      List feedArticlesId = new List();
+      List feedArticlesId = [];
       for (Map article in this.feedArticles) {
         if (article['id'] == id) {
           feedArticlesId.add(article['id']);
@@ -184,7 +184,7 @@ class _FeedItemState extends State<FeedItem> {
         return InkWell(
           onTap: () {
             setState(() {
-              List markReadArticleIdList = new List();
+              List markReadArticleIdList = [];
               markReadArticleIdList.add(
                 article['id'],
               );

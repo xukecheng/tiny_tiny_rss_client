@@ -12,9 +12,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List unreadArticleList = new List();
+  List unreadArticleList = [];
   bool isLoadComplete = false;
-  List unreadArticleListNew = new List();
+  List unreadArticleListNew = [];
 
   @override
   void initState() {
