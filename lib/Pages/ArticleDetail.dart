@@ -82,8 +82,8 @@ class ArticleDetail extends StatelessWidget {
                             child: HtmlWidget(
                               snapshot.data['htmlContent'],
                               // 捕捉点击图片事件
-                              // factoryBuilder: () =>
-                              //     _WidgetFactory(context: context),
+                              factoryBuilder: () =>
+                                  _WidgetFactory(context: context),
                               customStylesBuilder: (element) {
                                 if (element.localName.contains('p')) {
                                   return {
@@ -114,17 +114,21 @@ class ArticleDetail extends StatelessWidget {
                                 return null;
                               },
                               onTapUrl: (url) => this._launchURL(url),
-                              onTapImage: (url) {
-                                List imageList = [url];
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => PhotoViewer(
-                                      imageList,
-                                      initialPage: 1,
-                                    ),
-                                  ),
-                                );
-                              },
+
+                              /// 获取出来的是 ImageMetadata
+                              // onTapImage: (url) {
+                              //   List imageList = [url];
+                              //   print(url);
+                              //   print(imageList);
+                              //   Navigator.of(context).push(
+                              //     MaterialPageRoute(
+                              //       builder: (context) => PhotoViewer(
+                              //         imageList,
+                              //         initialPage: 1,
+                              //       ),
+                              //     ),
+                              //   );
+                              // },
                               textStyle: TextStyle(fontSize: 16, height: 1.6),
                             )),
                       ],
@@ -140,31 +144,31 @@ class ArticleDetail extends StatelessWidget {
   }
 }
 
-// class _WidgetFactory extends WidgetFactory {
-//   _WidgetFactory({@required this.context});
-//   final context;
-//   List imageList = [];
-//   @override
-//   Widget buildImage(BuildMetadata meta, Object provider, ImageMetadata image) {
-//     final built = super.buildImage(meta, provider, image);
-//     if (built == null) return built;
-//     imageList.add(image.sources.first.url);
-//     return GestureDetector(
-//       child: Hero(
-//         tag: image.sources.first.url,
-//         child: built,
-//       ),
-//       onTap: () {
-//         // 跳转到图片预览页
-//         Navigator.of(context).push(
-//           MaterialPageRoute(
-//             builder: (context) => PhotoViewer(
-//               this.imageList,
-//               initialPage: imageList.indexOf(image.sources.first.url),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
+class _WidgetFactory extends WidgetFactory {
+  _WidgetFactory({@required this.context});
+  final context;
+  List imageList = [];
+  @override
+  Widget buildImage(BuildMetadata meta, ImageMetadata image) {
+    final built = super.buildImage(meta, image);
+    if (built == null) return built;
+    imageList.add(image.sources.first.url);
+    return GestureDetector(
+      child: Hero(
+        tag: image.sources.first.url,
+        child: built,
+      ),
+      onTap: () {
+        // 跳转到图片预览页
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PhotoViewer(
+              this.imageList,
+              initialPage: imageList.indexOf(image.sources.first.url),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

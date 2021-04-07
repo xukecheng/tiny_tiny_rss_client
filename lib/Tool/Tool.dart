@@ -20,6 +20,7 @@ class Tool {
     return parsedString.replaceAll("\n", "").replaceAll(new RegExp(r"\s+"), "");
   }
 
+  /// 保存数据
   static saveData<T>(String key, T value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 

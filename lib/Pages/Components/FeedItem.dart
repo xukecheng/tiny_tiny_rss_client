@@ -174,7 +174,7 @@ class _FeedItemState extends State<FeedItem> {
     );
   }
 
-  // 生成单 Feed 下的文章流和文章跳转
+  // 生成单 Feed 下的文章流
   List<Widget> _getArticleTile() {
     setState(() {
       this.feedArticles = widget.feedArticles;
