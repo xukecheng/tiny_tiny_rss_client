@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../Tool/Tool.dart';
-import '../ArticleDetail.dart';
-import '../../Object/TinyTinyRss.dart';
+import 'package:fluro/fluro.dart';
+
 import 'ArticleItem.dart';
+import 'FeedItemExpansion.dart';
+
+import '../../Tool/Tool.dart';
+import '../../Object/TinyTinyRss.dart';
+import '../../Routers/Application.dart';
 
 class FeedItem extends StatefulWidget {
-  FeedItem({Key key, this.feedTitle, this.feedIcon, this.feedArticles})
-      : super(key: key);
+  FeedItem({
+    Key key,
+    this.feedId,
+    this.feedTitle,
+    this.feedIcon,
+    this.feedArticles,
+    this.unreadArticleList,
+    this.callBack,
+  }) : super(key: key);
+  final int feedId;
   final String feedIcon;
   final String feedTitle;
   final List<Map> feedArticles;
+  final unreadArticleList;
+  final callBack;
 
   @override
   _FeedItemState createState() => _FeedItemState();
@@ -27,7 +41,7 @@ class _FeedItemState extends State<FeedItem> {
   // Feed 下标记全部已读
   void _markFeedRead() {
     List feedArticlesId = [];
-    this.feedArticles.forEach((article) {
+    widget.feedArticles.forEach((article) {
       feedArticlesId.add(article['id']);
       setState(() {
         article['isRead'] = 1;
@@ -37,66 +51,70 @@ class _FeedItemState extends State<FeedItem> {
   }
 
   // 长按文章的菜单栏
-  void _longPressArticle(int id, int isStar, int isRead) {
-    void markReads(bool isUp) {
-      List feedArticlesId = [];
-      for (Map article
-          in isUp ? this.feedArticles : this.feedArticles.reversed) {
-        if (article['id'] != id) {
-          feedArticlesId.add(article['id']);
-          setState(() {
-            article['isRead'] = 1;
-          });
+  void _longPressArticle(int id) {
+    void markRead(bool isUp) {
+      print(widget.unreadArticleList);
+      List markReadIdList = [];
+      // 编译当前所有未读列表获取 Feed
+      for (Map feed in isUp
+          ? widget.unreadArticleList
+          : widget.unreadArticleList.reversed) {
+        // 判断 Feed 是否为当前 Feed
+        if (feed['feedId'] != widget.feedId) {
+          // 不为当前 Feed，遍历所有文章标记为已读
+          for (Map article
+              in isUp ? feed['feedArticles'] : feed['feedArticles'].reversed) {
+            markReadIdList.add(article['id']);
+            setState(() {
+              article['isRead'] = 1;
+            });
+          }
         } else {
+          // 为当前 Feed，筛选出不是选择文章上面或下面标记为已读
+          for (Map article
+              in isUp ? feed['feedArticles'] : feed['feedArticles'].reversed) {
+            if (article['id'] != id) {
+              markReadIdList.add(article['id']);
+              setState(() {
+                article['isRead'] = 1;
+              });
+            } else {
+              // 停止寻找当前 Feed 更多文章
+              break;
+            }
+          }
+          // 停止寻找更多 Feed
           break;
         }
       }
-      TinyTinyRss().markRead(feedArticlesId);
+      widget.callBack(widget.unreadArticleList);
+      TinyTinyRss().markRead(markReadIdList);
       Navigator.pop(context);
     }
 
-    void markRead() {
-      List feedArticlesId = [];
-      for (Map article in this.feedArticles) {
-        if (article['id'] == id) {
-          feedArticlesId.add(article['id']);
-          setState(() {
-            article['isRead'] = isRead == 0 ? 1 : 0;
-          });
-        }
-      }
-      TinyTinyRss().markRead(feedArticlesId, isRead: isRead);
-      Navigator.pop(context);
-    }
+    // void markRead() {
+    //   List feedArticlesId = [];
+    //   for (Map article in widget.feedArticles) {
+    //     if (article['id'] == id) {
+    //       feedArticlesId.add(article['id']);
+    //       setState(() {
+    //         article['isRead'] = isRead == 0 ? 1 : 0;
+    //       });
+    //     }
+    //   }
+    //   TinyTinyRss().markRead(feedArticlesId, isRead: isRead);
+    // }
 
-    void markStar() {
-      for (Map article in this.feedArticles) {
-        if (article['id'] == id) {
-          setState(() {
-            article['isStar'] = isStar == 0 ? 1 : 0;
-          });
-        }
-      }
-      TinyTinyRss().markStar(id, isStar);
-      Navigator.pop(context);
-    }
-
-    Widget markReadsItem(bool isUp) {
-      return Row(
-        children: [
-          Icon(
-            isUp ? Icons.arrow_upward : Icons.arrow_downward,
-            color: Tool().colorFromHex("#f5712c"),
-          ),
-          Text(
-            isUp ? '将以上文章全部标记为已读' : '将以下文章全部标记为已读',
-            style: TextStyle(
-              fontSize: 16,
-            ),
-          ),
-        ],
-      );
-    }
+    // void markStar() {
+    //   for (Map article in widget.feedArticles) {
+    //     if (article['id'] == id) {
+    //       setState(() {
+    //         article['isStar'] = isStar == 0 ? 1 : 0;
+    //       });
+    //     }
+    //   }
+    //   TinyTinyRss().markStar(id, isStar);
+    // }
 
     showDialog(
       context: context,
@@ -107,9 +125,22 @@ class _FeedItemState extends State<FeedItem> {
             // 上面的文章标记为已读
             SimpleDialogOption(
               onPressed: () {
-                markReads(true);
+                markRead(true);
               },
-              child: markReadsItem(true),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.arrow_upward,
+                    color: Tool().colorFromHex("#f5712c"),
+                  ),
+                  Text(
+                    '将以上文章全部标记为已读',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             Padding(
@@ -118,26 +149,16 @@ class _FeedItemState extends State<FeedItem> {
             // 下面的文章标记为已读
             SimpleDialogOption(
               onPressed: () {
-                markReads(false);
-              },
-              child: markReadsItem(false),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-            ),
-            // 标记为未读/已读
-            SimpleDialogOption(
-              onPressed: () {
-                markRead();
+                markRead(false);
               },
               child: Row(
                 children: [
                   Icon(
-                    Icons.arrow_right,
+                    Icons.arrow_downward,
                     color: Tool().colorFromHex("#f5712c"),
                   ),
                   Text(
-                    isRead == 0 ? "标记为已读" : "标记为未读",
+                    '将以下文章全部标记为已读',
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -147,26 +168,6 @@ class _FeedItemState extends State<FeedItem> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 10.0),
-            ),
-            // 标记为星标
-            SimpleDialogOption(
-              onPressed: () {
-                markStar();
-              },
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.arrow_right,
-                    color: Tool().colorFromHex("#f5712c"),
-                  ),
-                  Text(
-                    isStar == 0 ? "标记为星标" : "取消星标",
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         );
@@ -179,30 +180,25 @@ class _FeedItemState extends State<FeedItem> {
     setState(() {
       this.feedArticles = widget.feedArticles;
     });
-    List<Widget> articles = this.feedArticles.map(
+    List<Widget> articles = widget.feedArticles.map(
       (article) {
+        int articleId = article['id'];
         return InkWell(
           onTap: () {
             setState(() {
               List markReadArticleIdList = [];
               markReadArticleIdList.add(
-                article['id'],
+                articleId,
               );
               TinyTinyRss().markRead(markReadArticleIdList);
               article['isRead'] = 1;
             });
             // 点击跳转详情页
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                //传值
-                builder: (context) => ArticleDetail(
-                  id: article['id'],
-                ),
-              ),
-            );
+            Application.router.navigateTo(
+                context, '/articleDetail?articleId=$articleId',
+                transition: TransitionType.cupertino);
           },
-          onLongPress: () => this._longPressArticle(
-              article['id'], article['isStar'], article['isRead']),
+          onLongPress: () => this._longPressArticle(article['id']),
           child: ArticleItem(
             id: article['id'],
             title: article['title'],
@@ -216,7 +212,7 @@ class _FeedItemState extends State<FeedItem> {
     ).toList();
 
     // 当 Feed 的文章超过 3 篇时，后面的文章收起
-    return this.feedArticles.length > 3
+    return widget.feedArticles.length > 3
         ? [
             // 前三篇文章
             Column(
@@ -227,7 +223,7 @@ class _FeedItemState extends State<FeedItem> {
               indent: 20,
               endIndent: 20,
             ),
-            // 第三篇之后的文章
+            // 第三篇之后的展开收起文章组件
             ExpansionArticles(articles: articles.sublist(3)),
           ]
         : articles;
@@ -301,50 +297,5 @@ class _FeedItemState extends State<FeedItem> {
         padding: const EdgeInsets.only(bottom: 10.0),
       ),
     ]);
-  }
-}
-
-// 第三篇之后的展开收起文章组件
-class ExpansionArticles extends StatefulWidget {
-  ExpansionArticles({Key key, this.articles}) : super(key: key);
-  // 接收第三篇之后的所有文章
-  final List<Widget> articles;
-
-  @override
-  _ExpansionArticlesState createState() => _ExpansionArticlesState();
-}
-
-class _ExpansionArticlesState extends State<ExpansionArticles> {
-  // 默认收起
-  bool expandedStatus = false;
-  @override
-  Widget build(BuildContext context) {
-    // 用 ClipRect 剪裁 ExpansionPanelList，用于去除边框阴影
-    return ClipRect(
-      child: Theme(
-        data: Theme.of(context).copyWith(cardColor: Colors.white),
-        child: ExpansionPanelList(
-          expansionCallback: (int index, bool isExpanded) {
-            setState(() {
-              this.expandedStatus = !this.expandedStatus;
-            });
-          },
-          children: [
-            ExpansionPanel(
-              canTapOnHeader: true,
-              headerBuilder: (BuildContext context, bool isExpanded) {
-                return ListTile(
-                  title: isExpanded ? Text("收起") : Text("展开"),
-                );
-              },
-              body: Column(
-                children: widget.articles,
-              ),
-              isExpanded: this.expandedStatus,
-            )
-          ],
-        ),
-      ),
-    );
   }
 }

@@ -41,29 +41,24 @@ class ArticleItem extends StatelessWidget {
                   children: [
                     Padding(padding: const EdgeInsets.only(top: 12.0)),
                     // 文章标题
-                    Hero(
-                      tag: this.title,
-                      child: Text(
-                        this.title,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        // 已读文章标题变色
-                        style: isRead == 1
-                            ? TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                // 标记颜色和下划线，防止 hero 动画出现变色和下划线
-                                color: Colors.grey,
-                                decoration: TextDecoration.none,
-                              )
-                            : TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                // 标记颜色和下划线，防止 hero 动画出现变色和下划线
-                                color: Colors.black,
-                                decoration: TextDecoration.none,
-                              ),
-                      ),
+                    Text(
+                      this.title,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      // 已读文章标题变色
+                      style: isRead == 1
+                          ? TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              decoration: TextDecoration.none,
+                            )
+                          : TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              decoration: TextDecoration.none,
+                            ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 6.0),

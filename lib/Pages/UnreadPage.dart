@@ -4,17 +4,16 @@ import 'Components/Loading.dart';
 import '../Object/TinyTinyRss.dart';
 import '../Tool/Tool.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+class UnreadPage extends StatefulWidget {
+  UnreadPage({Key key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _UnreadPageState createState() => _UnreadPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  List unreadArticleList = [];
+class _UnreadPageState extends State<UnreadPage> {
+  List<Map> unreadArticleList = [];
   bool isLoadComplete = false;
-  List unreadArticleListNew = [];
 
   @override
   void initState() {
@@ -25,6 +24,13 @@ class _HomePageState extends State<HomePage> {
         this.unreadArticleList = savedValue;
         this.isLoadComplete = true;
       });
+    });
+  }
+
+  // 接收子组件回调，更新未读列表
+  void onChanged(List<Map> value) {
+    setState(() {
+      this.unreadArticleList = value;
     });
   }
 
@@ -40,9 +46,13 @@ class _HomePageState extends State<HomePage> {
   _getArticleList(index) {
     // 生成 Feed 流
     return FeedItem(
-        feedIcon: unreadArticleList[index]['feedIcon'],
-        feedTitle: unreadArticleList[index]['feedTitle'],
-        feedArticles: unreadArticleList[index]['feedArticles']);
+      feedId: unreadArticleList[index]['feedId'],
+      feedIcon: unreadArticleList[index]['feedIcon'],
+      feedTitle: unreadArticleList[index]['feedTitle'],
+      feedArticles: unreadArticleList[index]['feedArticles'],
+      unreadArticleList: this.unreadArticleList,
+      callBack: (value) => onChanged(value),
+    );
   }
 
   @override

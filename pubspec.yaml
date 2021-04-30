@@ -36,6 +36,7 @@ dependencies:
   flutter_widget_from_html: ^0.6.0-rc.2021030401
   shared_preferences: ^2.0.3
   flutter_slidable: ^0.5.7
+  fluro: ^2.0.3
 
 dev_dependencies:
   flutter_test:
