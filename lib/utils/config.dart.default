@@ -10,12 +10,12 @@ class Config {
   static String get apiHost {
     switch (env) {
       case Env.PROD:
-        return "http://yuanxuxu.com";
+        return "https://blog.xukecheng.me";
       case Env.DEV:
-        return "http://develop.yuanxuxu.com";
+        return "https://blog.xukecheng.me";
       case Env.LOCAL:
       default:
-        return "http://local.yuanxuxu.com";
+        return "https://blog.xukecheng.me";
     }
   }
   static String get userName {

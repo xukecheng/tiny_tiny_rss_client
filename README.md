@@ -15,7 +15,7 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-## Todo
+## Todo List
 - [x] 未读文章列表
 - [x] SQLite 数据缓存
 - [x] 列表下拉刷新
@@ -24,8 +24,8 @@ samples, guidance on mobile development, and a full API reference.
 - [ ] 预缓存图片
 - [ ] 解决富文本过长，内容复杂时，滑动卡顿的问题
 - [ ] 文章日期分类
-- [ ] 标记已读、未读
-- [ ] 星标文章
+- [x] 标记已读、未读
+- [x] 星标文章
 - [ ] 所有文章列表
 - [ ] 星标文章列表
 - [x] 详情页 Url 跳转
@@ -38,6 +38,7 @@ samples, guidance on mobile development, and a full API reference.
 - [x] 平滑滚动
 - [x] 优化文章列表展示
 - [ ] 线性动画
+- [ ] 去除图片预览的动画
 - [x] 图片预览，下滑关闭
 - [ ] 文章滑动，切换到上一篇或下一篇文章（Feed 内）
 - [x] 将数据请求切换到 TinyTinyRss 官方接口
