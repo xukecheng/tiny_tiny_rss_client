@@ -65,7 +65,7 @@ class _UnreadPageState extends State<UnreadPage> {
     return this.isLoadComplete
         ? LiquidPullToRefresh(
             onRefresh: this._doRefresh,
-            springAnimationDurationInMilliseconds: 300,
+            springAnimationDurationInMilliseconds: 250,
             height: 80,
             color: Tool().colorFromHex("#f5712c"),
             showChildOpacityTransition: false,

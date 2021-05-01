@@ -306,7 +306,7 @@ class TinyTinyRss {
     }
   }
 
-  void markRead(List articleIdList, {int isRead = 0}) async {
+  void markRead(List articleIdList, {int isRead = 1}) async {
     var database = this._initailDataBase();
     final Database db = await database;
     String sessionId;
@@ -321,7 +321,7 @@ class TinyTinyRss {
           "op": "updateArticle",
           "sid": sessionId,
           "article_ids": articleIdString,
-          "mode": isRead == 0 ? 0 : 1,
+          "mode": isRead == 1 ? 0 : 1,
           "field": 2
         },
       );
@@ -331,7 +331,7 @@ class TinyTinyRss {
     // 本地数据库标记已读
     try {
       articleIdList.forEach((articleId) async {
-        await db.update("article", {"isRead": 1},
+        await db.update("article", {"isRead": isRead},
             where: 'id = ?', whereArgs: [articleId]);
       });
     } catch (e) {
@@ -355,7 +355,7 @@ class TinyTinyRss {
           "op": "updateArticle",
           "sid": sessionId,
           "article_ids": id.toString(),
-          "mode": isStar == 0 ? 1 : 0,
+          "mode": isStar,
           "field": 0
         },
       );

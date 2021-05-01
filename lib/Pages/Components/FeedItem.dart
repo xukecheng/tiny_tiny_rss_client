@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:styled_widget/styled_widget.dart';
 import 'package:fluro/fluro.dart';
 
 import 'ArticleItem.dart';
@@ -35,7 +36,7 @@ class _FeedItemState extends State<FeedItem> {
   @override
   void initState() {
     super.initState();
-    this.feedArticles = widget.feedArticles;
+    // this.feedArticles = widget.feedArticles;
   }
 
   // Feed 下标记全部已读
@@ -92,30 +93,6 @@ class _FeedItemState extends State<FeedItem> {
       Navigator.pop(context);
     }
 
-    // void markRead() {
-    //   List feedArticlesId = [];
-    //   for (Map article in widget.feedArticles) {
-    //     if (article['id'] == id) {
-    //       feedArticlesId.add(article['id']);
-    //       setState(() {
-    //         article['isRead'] = isRead == 0 ? 1 : 0;
-    //       });
-    //     }
-    //   }
-    //   TinyTinyRss().markRead(feedArticlesId, isRead: isRead);
-    // }
-
-    // void markStar() {
-    //   for (Map article in widget.feedArticles) {
-    //     if (article['id'] == id) {
-    //       setState(() {
-    //         article['isStar'] = isStar == 0 ? 1 : 0;
-    //       });
-    //     }
-    //   }
-    //   TinyTinyRss().markStar(id, isStar);
-    // }
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -129,22 +106,11 @@ class _FeedItemState extends State<FeedItem> {
               },
               child: Row(
                 children: [
-                  Icon(
-                    Icons.arrow_upward,
-                    color: Tool().colorFromHex("#f5712c"),
-                  ),
-                  Text(
-                    '将以上文章全部标记为已读',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
+                  Icon(Icons.arrow_upward)
+                      .iconColor(Tool().colorFromHex("#f5712c")),
+                  Text('将以上文章全部标记为已读').fontSize(16),
                 ],
               ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
             ),
             // 下面的文章标记为已读
             SimpleDialogOption(
@@ -153,21 +119,11 @@ class _FeedItemState extends State<FeedItem> {
               },
               child: Row(
                 children: [
-                  Icon(
-                    Icons.arrow_downward,
-                    color: Tool().colorFromHex("#f5712c"),
-                  ),
-                  Text(
-                    '将以下文章全部标记为已读',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
+                  Icon(Icons.arrow_downward)
+                      .iconColor(Tool().colorFromHex("#f5712c")),
+                  Text('将以下文章全部标记为已读').fontSize(16),
                 ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              ).padding(top: 10),
             ),
           ],
         );
@@ -177,20 +133,24 @@ class _FeedItemState extends State<FeedItem> {
 
   // 生成单 Feed 下的文章流
   List<Widget> _getArticleTile() {
-    setState(() {
-      this.feedArticles = widget.feedArticles;
-    });
     List<Widget> articles = widget.feedArticles.map(
       (article) {
         int articleId = article['id'];
+
+        // 接收子组件回调，更新已读和收藏状态
+        void onChanged(Map<String, int> value) {
+          setState(() {
+            article['isRead'] = value["isRead"];
+            article['isStar'] = value["isStar"];
+            TinyTinyRss().markRead([articleId], isRead: value["isRead"]);
+            TinyTinyRss().markStar(articleId, value["isStar"]);
+          });
+        }
+
         return InkWell(
           onTap: () {
             setState(() {
-              List markReadArticleIdList = [];
-              markReadArticleIdList.add(
-                articleId,
-              );
-              TinyTinyRss().markRead(markReadArticleIdList);
+              TinyTinyRss().markRead([articleId]);
               article['isRead'] = 1;
             });
             // 点击跳转详情页
@@ -205,9 +165,11 @@ class _FeedItemState extends State<FeedItem> {
             id: article['id'],
             title: article['title'],
             isRead: article['isRead'],
+            isStar: article['isStar'],
             description: article['description'],
             flavorImage: article['flavorImage'],
             publishTime: Tool().timestampToDate(article['publishTime']),
+            callBack: (Map<String, int> value) => onChanged(value),
           ),
         );
       },
@@ -233,71 +195,51 @@ class _FeedItemState extends State<FeedItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
+    return <Widget>[
       Card(
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-        child: Column(
-          children: [
-            // 卡片顶部 -> Feed 信息
-            Container(
-              margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
-              height: 60,
-              child: Flex(
-                direction: Axis.horizontal,
-                children: [
-                  // Feed Icon
-                  Expanded(
-                    flex: 1,
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: widget.feedIcon,
-                        width: 28,
-                        height: 28,
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-                  // Feed 标题
-                  Expanded(
-                    flex: 10,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: Text(
-                        widget.feedTitle,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blueGrey[700],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 全部已读 Icon
-                  IconButton(
-                    icon: Icon(
-                      Icons.done_all,
-                      color: Tool().colorFromHex("#f5712c"),
-                    ),
-                    onPressed: () {
-                      this._markFeedRead();
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Divider(
-              height: 0,
-            ),
-            // Feed 下的文章列表
-            Column(children: this._getArticleTile()),
-          ],
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-      ),
-    ]);
+        child: <Widget>[
+          // 卡片顶部 -> Feed 信息
+          Container(
+            child: Flex(
+              direction: Axis.horizontal,
+              children: [
+                // Feed Icon
+                Expanded(
+                  flex: 1,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.feedIcon,
+                    fit: BoxFit.fill,
+                  ).clipOval().width(28).height(28),
+                ),
+                // Feed 标题
+                Expanded(
+                  flex: 10,
+                  child: Text(
+                    widget.feedTitle,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  )
+                      .fontSize(16)
+                      .fontWeight(FontWeight.w600)
+                      .textColor(Colors.blueGrey[700])
+                      .padding(left: 10),
+                ),
+                // 全部已读 Icon
+                IconButton(
+                  icon: Icon(Icons.done_all)
+                      .iconColor(Tool().colorFromHex("#f5712c")),
+                  onPressed: () => this._markFeedRead(),
+                ),
+              ],
+            ).padding(left: 15, right: 15),
+          ).height(60),
+          Divider(
+            height: 0,
+          ),
+          // Feed 下的文章列表
+          Column(children: this._getArticleTile()),
+        ].toColumn(),
+      ).padding(left: 10, top: 10, right: 10, bottom: 10),
+    ].toColumn();
   }
 }
