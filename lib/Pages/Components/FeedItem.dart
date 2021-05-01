@@ -195,8 +195,10 @@ class _FeedItemState extends State<FeedItem> {
             });
             // 点击跳转详情页
             Application.router.navigateTo(
-                context, '/articleDetail?articleId=$articleId',
-                transition: TransitionType.cupertino);
+              context,
+              '/articleDetail?articleId=$articleId',
+              transition: TransitionType.cupertino,
+            );
           },
           onLongPress: () => this._longPressArticle(article['id']),
           child: ArticleItem(
