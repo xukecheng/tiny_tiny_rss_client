@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:styled_widget/styled_widget.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+
 import 'Components/FeedItem.dart';
 import 'Components/Loading.dart';
+
 import '../Object/TinyTinyRss.dart';
 import '../Tool/Tool.dart';
 
@@ -59,39 +63,34 @@ class _UnreadPageState extends State<UnreadPage> {
   Widget build(BuildContext context) {
     // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果
     return this.isLoadComplete
-        ? RefreshIndicator(
-            // 下拉刷新
+        ? LiquidPullToRefresh(
             onRefresh: this._doRefresh,
-            color: Colors.black87,
-            child: // 然后再判断是否有可用文章，没有的话展示无可读文章提示
-                unreadArticleList.length > 0
-                    ? ListView.builder(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        itemCount: this.unreadArticleList.length,
-                        itemBuilder: (context, index) {
-                          return this._getArticleList(index);
-                        },
+            springAnimationDurationInMilliseconds: 300,
+            height: 80,
+            color: Tool().colorFromHex("#f5712c"),
+            showChildOpacityTransition: false,
+            child: unreadArticleList.length > 0
+                ? ListView.builder(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: this.unreadArticleList.length,
+                    itemBuilder: (context, index) {
+                      return this._getArticleList(index);
+                    },
+                  )
+                : ListView(
+                    children: [
+                      Text(
+                        "没有新文章",
                       )
-                    : SingleChildScrollView(
-                        // 总是可以滚动，用以保证可以下拉刷新
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Container(
-                          // 撑满整个屏幕，保证居中效果
-                          height: MediaQuery.of(context).size.height -
-                              AppBar().preferredSize.height -
-                              30.0,
-                          child: Center(
-                            child: Text(
-                              "没有新文章",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Tool().colorFromHex("#f5712c"),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                          .bold()
+                          .fontSize(20)
+                          .textColor(
+                            Tool().colorFromHex("#f5712c"),
+                          )
+                          .center()
+                          .padding(top: 300)
+                    ],
+                  ),
           )
         : Loading();
   }
