@@ -33,11 +33,6 @@ class FeedItem extends StatefulWidget {
 
 class _FeedItemState extends State<FeedItem> {
   List<Map> feedArticles = [];
-  @override
-  void initState() {
-    super.initState();
-    // this.feedArticles = widget.feedArticles;
-  }
 
   // Feed 下标记全部已读
   void _markFeedRead() {
@@ -199,40 +194,38 @@ class _FeedItemState extends State<FeedItem> {
       Card(
         child: <Widget>[
           // 卡片顶部 -> Feed 信息
-          Container(
-            child: Flex(
-              direction: Axis.horizontal,
-              children: [
-                // Feed Icon
-                Expanded(
-                  flex: 1,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.feedIcon,
-                    fit: BoxFit.fill,
-                  ).clipOval().width(28).height(28),
-                ),
-                // Feed 标题
-                Expanded(
-                  flex: 10,
-                  child: Text(
-                    widget.feedTitle,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  )
-                      .fontSize(16)
-                      .fontWeight(FontWeight.w600)
-                      .textColor(Colors.blueGrey[700])
-                      .padding(left: 10),
-                ),
-                // 全部已读 Icon
-                IconButton(
-                  icon: Icon(Icons.done_all)
-                      .iconColor(Tool().colorFromHex("#f5712c")),
-                  onPressed: () => this._markFeedRead(),
-                ),
-              ],
-            ).padding(left: 15, right: 15),
-          ).height(60),
+          Flex(
+            direction: Axis.horizontal,
+            children: [
+              // Feed Icon
+              Expanded(
+                flex: 1,
+                child: CachedNetworkImage(
+                  imageUrl: widget.feedIcon,
+                  fit: BoxFit.fill,
+                ).clipOval().width(28).height(28),
+              ),
+              // Feed 标题
+              Expanded(
+                flex: 10,
+                child: Text(
+                  widget.feedTitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                )
+                    .fontSize(16)
+                    .fontWeight(FontWeight.w600)
+                    .textColor(Colors.blueGrey[700])
+                    .padding(left: 10),
+              ),
+              // 全部已读 Icon
+              IconButton(
+                icon: Icon(Icons.done_all)
+                    .iconColor(Tool().colorFromHex("#f5712c")),
+                onPressed: () => this._markFeedRead(),
+              ),
+            ],
+          ).height(60).padding(left: 15, right: 15),
           Divider(
             height: 0,
           ),

@@ -39,6 +39,7 @@ dependencies:
   fluro: ^2.0.3
   styled_widget: ^0.3.0
   liquid_pull_to_refresh: ^3.0.0
+  bottom_navy_bar: ^5.6.0
 
 dev_dependencies:
   flutter_test:
