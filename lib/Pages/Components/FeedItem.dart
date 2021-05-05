@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:fluro/fluro.dart';
+import 'package:provider/provider.dart';
 
 import 'ArticleItem.dart';
 import 'FeedItemExpansion.dart';
 
 import '../../Tool/Tool.dart';
-import '../../Object/TinyTinyRss.dart';
+import '../../Object/database.dart';
 import '../../Routers/Application.dart';
 
 class FeedItem extends StatefulWidget {
@@ -17,14 +18,14 @@ class FeedItem extends StatefulWidget {
     this.feedTitle,
     this.feedIcon,
     this.feedArticles,
-    this.unreadArticleList,
+    this.articlesInfeeds,
     this.callBack,
   }) : super(key: key);
   final int feedId;
   final String feedIcon;
   final String feedTitle;
-  final List<Map> feedArticles;
-  final unreadArticleList;
+  final List<Article> feedArticles;
+  final articlesInfeeds;
   final callBack;
 
   @override
@@ -32,47 +33,53 @@ class FeedItem extends StatefulWidget {
 }
 
 class _FeedItemState extends State<FeedItem> {
-  List<Map> feedArticles = [];
+  // List<ArticlesInFeed> unreadArticleList = [];
+  List<Article> feedArticles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // this.unreadArticleList = widget.articlesInfeeds;
+    this.feedArticles = widget.feedArticles;
+  }
 
   // Feed 下标记全部已读
-  void _markFeedRead() {
+  void _markFeedRead(AppDatabase database) {
     List feedArticlesId = [];
-    widget.feedArticles.forEach((article) {
-      feedArticlesId.add(article['id']);
+    this.feedArticles.forEach((article) {
+      feedArticlesId.add(article.id);
       setState(() {
-        article['isRead'] = 1;
+        article = article.copyWith(isRead: 1);
       });
     });
-    TinyTinyRss().markRead(feedArticlesId);
+    database.markRead(idList: feedArticlesId);
   }
 
   // 长按文章的菜单栏
-  void _longPressArticle(int id) {
+  void _longPressArticle(int id, AppDatabase database) {
     void markRead(bool isUp) {
-      print(widget.unreadArticleList);
       List markReadIdList = [];
       // 编译当前所有未读列表获取 Feed
-      for (Map feed in isUp
-          ? widget.unreadArticleList
-          : widget.unreadArticleList.reversed) {
+      for (ArticlesInFeed feed
+          in isUp ? widget.articlesInfeeds : widget.articlesInfeeds.reversed) {
         // 判断 Feed 是否为当前 Feed
-        if (feed['feedId'] != widget.feedId) {
+        if (feed.id != widget.feedId) {
           // 不为当前 Feed，遍历所有文章标记为已读
-          for (Map article
-              in isUp ? feed['feedArticles'] : feed['feedArticles'].reversed) {
-            markReadIdList.add(article['id']);
+          for (Article article
+              in isUp ? feed.feedArticles : feed.feedArticles.reversed) {
+            markReadIdList.add(article.id);
             setState(() {
-              article['isRead'] = 1;
+              // article.isRead = 1;
             });
           }
         } else {
           // 为当前 Feed，筛选出不是选择文章上面或下面标记为已读
-          for (Map article
-              in isUp ? feed['feedArticles'] : feed['feedArticles'].reversed) {
-            if (article['id'] != id) {
-              markReadIdList.add(article['id']);
+          for (Article article
+              in isUp ? feed.feedArticles : feed.feedArticles.reversed) {
+            if (article.id != id) {
+              markReadIdList.add(article.id);
               setState(() {
-                article['isRead'] = 1;
+                // article.isRead = 1;
               });
             } else {
               // 停止寻找当前 Feed 更多文章
@@ -83,8 +90,8 @@ class _FeedItemState extends State<FeedItem> {
           break;
         }
       }
-      widget.callBack(widget.unreadArticleList);
-      TinyTinyRss().markRead(markReadIdList);
+      widget.callBack(widget.articlesInfeeds);
+      database.markRead(idList: markReadIdList);
       Navigator.pop(context);
     }
 
@@ -127,48 +134,49 @@ class _FeedItemState extends State<FeedItem> {
   }
 
   // 生成单 Feed 下的文章流
-  List<Widget> _getArticleTile() {
+  List<Widget> _getArticleTile(AppDatabase database) {
     List<Widget> articles = widget.feedArticles.map(
-      (article) {
-        int articleId = article['id'];
+          (Article article) {
+            int articleId = article.id;
 
-        // 接收子组件回调，更新已读和收藏状态
-        void onChanged(Map<String, int> value) {
-          setState(() {
-            article['isRead'] = value["isRead"];
-            article['isStar'] = value["isStar"];
-            TinyTinyRss().markRead([articleId], isRead: value["isRead"]);
-            TinyTinyRss().markStar(articleId, value["isStar"]);
-          });
-        }
+            // 接收子组件回调，更新已读和收藏状态
+            void onChanged(Map<String, int> value) {
+              setState(() {
+                article = article.copyWith(
+                    isRead: value["isRead"], isStar: value["isStar"]);
+                database.markRead(idList: [articleId], isRead: value["isRead"]);
+                database.markStar(id: articleId, isStar: value["isStar"]);
+              });
+            }
 
-        return InkWell(
-          onTap: () {
-            setState(() {
-              TinyTinyRss().markRead([articleId]);
-              article['isRead'] = 1;
-            });
-            // 点击跳转详情页
-            Application.router.navigateTo(
-              context,
-              '/articleDetail?articleId=$articleId',
-              transition: TransitionType.cupertino,
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  database.markRead(idList: [articleId]);
+                  article = article.copyWith(isRead: 1);
+                });
+                // 点击跳转详情页
+                Application.router.navigateTo(
+                  context,
+                  '/articleDetail?articleId=$articleId',
+                  transition: TransitionType.cupertino,
+                );
+              },
+              onLongPress: () => this._longPressArticle(article.id, database),
+              child: ArticleItem(
+                id: article.id,
+                title: article.title,
+                isRead: article.isRead,
+                isStar: article.isStar,
+                description: article.description,
+                flavorImage: article.flavorImage,
+                publishTime: Tool().timestampToDate(article.publishTime),
+                callBack: (Map<String, int> value) => onChanged(value),
+              ),
             );
           },
-          onLongPress: () => this._longPressArticle(article['id']),
-          child: ArticleItem(
-            id: article['id'],
-            title: article['title'],
-            isRead: article['isRead'],
-            isStar: article['isStar'],
-            description: article['description'],
-            flavorImage: article['flavorImage'],
-            publishTime: Tool().timestampToDate(article['publishTime']),
-            callBack: (Map<String, int> value) => onChanged(value),
-          ),
-        );
-      },
-    ).toList();
+        ).toList() ??
+        [];
 
     // 当 Feed 的文章超过 3 篇时，后面的文章收起
     return widget.feedArticles.length > 3
@@ -190,6 +198,7 @@ class _FeedItemState extends State<FeedItem> {
 
   @override
   Widget build(BuildContext context) {
+    AppDatabase database = Provider.of<AppDatabase>(context, listen: false);
     return <Widget>[
       Card(
         child: <Widget>[
@@ -222,7 +231,7 @@ class _FeedItemState extends State<FeedItem> {
               IconButton(
                 icon: Icon(Icons.done_all)
                     .iconColor(Tool().colorFromHex("#f5712c")),
-                onPressed: () => this._markFeedRead(),
+                onPressed: () => this._markFeedRead(database),
               ),
             ],
           ).height(60).padding(left: 15, right: 15),
@@ -230,7 +239,7 @@ class _FeedItemState extends State<FeedItem> {
             height: 0,
           ),
           // Feed 下的文章列表
-          Column(children: this._getArticleTile()),
+          Column(children: this._getArticleTile(database)),
         ].toColumn(),
       ).padding(left: 10, top: 10, right: 10, bottom: 10),
     ].toColumn();

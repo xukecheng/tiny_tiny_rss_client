@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../Tool/ImageClickWidgetFactory.dart';
-
-import '../Object/TinyTinyRss.dart';
+import '../Object/database.dart';
 
 class ArticleDetailPage extends StatelessWidget {
   final int id;
@@ -19,17 +19,18 @@ class ArticleDetailPage extends StatelessWidget {
     }
   }
 
-  Future<Map> getArticleDetail() {
-    return TinyTinyRss().getArticleDetail(this.id).then((value) {
-      return value;
+  Future<Article> getArticleDetail(AppDatabase database) {
+    return database.getArticleDetail(id: this.id).then((value) {
+      return value.first;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map>(
-      future: getArticleDetail(),
-      builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
+    AppDatabase database = Provider.of<AppDatabase>(context, listen: false);
+    return FutureBuilder<Article>(
+      future: getArticleDetail(database),
+      builder: (BuildContext context, AsyncSnapshot<Article> snapshot) {
         // 请求已结束
         switch (snapshot.connectionState) {
           //如果未执行则提示，未执行
@@ -54,7 +55,7 @@ class ArticleDetailPage extends StatelessWidget {
                       icon: Icon(Icons.open_in_browser),
                       onPressed: () {
                         this._launchURL(
-                          snapshot.data['articleOriginLink'],
+                          snapshot.data.articleOriginLink,
                         );
                       },
                     )
@@ -67,7 +68,7 @@ class ArticleDetailPage extends StatelessWidget {
                     children: [
                       // 文章标题
                       Text(
-                        snapshot.data['title'],
+                        snapshot.data.title,
                         style: TextStyle(decoration: TextDecoration.none),
                       )
                           .bold()
@@ -81,7 +82,7 @@ class ArticleDetailPage extends StatelessWidget {
                       ),
                       // 富文本渲染内容
                       HtmlWidget(
-                        snapshot.data['htmlContent'],
+                        snapshot.data.htmlContent,
                         // 捕捉点击图片事件
                         factoryBuilder: () => ImageClickWidgetFactory(
                           context: context,
