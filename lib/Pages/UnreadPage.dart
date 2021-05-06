@@ -56,13 +56,13 @@ class _UnreadPageState extends State<UnreadPage> {
   @override
   Widget build(BuildContext context) {
     AppDatabase database = Provider.of<AppDatabase>(context, listen: false);
-
     Future<void> _doRefresh() async {
       List<ArticlesInFeed> articlesInFeeds =
           await database.getArticlesInFeeds(isRead: 0);
       setState(() {
         this.articlesInFeeds = articlesInFeeds;
       });
+      // articleModel.update(this.articlesInFeeds);
     }
 
     // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果

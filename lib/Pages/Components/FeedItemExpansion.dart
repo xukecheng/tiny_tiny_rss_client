@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ExpansionArticles extends StatefulWidget {
-  ExpansionArticles({Key key, this.articles}) : super(key: key);
+  ExpansionArticles({Key key, this.articleList}) : super(key: key);
   // 接收第三篇之后的所有文章
-  final List<Widget> articles;
+  final List<Widget> articleList;
 
   @override
   _ExpansionArticlesState createState() => _ExpansionArticlesState();
@@ -33,7 +33,7 @@ class _ExpansionArticlesState extends State<ExpansionArticles> {
                 );
               },
               body: Column(
-                children: widget.articles,
+                children: widget.articleList,
               ),
               isExpanded: this.expandedStatus,
             )
