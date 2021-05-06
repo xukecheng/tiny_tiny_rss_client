@@ -11,7 +11,7 @@ import 'utils/config.dart';
 import 'Routers/Application.dart';
 import 'Routers/Routers.dart';
 import 'Pages/UnreadPage.dart';
-import 'Object/database.dart';
+import 'Data/database.dart';
 
 void main() async {
   Config.env = Env.PROD;

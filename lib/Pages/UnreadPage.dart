@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-import 'package:tiny_tiny_rss_client/Object/database.dart';
 import 'package:provider/provider.dart';
 
 import 'Components/FeedItem.dart';
 import 'Components/Loading.dart';
 
-import '../Object/database.dart';
+import '../Data/database.dart';
+import '../Model/ArticleStatusModel.dart';
 import '../Tool/Tool.dart';
 
 class UnreadPage extends StatefulWidget {
@@ -41,17 +41,17 @@ class _UnreadPageState extends State<UnreadPage> {
   }
 
   // 文章列表构造
-  Widget _getArticleList(int index) {
-    // 生成 Feed 流
-    return FeedItem(
-      feedId: this.articlesInFeeds[index].id,
-      feedIcon: this.articlesInFeeds[index].feedIcon,
-      feedTitle: this.articlesInFeeds[index].feedTitle,
-      feedArticles: this.articlesInFeeds[index].feedArticles,
-      articlesInfeeds: this.articlesInFeeds,
-      callBack: (value) => onChanged(value),
-    );
-  }
+  // Widget _getArticleList(int index) {
+  //   // 生成 Feed 流
+  //   return FeedItem(
+  //     feedId: this.articlesInFeeds[index].id,
+  //     feedIcon: this.articlesInFeeds[index].feedIcon,
+  //     feedTitle: this.articlesInFeeds[index].feedTitle,
+  //     feedArticles: this.articlesInFeeds[index].feedArticles,
+  //     articlesInfeeds: this.articlesInFeeds,
+  //     callBack: (value) => onChanged(value),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -67,34 +67,51 @@ class _UnreadPageState extends State<UnreadPage> {
 
     // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果
     return this.isLoadComplete
-        ? LiquidPullToRefresh(
-            onRefresh: _doRefresh,
-            springAnimationDurationInMilliseconds: 250,
-            height: 80,
-            color: Tool().colorFromHex("#f5712c"),
-            showChildOpacityTransition: false,
-            child: this.articlesInFeeds.length > 0
-                ? ListView.builder(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: this.articlesInFeeds.length,
-                    itemBuilder: (context, index) {
-                      return this._getArticleList(index);
-                    },
-                  )
-                : ListView(
-                    children: [
-                      Text(
-                        "没有新文章",
-                      )
-                          .bold()
-                          .fontSize(20)
-                          .textColor(
-                            Tool().colorFromHex("#f5712c"),
+        ? ChangeNotifierProvider(
+            create: (_) => ArticleModel(this.articlesInFeeds),
+            child: LiquidPullToRefresh(
+              onRefresh: _doRefresh,
+              springAnimationDurationInMilliseconds: 250,
+              height: 80,
+              color: Tool().colorFromHex("#f5712c"),
+              showChildOpacityTransition: false,
+              child: Selector<ArticleModel, ArticleModel>(
+                  selector: (context, provider) => provider,
+                  shouldRebuild: (prev, next) => prev == next,
+                  builder: (context, provider, child) {
+                    return provider.total > 0
+                        ? ListView.builder(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            itemCount: provider.total,
+                            itemBuilder: (context, index) {
+                              return Selector<ArticleModel, ArticlesInFeed>(
+                                  selector: (context, provider) =>
+                                      provider.articlesInFeeds[index],
+                                  builder: (context, data, child) {
+                                    return FeedItem(
+                                      index,
+                                      data,
+                                      provider,
+                                    );
+                                  });
+                            },
                           )
-                          .center()
-                          .padding(top: 300)
-                    ],
-                  ),
+                        : ListView(
+                            children: [
+                              Text(
+                                "没有新文章",
+                              )
+                                  .bold()
+                                  .fontSize(20)
+                                  .textColor(
+                                    Tool().colorFromHex("#f5712c"),
+                                  )
+                                  .center()
+                                  .padding(top: 300)
+                            ],
+                          );
+                  }),
+            ),
           )
         : Loading();
   }

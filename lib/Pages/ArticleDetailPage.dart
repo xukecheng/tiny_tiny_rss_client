@@ -5,7 +5,7 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../Tool/ImageClickWidgetFactory.dart';
-import '../Object/database.dart';
+import '../Data/database.dart';
 
 class ArticleDetailPage extends StatelessWidget {
   final int id;

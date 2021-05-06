@@ -19,98 +19,99 @@ class FeedItem extends StatelessWidget {
   final ArticleModel provider;
 
   // Feed 下标记已读
-  // void _setReadStatus(
-  //     AppDatabase database, List<int> articleIndexList, int isRead,
-  //     {int feedIndex}) {
-  //   List<int> articleIdList = [];
-  //   if (articleIndexList == []) {
-  //     this.articlesInFeed.feedArticles.forEach((article) {
-  //       articleIdList.add(article.id);
-  //     });
-  //   } else {
-  //     articleIndexList.forEach((articleIndex) {
-  //       articleIdList.add(this.articlesInFeed.feedArticles[articleIndex].id);
-  //     });
-  //   }
-  //   if (feedIndex != null) {
-  //     this.provider.setReadStatus(feedIndex, articleIndexList, isRead);
-  //     database.markRead(idList: articleIdList, isRead: isRead);
-  //   } else {
-  //     this.provider.setReadStatus(this.feedIndex, articleIndexList, isRead);
-  //     database.markRead(idList: articleIdList, isRead: isRead);
-  //   }
-  // }
+  void _setReadStatus(
+      AppDatabase database, List<int> articleIndexList, int isRead,
+      {int feedIndex}) {
+    List<int> articleIdList = [];
+    if (articleIndexList == []) {
+      this.articlesInFeed.feedArticles.forEach((article) {
+        articleIdList.add(article.id);
+      });
+    } else {
+      articleIndexList.forEach((articleIndex) {
+        articleIdList.add(this.articlesInFeed.feedArticles[articleIndex].id);
+      });
+    }
+    if (feedIndex != null) {
+      this.provider.setReadStatus(feedIndex, articleIndexList, isRead);
+      database.markRead(idList: articleIdList, isRead: isRead);
+    } else {
+      this.provider.setReadStatus(this.feedIndex, articleIndexList, isRead);
+      database.markRead(idList: articleIdList, isRead: isRead);
+    }
+  }
 
-  // void _longPress(
-  //     AppDatabase database, BuildContext context, int articleIndex) {
-  //   void _batchSetRead(bool isUp) {
-  //     if (isUp) {
-  //       for (var i = 0; i < feedIndex; i++) {
-  //         this._setReadStatus(database, [], 1, feedIndex: i);
-  //       }
-  //       List<int> articleIndexList = [];
-  //       for (var i = 0; i < articleIndex; i++) {
-  //         articleIndexList.add(i);
-  //       }
-  //       this._setReadStatus(database, articleIndexList, 1);
-  //     } else {
-  //       for (var i = feedIndex + 1; i > this.provider.total; i++) {
-  //         this._setReadStatus(database, [], 1, feedIndex: i);
-  //       }
-  //       List<int> articleIndexList = [];
-  //       for (var i = articleIndex;
-  //           i < this.articlesInFeed.feedArticles.length;
-  //           i++) {
-  //         articleIndexList.add(i);
-  //       }
-  //       this._setReadStatus(database, articleIndexList, 1);
-  //     }
+  void _longPress(
+      AppDatabase database, BuildContext context, int articleIndex) {
+    void _batchSetRead(bool isUp) {
+      if (isUp) {
+        for (var i = 0; i < feedIndex; i++) {
+          this._setReadStatus(database, [], 1, feedIndex: i);
+        }
+        List<int> articleIndexList = [];
+        for (var i = 0; i < articleIndex; i++) {
+          articleIndexList.add(i);
+        }
+        this._setReadStatus(database, articleIndexList, 1);
+      } else {
+        for (var i = feedIndex + 1; i > this.provider.total; i++) {
+          this._setReadStatus(database, [], 1, feedIndex: i);
+        }
+        List<int> articleIndexList = [];
+        for (var i = articleIndex;
+            i < this.articlesInFeed.feedArticles.length;
+            i++) {
+          articleIndexList.add(i);
+        }
+        this._setReadStatus(database, articleIndexList, 1);
+      }
 
-  //     Navigator.pop(context);
-  //   }
+      Navigator.pop(context);
+    }
 
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return SimpleDialog(
-  //         backgroundColor: Colors.white,
-  //         children: [
-  //           // 上面的文章标记为已读
-  //           SimpleDialogOption(
-  //             onPressed: () {
-  //               _batchSetRead(true);
-  //             },
-  //             child: Row(
-  //               children: [
-  //                 Icon(Icons.arrow_upward)
-  //                     .iconColor(Tool().colorFromHex("#f5712c")),
-  //                 Text('将以上文章全部标记为已读').fontSize(16),
-  //               ],
-  //             ),
-  //           ),
-  //           // 下面的文章标记为已读
-  //           SimpleDialogOption(
-  //             onPressed: () {
-  //               _batchSetRead(false);
-  //             },
-  //             child: Row(
-  //               children: [
-  //                 Icon(Icons.arrow_downward)
-  //                     .iconColor(Tool().colorFromHex("#f5712c")),
-  //                 Text('将以下文章全部标记为已读').fontSize(16),
-  //               ],
-  //             ).padding(top: 10),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          backgroundColor: Colors.white,
+          children: [
+            // 上面的文章标记为已读
+            SimpleDialogOption(
+              onPressed: () {
+                _batchSetRead(true);
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_upward)
+                      .iconColor(Tool().colorFromHex("#f5712c")),
+                  Text('将以上文章全部标记为已读').fontSize(16),
+                ],
+              ),
+            ),
+            // 下面的文章标记为已读
+            SimpleDialogOption(
+              onPressed: () {
+                _batchSetRead(false);
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_downward)
+                      .iconColor(Tool().colorFromHex("#f5712c")),
+                  Text('将以下文章全部标记为已读').fontSize(16),
+                ],
+              ).padding(top: 10),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // 生成单 Feed 下的文章流
   List<Widget> _getArticleTile(AppDatabase database, BuildContext context) {
-    List<Widget> articles = this.articlesInFeed.feedArticles.asMap().map(
-          (index, Article article) {
+    int index = 0;
+    List<Widget> articles = this.articlesInFeed.feedArticles.map(
+          (Article article) {
             int articleId = article.id;
 
             return InkWell(
@@ -126,7 +127,7 @@ class FeedItem extends StatelessWidget {
                   transition: TransitionType.cupertino,
                 );
               },
-              // onLongPress: () => this._longPress(database, context, index),
+              onLongPress: () => this._longPress(database, context, index),
               child: ArticleItem(
                 id: article.id,
                 title: article.title,
@@ -195,7 +196,7 @@ class FeedItem extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.done_all)
                     .iconColor(Tool().colorFromHex("#f5712c")),
-                // onPressed: () => this._setReadStatus(database, [], 1),
+                onPressed: () => this._setReadStatus(database, [], 1),
               ),
             ],
           ).height(60).padding(left: 15, right: 15),

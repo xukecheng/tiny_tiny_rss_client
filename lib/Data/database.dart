@@ -55,14 +55,22 @@ class Categories extends Table {
 }
 
 class ArticlesInFeed {
-  int id;
-  String feedTitle;
-  String feedIcon;
-  int categoryId;
-  List<Article> feedArticles;
+  final int id;
+  final String feedTitle;
+  final String feedIcon;
+  final int categoryId;
+  final List<Article> feedArticles;
 
   ArticlesInFeed(this.id, this.feedTitle, this.feedIcon, this.categoryId,
       this.feedArticles);
+}
+
+class ArticleStatus {
+  final int id;
+  final int isRead;
+  final int isStar;
+
+  ArticleStatus(this.id, this.isRead, this.isStar);
 }
 
 // this annotation tells moor to prepare a database class that uses both of the
@@ -112,6 +120,12 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<Article>> getArticleDetail({int id: 0}) => (select(articles)
+        ..where(
+          (a) => a.id.equals(id),
+        ))
+      .get();
+
+  Future getArticleStatus(int id) => (select(articles)
         ..where(
           (a) => a.id.equals(id),
         ))

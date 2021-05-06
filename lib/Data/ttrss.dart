@@ -110,7 +110,7 @@ class TinyTinyRss {
           description: articleData['content'].toString() != 'false'
               ? Tool()
                       .parseHtmlString(articleData["content"])
-                      .substring(0, 51) +
+                      .substring(0, 41) +
                   "..."
               : '',
           isStar: articleData['marked'] ? 1 : 0,
