@@ -154,7 +154,7 @@ class TinyTinyRss {
               id: feedData["bare_id"],
               feedTitle: feedData["name"],
               feedIcon: feedData["icon"].toString() == 'false'
-                  ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1608987140.svg'
+                  ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
                   : Config.apiHost + feedData["icon"],
               categoryId: categoryData["bare_id"],
             ),

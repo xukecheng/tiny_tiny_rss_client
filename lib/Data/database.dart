@@ -105,9 +105,12 @@ class AppDatabase extends _$AppDatabase {
     await TinyTinyRss().insertCategoryAndFeed(sessionId: sessionId);
   }
 
-  Future<List<ArticlesInFeed>> getArticlesInFeeds({int isRead: 0}) async {
+  Future<List<ArticlesInFeed>> getArticlesInFeeds(
+      {int isRead = 0, bool isLaunch = false}) async {
     List<ArticlesInFeed> articlesInFeeds = [];
-    await this._initData();
+    if (!isLaunch) {
+      await this._initData();
+    }
     List<Feed> feedList = await this._getFeeds(isRead: isRead);
     feedList.forEach((feed) async {
       List<Article> feedArticles =

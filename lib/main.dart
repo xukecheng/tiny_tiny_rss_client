@@ -12,6 +12,7 @@ import 'Routers/Application.dart';
 import 'Routers/Routers.dart';
 import 'Pages/UnreadPage.dart';
 import 'Data/database.dart';
+import 'Model/ArticleStatusModel.dart';
 
 void main() async {
   Config.env = Env.PROD;
@@ -35,8 +36,12 @@ class MyApp extends StatelessWidget {
     //给Application的router赋值router实例对象
     Application.router = router;
 
-    return Provider(
-        create: (_) => AppDatabase(),
+    return MultiProvider(
+        providers: [
+          Provider.value(value: AppDatabase()),
+          ChangeNotifierProvider.value(value: ArticleModel()),
+        ],
+        // create: (_) => AppDatabase(),
         child: MaterialApp(
           theme: new ThemeData(
             primaryColor: Colors.white,

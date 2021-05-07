@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:fluro/fluro.dart';
-import 'package:provider/provider.dart';
 
 import 'ArticleItem.dart';
 import 'FeedItemExpansion.dart';
@@ -19,73 +18,50 @@ class FeedItem extends StatelessWidget {
   final ArticleModel provider;
 
   // Feed 下标记已读
-  void _setReadStatus(
-      AppDatabase database, List<int> articleIndexList, int isRead,
-      {int feedIndex}) {
-    List<int> articleIdList = [];
-    if (articleIndexList.isEmpty) {
-      if (feedIndex != null) {
-        this
-            .provider
-            .articlesInFeeds[feedIndex]
-            .feedArticles
-            .forEach((article) => articleIdList.add(article.id));
-        this.provider.setReadStatus(feedIndex, articleIndexList, isRead);
-        database.markRead(idList: articleIdList, isRead: isRead);
-      } else {
-        this.articlesInFeed.feedArticles.forEach((article) {
-          articleIdList.add(article.id);
-        });
-        this.provider.setReadStatus(this.feedIndex, articleIndexList, isRead);
-        database.markRead(idList: articleIdList, isRead: isRead);
-      }
-    } else {
-      if (feedIndex != null) {
-        articleIndexList.forEach((articleIndex) {
-          articleIdList.add(this
-              .provider
-              .articlesInFeeds[feedIndex]
-              .feedArticles[articleIndex]
-              .id);
-        });
-        this.provider.setReadStatus(feedIndex, articleIndexList, isRead);
-        database.markRead(idList: articleIdList, isRead: isRead);
-      } else {
-        articleIndexList.forEach((articleIndex) {
-          articleIdList.add(this.articlesInFeed.feedArticles[articleIndex].id);
-        });
-        this.provider.setReadStatus(this.feedIndex, articleIndexList, isRead);
-        database.markRead(idList: articleIdList, isRead: isRead);
-      }
-    }
+  void _setReadStatus(List<int> articleIndexList, int isRead, {int feedIndex}) {
+    this.provider.setReadStatus(
+          feedIndex != null ? feedIndex : this.feedIndex,
+          articleIndexList,
+          isRead,
+        );
   }
 
-  void _longPress(
-      AppDatabase database, BuildContext context, int articleIndex) {
+  void _longPress(BuildContext context, int articleIndex) {
     void _batchSetRead(bool isUp) {
       // 以上全部已读
       if (isUp) {
-        // 获取
+        // 获取当前 Feed 以上的 Feed，设置为全部已读
         for (var i = 0; i < this.feedIndex; i++) {
-          this._setReadStatus(database, [], 1, feedIndex: i);
+          this._setReadStatus([], 1, feedIndex: i);
         }
+        // 获取当前 Feed 中，文章之上有哪些文章
         List<int> articleIndexList = [];
         for (var i = 0; i < articleIndex; i++) {
           articleIndexList.add(i);
         }
-        this._setReadStatus(database, articleIndexList, 1);
+        print(articleIndexList);
+
+        /// 如果当前 Feed 中需要已读的文章列表为空，则不设置已读，
+        /// 防止出现选择第一篇文章以上已读，却导致当前 Feed 全部已读
+        if (articleIndexList.isNotEmpty) {
+          this._setReadStatus(articleIndexList, 1);
+        }
       } else {
         // 以下全部已读
+
+        // 获取当前 Feed 以下的 Feed，设置为全部已读
         for (var i = this.feedIndex + 1; i > this.provider.total; i++) {
-          this._setReadStatus(database, [], 1, feedIndex: i);
+          this._setReadStatus([], 1, feedIndex: i);
         }
         List<int> articleIndexList = [];
-        for (var i = articleIndex;
+        for (var i = articleIndex + 1;
             i < this.articlesInFeed.feedArticles.length;
             i++) {
           articleIndexList.add(i);
         }
-        this._setReadStatus(database, articleIndexList, 1);
+        if (articleIndexList.isNotEmpty) {
+          this._setReadStatus(articleIndexList, 1);
+        }
       }
 
       Navigator.pop(context);
@@ -130,14 +106,14 @@ class FeedItem extends StatelessWidget {
   }
 
   // 生成单 Feed 下的文章流
-  List<Widget> _getArticleTile(AppDatabase database, BuildContext context) {
+  List<Widget> _getArticleTile(BuildContext context) {
     List<Widget> articleList = [];
     this.articlesInFeed.feedArticles.asMap().forEach(
       (index, Article article) {
         int articleId = article.id;
         Widget articleWidget = InkWell(
           onTap: () {
-            this._setReadStatus(database, [index], 1);
+            this._setReadStatus([index], 1);
             // 点击跳转详情页
             Application.router.navigateTo(
               context,
@@ -145,15 +121,11 @@ class FeedItem extends StatelessWidget {
               transition: TransitionType.cupertino,
             );
           },
-          onLongPress: () => this._longPress(database, context, index),
+          onLongPress: () => this._longPress(context, index),
           child: ArticleItem(
-            id: article.id,
-            title: article.title,
-            isRead: article.isRead,
-            isStar: article.isStar,
-            description: article.description,
-            flavorImage: article.flavorImage,
-            publishTime: Tool().timestampToDate(article.publishTime),
+            this.feedIndex,
+            index,
+            provider,
           ),
         );
         articleList.add(articleWidget);
@@ -180,7 +152,6 @@ class FeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppDatabase database = Provider.of<AppDatabase>(context, listen: false);
     print('build' + this.articlesInFeed.feedTitle);
     return <Widget>[
       Card(
@@ -214,7 +185,7 @@ class FeedItem extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.done_all)
                     .iconColor(Tool().colorFromHex("#f5712c")),
-                onPressed: () => this._setReadStatus(database, [], 1),
+                onPressed: () => this._setReadStatus([], 1),
               ),
             ],
           ).height(60).padding(left: 15, right: 15),
@@ -222,7 +193,7 @@ class FeedItem extends StatelessWidget {
             height: 0,
           ),
           // Feed 下的文章列表
-          Column(children: this._getArticleTile(database, context)),
+          Column(children: this._getArticleTile(context)),
         ].toColumn(),
       ).padding(left: 10, top: 10, right: 10, bottom: 10),
     ].toColumn();
