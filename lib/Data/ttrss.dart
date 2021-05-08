@@ -125,7 +125,9 @@ class TinyTinyRss {
     });
   }
 
-  insertCategoryAndFeed(String sessionId) async {
+  Future<List<List>> insertCategoryAndFeed(String sessionId) async {
+    List<Feed> feedList = [];
+    List<Category> categoryList = [];
     Response response = await dio.post(
       "api/",
       data: {
@@ -138,27 +140,24 @@ class TinyTinyRss {
     var feedTreeData =
         json.decode(response.data)['content']['categories']['items'];
     feedTreeData.removeAt(0);
-    return feedTreeData;
-    // feedTreeData.forEach((categoryData) async {
-    //   await AppDatabase().insertCategory(
-    //     Category(
-    //       id: categoryData["bare_id"],
-    //       categoryName: categoryData["name"],
-    //     ),
-    //   );
 
-    //   categoryData['items'].forEach((feedData) async {
-    //     await AppDatabase().insertFeed(
-    //       Feed(
-    //         id: feedData["bare_id"],
-    //         feedTitle: feedData["name"],
-    //         feedIcon: feedData["icon"].toString() == 'false'
-    //             ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
-    //             : Config.apiHost + feedData["icon"],
-    //         categoryId: categoryData["bare_id"],
-    //       ),
-    //     );
-    //   });
-    // });
+    feedTreeData.forEach((categoryData) {
+      categoryList.add(Category(
+        id: categoryData["bare_id"],
+        categoryName: categoryData["name"],
+      ));
+      categoryData['items'].forEach((feedData) {
+        feedList.add(Feed(
+          id: feedData["bare_id"],
+          feedTitle: feedData["name"],
+          feedIcon: feedData["icon"].toString() == 'false'
+              ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
+              : Config.apiHost + feedData["icon"],
+          categoryId: categoryData["bare_id"],
+        ));
+      });
+    });
+
+    return [feedList, categoryList];
   }
 }

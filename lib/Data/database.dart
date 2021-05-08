@@ -2,7 +2,6 @@ import 'package:moor/moor.dart';
 
 import 'ttrss.dart';
 import '../Tool/Tool.dart';
-import '../utils/config.dart';
 
 // assuming that your file is called filename.dart. This will give an error at first,
 // but it's needed for moor to know about the generated code
@@ -97,33 +96,15 @@ class AppDatabase extends _$AppDatabase {
       await Tool.getData<String>('sessionId')
           .then((value) => sessionId = value);
     }
-    // 等待完成数据请求和插入
+    // 完成文章数据获取
     List<Article> articleList = await TinyTinyRss().insertArticles(sessionId);
     await Future.forEach(
         articleList, (Article article) => this.insertArticle(article));
-
-    List feedTreeData = await TinyTinyRss().insertCategoryAndFeed(sessionId);
-
-    await Future.forEach(feedTreeData, (categoryData!) async {
-      await this.insertCategory(
-        Category(
-          id: categoryData["bare_id"],
-          categoryName: categoryData["name"],
-        ),
-      );
-      await Future.forEach(categoryData['items'], (Map feedData) async {
-        await this.insertFeed(
-          Feed(
-            id: feedData["bare_id"],
-            feedTitle: feedData["name"],
-            feedIcon: feedData["icon"].toString() == 'false'
-                ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
-                : Config.apiHost + feedData["icon"],
-            categoryId: categoryData["bare_id"],
-          ),
-        );
-      });
-    });
+    // 完成 Feed 和分类数据获取
+    List<List> feedTreeData =
+        await TinyTinyRss().insertCategoryAndFeed(sessionId);
+    feedTreeData.first.map((feed) => this.insertFeed(feed));
+    feedTreeData.last.forEach((category) => this.insertCategory(category));
   }
 
   Future<List<ArticlesInFeed>> getArticlesInFeeds(
