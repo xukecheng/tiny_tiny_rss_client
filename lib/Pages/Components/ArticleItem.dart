@@ -5,7 +5,7 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../Data/database.dart';
-import '../../Model/ArticleStatusModel.dart';
+import '../../Model/ArticleModel.dart';
 import '../../Tool/Tool.dart';
 
 class ArticleItem extends StatelessWidget {

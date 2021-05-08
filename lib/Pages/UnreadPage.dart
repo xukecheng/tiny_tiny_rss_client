@@ -7,7 +7,7 @@ import 'Components/FeedItem.dart';
 import 'Components/Loading.dart';
 
 import '../Data/database.dart';
-import '../Model/ArticleStatusModel.dart';
+import '../Model/ArticleModel.dart';
 import '../Tool/Tool.dart';
 
 class UnreadPage extends StatefulWidget {
@@ -39,7 +39,6 @@ class _UnreadPageState extends State<UnreadPage> {
             selector: (context, provider) => provider,
             shouldRebuild: (prev, next) => true,
             builder: (context, provider, child) {
-              print("total" + provider.total.toString());
               return LiquidPullToRefresh(
                   onRefresh: () async {
                     await Provider.of<ArticleModel>(context, listen: false)

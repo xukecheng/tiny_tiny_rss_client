@@ -1,15 +1,13 @@
 import 'package:moor/moor.dart';
-import 'dart:io';
-
-// These imports are only needed to open the database
-import 'package:moor/ffi.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
 import 'ttrss.dart';
 import '../Tool/Tool.dart';
+import '../utils/config.dart';
+
 // assuming that your file is called filename.dart. This will give an error at first,
 // but it's needed for moor to know about the generated code
+export 'database/shared.dart';
+
 part 'database.g.dart';
 
 @DataClassName("Article")
@@ -78,10 +76,10 @@ class ArticleStatus {
 @UseMoor(tables: [Articles, Feeds, Categories])
 class AppDatabase extends _$AppDatabase {
   // we tell the database where to store the data with this constructor
-  // MyDatabase() : super(_openConnection());
-  AppDatabase() : super(_openConnection()) {
-    moorRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-  }
+  // AppDatabase() : super(_openConnection()) {
+  //   moorRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  // }
+  AppDatabase(QueryExecutor e) : super(e);
 
   // you should bump this number whenever you change or add a table definition. Migrations
   // are covered later in this readme.
@@ -100,8 +98,32 @@ class AppDatabase extends _$AppDatabase {
           .then((value) => sessionId = value);
     }
     // 等待完成数据请求和插入
-    await TinyTinyRss().insertArticles(sessionId);
-    await TinyTinyRss().insertCategoryAndFeed(sessionId);
+    List<Article> articleList = await TinyTinyRss().insertArticles(sessionId);
+    await Future.forEach(
+        articleList, (Article article) => this.insertArticle(article));
+
+    List feedTreeData = await TinyTinyRss().insertCategoryAndFeed(sessionId);
+
+    await Future.forEach(feedTreeData, (categoryData!) async {
+      await this.insertCategory(
+        Category(
+          id: categoryData["bare_id"],
+          categoryName: categoryData["name"],
+        ),
+      );
+      await Future.forEach(categoryData['items'], (Map feedData) async {
+        await this.insertFeed(
+          Feed(
+            id: feedData["bare_id"],
+            feedTitle: feedData["name"],
+            feedIcon: feedData["icon"].toString() == 'false'
+                ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
+                : Config.apiHost + feedData["icon"],
+            categoryId: categoryData["bare_id"],
+          ),
+        );
+      });
+    });
   }
 
   Future<List<ArticlesInFeed>> getArticlesInFeeds(
@@ -110,20 +132,15 @@ class AppDatabase extends _$AppDatabase {
 
     if (!isLaunch) {
       await this._initData();
-      print("_initData");
     }
     List<Feed> feedList = await this._getFeeds(isRead: isRead);
-    print("getfeed");
     await Future.forEach(feedList, (Feed feed) async {
       var feedArticles = await this._getArticles(feed.id, isRead: isRead);
       ArticlesInFeed articlesInfeed = ArticlesInFeed(feed.id, feed.feedTitle,
           feed.feedIcon, feed.categoryId, feedArticles);
       articlesInFeeds.add(articlesInfeed);
-      print("articleadd");
     });
-    print("getarticle");
 
-    print("return");
     return articlesInFeeds;
   }
 
@@ -215,15 +232,4 @@ class AppDatabase extends _$AppDatabase {
   // void close() {
   //   MyDatabase().close();
   // }
-}
-
-LazyDatabase _openConnection() {
-  // the LazyDatabase util lets us find the right location for the file async.
-  return LazyDatabase(() async {
-    // put the database file, called db.sqlite here, into the documents folder
-    // for your app.
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'database.sqlite'));
-    return VmDatabase(file, logStatements: true);
-  });
 }

@@ -12,7 +12,7 @@ import 'Routers/Application.dart';
 import 'Routers/Routers.dart';
 import 'Pages/UnreadPage.dart';
 import 'Data/database.dart';
-import 'Model/ArticleStatusModel.dart';
+import 'Model/ArticleModel.dart';
 
 void main() async {
   Config.env = Env.PROD;
@@ -37,9 +37,12 @@ class MyApp extends StatelessWidget {
     Application.router = router;
 
     return Provider(
-        create: (_) => AppDatabase(),
+        create: (_) => constructDb(),
         child: ChangeNotifierProvider(
-            create: (_) => ArticleModel(),
+            create: (context) {
+              final db = Provider.of<AppDatabase>(context, listen: false);
+              return ArticleModel(db);
+            },
             child: MaterialApp(
               theme: new ThemeData(
                 primaryColor: Colors.white,

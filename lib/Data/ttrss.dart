@@ -90,79 +90,75 @@ class TinyTinyRss {
     }
   }
 
-  insertArticles(String sessionId) async {
-    try {
-      Response response = await dio.post(
-        "api/",
-        data: {
-          "op": "getHeadlines",
-          "sid": sessionId,
-          "view_mode": "unread",
-          "feed_id": -4,
-          "show_content": true,
-        },
+  Future<List<Article>> insertArticles(String sessionId) async {
+    Response response = await dio.post(
+      "api/",
+      data: {
+        "op": "getHeadlines",
+        "sid": sessionId,
+        "view_mode": "unread",
+        "feed_id": -4,
+        "show_content": true,
+      },
+    );
+    var articleData = json.decode(response.data)['content'];
+    return List.generate(articleData.length, (index) {
+      return Article(
+        id: articleData[index]['id'],
+        feedId: articleData[index]['feed_id'],
+        title: articleData[index]['title'],
+        description: articleData[index]['content'].toString() != 'false'
+            ? Tool().parseHtmlString(articleData[index]["content"]).length > 42
+                ? Tool()
+                        .parseHtmlString(articleData[index]["content"])
+                        .substring(0, 41) +
+                    "..."
+                : Tool().parseHtmlString(articleData[index]["content"])
+            : '',
+        isStar: articleData[index]['marked'] ? 1 : 0,
+        isRead: articleData[index]['unread'] ? 0 : 1,
+        htmlContent: articleData[index]['content'],
+        flavorImage: articleData[index]['flavor_image'],
+        articleOriginLink: articleData[index]['link'],
+        publishTime: articleData[index]['updated'],
       );
-      json.decode(response.data)['content'].forEach((articleData) async {
-        AppDatabase().insertArticle(Article(
-          id: articleData['id'],
-          feedId: articleData['feed_id'],
-          title: articleData['title'],
-          description: articleData['content'].toString() != 'false'
-              ? Tool()
-                      .parseHtmlString(articleData["content"])
-                      .substring(0, 41) +
-                  "..."
-              : '',
-          isStar: articleData['marked'] ? 1 : 0,
-          isRead: articleData['unread'] ? 0 : 1,
-          htmlContent: articleData['content'],
-          flavorImage: articleData['flavor_image'],
-          articleOriginLink: articleData['link'],
-          publishTime: articleData['updated'],
-        ));
-      });
-    } catch (e) {
-      print('错误$e');
-    }
+    });
   }
 
   insertCategoryAndFeed(String sessionId) async {
-    try {
-      Response response = await dio.post(
-        "api/",
-        data: {
-          "op": "getFeedTree",
-          "sid": sessionId,
-          "include_empty": false,
-        },
-      );
+    Response response = await dio.post(
+      "api/",
+      data: {
+        "op": "getFeedTree",
+        "sid": sessionId,
+        "include_empty": false,
+      },
+    );
 
-      var feedTreeData =
-          json.decode(response.data)['content']['categories']['items'];
-      feedTreeData.removeAt(0);
-      feedTreeData.forEach((categoryData) async {
-        await AppDatabase().insertCategory(
-          Category(
-            id: categoryData["bare_id"],
-            categoryName: categoryData["name"],
-          ),
-        );
+    var feedTreeData =
+        json.decode(response.data)['content']['categories']['items'];
+    feedTreeData.removeAt(0);
+    return feedTreeData;
+    // feedTreeData.forEach((categoryData) async {
+    //   await AppDatabase().insertCategory(
+    //     Category(
+    //       id: categoryData["bare_id"],
+    //       categoryName: categoryData["name"],
+    //     ),
+    //   );
 
-        categoryData['items'].forEach((feedData) async {
-          await AppDatabase().insertFeed(
-            Feed(
-              id: feedData["bare_id"],
-              feedTitle: feedData["name"],
-              feedIcon: feedData["icon"].toString() == 'false'
-                  ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
-                  : Config.apiHost + feedData["icon"],
-              categoryId: categoryData["bare_id"],
-            ),
-          );
-        });
-      });
-    } catch (e) {
-      print(e);
-    }
+    //   categoryData['items'].forEach((feedData) async {
+    //     await AppDatabase().insertFeed(
+    //       Feed(
+    //         id: feedData["bare_id"],
+    //         feedTitle: feedData["name"],
+    //         feedIcon: feedData["icon"].toString() == 'false'
+    //             ? 'https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620403747.png'
+    //             : Config.apiHost + feedData["icon"],
+    //         categoryId: categoryData["bare_id"],
+    //       ),
+    //     );
+    //   });
+    // });
   }
 }

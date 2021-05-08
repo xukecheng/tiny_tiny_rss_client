@@ -8,7 +8,7 @@ import 'FeedItemExpansion.dart';
 
 import '../../Tool/Tool.dart';
 import '../../Data/database.dart';
-import '../../Model/ArticleStatusModel.dart';
+import '../../Model/ArticleModel.dart';
 import '../../Routers/Application.dart';
 
 class FeedItem extends StatelessWidget {
@@ -40,7 +40,6 @@ class FeedItem extends StatelessWidget {
         for (var i = 0; i < articleIndex; i++) {
           articleIndexList.add(i);
         }
-        print(articleIndexList);
 
         /// 如果当前 Feed 中需要已读的文章列表为空，则不设置已读，
         /// 防止出现选择第一篇文章以上已读，却导致当前 Feed 全部已读
@@ -49,9 +48,8 @@ class FeedItem extends StatelessWidget {
         }
       } else {
         // 以下全部已读
-
         // 获取当前 Feed 以下的 Feed，设置为全部已读
-        for (var i = this.feedIndex + 1; i > this.provider.total; i++) {
+        for (var i = this.feedIndex + 1; i < this.provider.total; i++) {
           this._setReadStatus([], 1, feedIndex: i);
         }
         List<int> articleIndexList = [];

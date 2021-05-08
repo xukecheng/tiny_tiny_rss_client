@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../Data/database.dart';
 
 class ArticleModel with ChangeNotifier {
+  ArticleModel(this.db);
+  final AppDatabase db;
   List<ArticlesInFeed> initData = [];
 
   List<ArticlesInFeed> get getData => initData;
@@ -12,11 +14,10 @@ class ArticleModel with ChangeNotifier {
   Future<void> update({bool isLaunch = false}) async {
     if (isLaunch) {
       this.initData =
-          await AppDatabase().getArticlesInFeeds(isRead: 0, isLaunch: isLaunch);
+          await db.getArticlesInFeeds(isRead: 0, isLaunch: isLaunch);
     } else {
-      this.initData = await AppDatabase().getArticlesInFeeds(isRead: 0);
+      this.initData = await db.getArticlesInFeeds(isRead: 0);
     }
-    print("length" + initData.length.toString());
     notifyListeners();
   }
 
@@ -38,7 +39,7 @@ class ArticleModel with ChangeNotifier {
         articleIdList.add(articlesInFeed.feedArticles[articleIndex].id);
       });
     }
-    AppDatabase().markRead(articleIdList, isRead: isRead);
+    db.markRead(articleIdList, isRead: isRead);
     notifyListeners();
   }
 
@@ -47,7 +48,7 @@ class ArticleModel with ChangeNotifier {
     int articleId = articlesInFeed.feedArticles[articleIndex].id;
     articlesInFeed.feedArticles[articleIndex] =
         articlesInFeed.feedArticles[articleIndex].copyWith(isStar: isStar);
-    AppDatabase().markStar(articleId, isStar: isStar);
+    db.markStar(articleId, isStar: isStar);
     notifyListeners();
   }
 }
