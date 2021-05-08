@@ -16,7 +16,8 @@ class Tool {
 
   String parseHtmlString(String htmlString) {
     final document = parse(htmlString);
-    final String parsedString = parse(document.body.text).documentElement.text;
+    final String parsedString =
+        parse(document.body!.text).documentElement!.text;
     return parsedString.replaceAll("\n", "").replaceAll(new RegExp(r"\s+"), "");
   }
 
@@ -47,7 +48,11 @@ class Tool {
     T res;
     switch (T) {
       case String:
-        res = prefs.getString(key) as T;
+        try {
+          res = prefs.getString(key) as T;
+        } catch (e) {
+          res = '' as T;
+        }
         break;
       case int:
         res = prefs.getInt(key) as T;
@@ -57,6 +62,9 @@ class Tool {
         break;
       case double:
         res = prefs.getDouble(key) as T;
+        break;
+      default:
+        res = '' as T;
         break;
     }
     return res;

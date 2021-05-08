@@ -15,7 +15,10 @@ class Routes {
 
     //无路由页面
     router.notFoundHandler = Handler(
-      handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+      handlerFunc: (
+        BuildContext? context,
+        Map<String, List<String>> params,
+      ) {
         return Container(
           child: Center(
             child: Text("没有找到"),

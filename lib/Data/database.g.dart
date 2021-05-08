@@ -19,110 +19,76 @@ class Article extends DataClass implements Insertable<Article> {
   final String articleOriginLink;
   final int publishTime;
   Article(
-      {@required this.id,
-      @required this.feedId,
-      @required this.title,
-      @required this.isStar,
-      @required this.isRead,
-      @required this.description,
-      @required this.htmlContent,
-      @required this.flavorImage,
-      @required this.articleOriginLink,
-      @required this.publishTime});
+      {required this.id,
+      required this.feedId,
+      required this.title,
+      required this.isStar,
+      required this.isRead,
+      required this.description,
+      required this.htmlContent,
+      required this.flavorImage,
+      required this.articleOriginLink,
+      required this.publishTime});
   factory Article.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return Article(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       feedId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}feed_id']),
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}feed_id'])!,
       title:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}title']),
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}title'])!,
       isStar:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}is_star']),
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}is_star'])!,
       isRead:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}is_read']),
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}is_read'])!,
       description: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}description']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}description'])!,
       htmlContent:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}body']),
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}body'])!,
       flavorImage: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}flavor_image']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}flavor_image'])!,
       articleOriginLink: stringType.mapFromDatabaseResponse(
-          data['${effectivePrefix}article_origin_link']),
+          data['${effectivePrefix}article_origin_link'])!,
       publishTime: intType
-          .mapFromDatabaseResponse(data['${effectivePrefix}publish_time']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}publish_time'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
-    if (!nullToAbsent || feedId != null) {
-      map['feed_id'] = Variable<int>(feedId);
-    }
-    if (!nullToAbsent || title != null) {
-      map['title'] = Variable<String>(title);
-    }
-    if (!nullToAbsent || isStar != null) {
-      map['is_star'] = Variable<int>(isStar);
-    }
-    if (!nullToAbsent || isRead != null) {
-      map['is_read'] = Variable<int>(isRead);
-    }
-    if (!nullToAbsent || description != null) {
-      map['description'] = Variable<String>(description);
-    }
-    if (!nullToAbsent || htmlContent != null) {
-      map['body'] = Variable<String>(htmlContent);
-    }
-    if (!nullToAbsent || flavorImage != null) {
-      map['flavor_image'] = Variable<String>(flavorImage);
-    }
-    if (!nullToAbsent || articleOriginLink != null) {
-      map['article_origin_link'] = Variable<String>(articleOriginLink);
-    }
-    if (!nullToAbsent || publishTime != null) {
-      map['publish_time'] = Variable<int>(publishTime);
-    }
+    map['id'] = Variable<int>(id);
+    map['feed_id'] = Variable<int>(feedId);
+    map['title'] = Variable<String>(title);
+    map['is_star'] = Variable<int>(isStar);
+    map['is_read'] = Variable<int>(isRead);
+    map['description'] = Variable<String>(description);
+    map['body'] = Variable<String>(htmlContent);
+    map['flavor_image'] = Variable<String>(flavorImage);
+    map['article_origin_link'] = Variable<String>(articleOriginLink);
+    map['publish_time'] = Variable<int>(publishTime);
     return map;
   }
 
   ArticlesCompanion toCompanion(bool nullToAbsent) {
     return ArticlesCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      feedId:
-          feedId == null && nullToAbsent ? const Value.absent() : Value(feedId),
-      title:
-          title == null && nullToAbsent ? const Value.absent() : Value(title),
-      isStar:
-          isStar == null && nullToAbsent ? const Value.absent() : Value(isStar),
-      isRead:
-          isRead == null && nullToAbsent ? const Value.absent() : Value(isRead),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
-      htmlContent: htmlContent == null && nullToAbsent
-          ? const Value.absent()
-          : Value(htmlContent),
-      flavorImage: flavorImage == null && nullToAbsent
-          ? const Value.absent()
-          : Value(flavorImage),
-      articleOriginLink: articleOriginLink == null && nullToAbsent
-          ? const Value.absent()
-          : Value(articleOriginLink),
-      publishTime: publishTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(publishTime),
+      id: Value(id),
+      feedId: Value(feedId),
+      title: Value(title),
+      isStar: Value(isStar),
+      isRead: Value(isRead),
+      description: Value(description),
+      htmlContent: Value(htmlContent),
+      flavorImage: Value(flavorImage),
+      articleOriginLink: Value(articleOriginLink),
+      publishTime: Value(publishTime),
     );
   }
 
   factory Article.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Article(
       id: serializer.fromJson<int>(json['id']),
@@ -138,7 +104,7 @@ class Article extends DataClass implements Insertable<Article> {
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
@@ -155,16 +121,16 @@ class Article extends DataClass implements Insertable<Article> {
   }
 
   Article copyWith(
-          {int id,
-          int feedId,
-          String title,
-          int isStar,
-          int isRead,
-          String description,
-          String htmlContent,
-          String flavorImage,
-          String articleOriginLink,
-          int publishTime}) =>
+          {int? id,
+          int? feedId,
+          String? title,
+          int? isStar,
+          int? isRead,
+          String? description,
+          String? htmlContent,
+          String? flavorImage,
+          String? articleOriginLink,
+          int? publishTime}) =>
       Article(
         id: id ?? this.id,
         feedId: feedId ?? this.feedId,
@@ -253,16 +219,16 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.publishTime = const Value.absent(),
   });
   ArticlesCompanion.insert({
-    @required int id,
-    @required int feedId,
-    @required String title,
-    @required int isStar,
-    @required int isRead,
-    @required String description,
-    @required String htmlContent,
-    @required String flavorImage,
-    @required String articleOriginLink,
-    @required int publishTime,
+    required int id,
+    required int feedId,
+    required String title,
+    required int isStar,
+    required int isRead,
+    required String description,
+    required String htmlContent,
+    required String flavorImage,
+    required String articleOriginLink,
+    required int publishTime,
   })  : id = Value(id),
         feedId = Value(feedId),
         title = Value(title),
@@ -274,16 +240,16 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
         articleOriginLink = Value(articleOriginLink),
         publishTime = Value(publishTime);
   static Insertable<Article> custom({
-    Expression<int> id,
-    Expression<int> feedId,
-    Expression<String> title,
-    Expression<int> isStar,
-    Expression<int> isRead,
-    Expression<String> description,
-    Expression<String> htmlContent,
-    Expression<String> flavorImage,
-    Expression<String> articleOriginLink,
-    Expression<int> publishTime,
+    Expression<int>? id,
+    Expression<int>? feedId,
+    Expression<String>? title,
+    Expression<int>? isStar,
+    Expression<int>? isRead,
+    Expression<String>? description,
+    Expression<String>? htmlContent,
+    Expression<String>? flavorImage,
+    Expression<String>? articleOriginLink,
+    Expression<int>? publishTime,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -300,16 +266,16 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   }
 
   ArticlesCompanion copyWith(
-      {Value<int> id,
-      Value<int> feedId,
-      Value<String> title,
-      Value<int> isStar,
-      Value<int> isRead,
-      Value<String> description,
-      Value<String> htmlContent,
-      Value<String> flavorImage,
-      Value<String> articleOriginLink,
-      Value<int> publishTime}) {
+      {Value<int>? id,
+      Value<int>? feedId,
+      Value<String>? title,
+      Value<int>? isStar,
+      Value<int>? isRead,
+      Value<String>? description,
+      Value<String>? htmlContent,
+      Value<String>? flavorImage,
+      Value<String>? articleOriginLink,
+      Value<int>? publishTime}) {
     return ArticlesCompanion(
       id: id ?? this.id,
       feedId: feedId ?? this.feedId,
@@ -380,24 +346,19 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
 
 class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $ArticlesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
   @override
-  GeneratedIntColumn get id => _id ??= _constructId();
+  late final GeneratedIntColumn id = _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
-      'id',
-      $tableName,
-      false,
-    );
+    return GeneratedIntColumn('id', $tableName, false,
+        $customConstraints: 'UNIQUE');
   }
 
   final VerificationMeta _feedIdMeta = const VerificationMeta('feedId');
-  GeneratedIntColumn _feedId;
   @override
-  GeneratedIntColumn get feedId => _feedId ??= _constructFeedId();
+  late final GeneratedIntColumn feedId = _constructFeedId();
   GeneratedIntColumn _constructFeedId() {
     return GeneratedIntColumn(
       'feed_id',
@@ -407,9 +368,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   }
 
   final VerificationMeta _titleMeta = const VerificationMeta('title');
-  GeneratedTextColumn _title;
   @override
-  GeneratedTextColumn get title => _title ??= _constructTitle();
+  late final GeneratedTextColumn title = _constructTitle();
   GeneratedTextColumn _constructTitle() {
     return GeneratedTextColumn(
       'title',
@@ -419,9 +379,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   }
 
   final VerificationMeta _isStarMeta = const VerificationMeta('isStar');
-  GeneratedIntColumn _isStar;
   @override
-  GeneratedIntColumn get isStar => _isStar ??= _constructIsStar();
+  late final GeneratedIntColumn isStar = _constructIsStar();
   GeneratedIntColumn _constructIsStar() {
     return GeneratedIntColumn(
       'is_star',
@@ -431,9 +390,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   }
 
   final VerificationMeta _isReadMeta = const VerificationMeta('isRead');
-  GeneratedIntColumn _isRead;
   @override
-  GeneratedIntColumn get isRead => _isRead ??= _constructIsRead();
+  late final GeneratedIntColumn isRead = _constructIsRead();
   GeneratedIntColumn _constructIsRead() {
     return GeneratedIntColumn(
       'is_read',
@@ -444,10 +402,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
 
   final VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
-  GeneratedTextColumn _description;
   @override
-  GeneratedTextColumn get description =>
-      _description ??= _constructDescription();
+  late final GeneratedTextColumn description = _constructDescription();
   GeneratedTextColumn _constructDescription() {
     return GeneratedTextColumn(
       'description',
@@ -458,10 +414,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
 
   final VerificationMeta _htmlContentMeta =
       const VerificationMeta('htmlContent');
-  GeneratedTextColumn _htmlContent;
   @override
-  GeneratedTextColumn get htmlContent =>
-      _htmlContent ??= _constructHtmlContent();
+  late final GeneratedTextColumn htmlContent = _constructHtmlContent();
   GeneratedTextColumn _constructHtmlContent() {
     return GeneratedTextColumn(
       'body',
@@ -472,10 +426,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
 
   final VerificationMeta _flavorImageMeta =
       const VerificationMeta('flavorImage');
-  GeneratedTextColumn _flavorImage;
   @override
-  GeneratedTextColumn get flavorImage =>
-      _flavorImage ??= _constructFlavorImage();
+  late final GeneratedTextColumn flavorImage = _constructFlavorImage();
   GeneratedTextColumn _constructFlavorImage() {
     return GeneratedTextColumn(
       'flavor_image',
@@ -486,10 +438,9 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
 
   final VerificationMeta _articleOriginLinkMeta =
       const VerificationMeta('articleOriginLink');
-  GeneratedTextColumn _articleOriginLink;
   @override
-  GeneratedTextColumn get articleOriginLink =>
-      _articleOriginLink ??= _constructArticleOriginLink();
+  late final GeneratedTextColumn articleOriginLink =
+      _constructArticleOriginLink();
   GeneratedTextColumn _constructArticleOriginLink() {
     return GeneratedTextColumn(
       'article_origin_link',
@@ -500,10 +451,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
 
   final VerificationMeta _publishTimeMeta =
       const VerificationMeta('publishTime');
-  GeneratedIntColumn _publishTime;
   @override
-  GeneratedIntColumn get publishTime =>
-      _publishTime ??= _constructPublishTime();
+  late final GeneratedIntColumn publishTime = _constructPublishTime();
   GeneratedIntColumn _constructPublishTime() {
     return GeneratedIntColumn(
       'publish_time',
@@ -537,31 +486,31 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
     }
     if (data.containsKey('feed_id')) {
       context.handle(_feedIdMeta,
-          feedId.isAcceptableOrUnknown(data['feed_id'], _feedIdMeta));
+          feedId.isAcceptableOrUnknown(data['feed_id']!, _feedIdMeta));
     } else if (isInserting) {
       context.missing(_feedIdMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title'], _titleMeta));
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
     if (data.containsKey('is_star')) {
       context.handle(_isStarMeta,
-          isStar.isAcceptableOrUnknown(data['is_star'], _isStarMeta));
+          isStar.isAcceptableOrUnknown(data['is_star']!, _isStarMeta));
     } else if (isInserting) {
       context.missing(_isStarMeta);
     }
     if (data.containsKey('is_read')) {
       context.handle(_isReadMeta,
-          isRead.isAcceptableOrUnknown(data['is_read'], _isReadMeta));
+          isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
     } else if (isInserting) {
       context.missing(_isReadMeta);
     }
@@ -569,13 +518,13 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       context.handle(
           _descriptionMeta,
           description.isAcceptableOrUnknown(
-              data['description'], _descriptionMeta));
+              data['description']!, _descriptionMeta));
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
     if (data.containsKey('body')) {
       context.handle(_htmlContentMeta,
-          htmlContent.isAcceptableOrUnknown(data['body'], _htmlContentMeta));
+          htmlContent.isAcceptableOrUnknown(data['body']!, _htmlContentMeta));
     } else if (isInserting) {
       context.missing(_htmlContentMeta);
     }
@@ -583,7 +532,7 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       context.handle(
           _flavorImageMeta,
           flavorImage.isAcceptableOrUnknown(
-              data['flavor_image'], _flavorImageMeta));
+              data['flavor_image']!, _flavorImageMeta));
     } else if (isInserting) {
       context.missing(_flavorImageMeta);
     }
@@ -591,7 +540,7 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       context.handle(
           _articleOriginLinkMeta,
           articleOriginLink.isAcceptableOrUnknown(
-              data['article_origin_link'], _articleOriginLinkMeta));
+              data['article_origin_link']!, _articleOriginLinkMeta));
     } else if (isInserting) {
       context.missing(_articleOriginLinkMeta);
     }
@@ -599,7 +548,7 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       context.handle(
           _publishTimeMeta,
           publishTime.isAcceptableOrUnknown(
-              data['publish_time'], _publishTimeMeta));
+              data['publish_time']!, _publishTimeMeta));
     } else if (isInserting) {
       context.missing(_publishTimeMeta);
     }
@@ -609,7 +558,7 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id, feedId};
   @override
-  Article map(Map<String, dynamic> data, {String tablePrefix}) {
+  Article map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Article.fromData(data, _db, prefix: effectivePrefix);
   }
@@ -626,60 +575,46 @@ class Feed extends DataClass implements Insertable<Feed> {
   final String feedIcon;
   final int categoryId;
   Feed(
-      {@required this.id,
-      @required this.feedTitle,
-      @required this.feedIcon,
-      @required this.categoryId});
+      {required this.id,
+      required this.feedTitle,
+      required this.feedIcon,
+      required this.categoryId});
   factory Feed.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return Feed(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       feedTitle: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}feed_title']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}feed_title'])!,
       feedIcon: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}feed_icon']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}feed_icon'])!,
       categoryId: intType
-          .mapFromDatabaseResponse(data['${effectivePrefix}category_id']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}category_id'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
-    if (!nullToAbsent || feedTitle != null) {
-      map['feed_title'] = Variable<String>(feedTitle);
-    }
-    if (!nullToAbsent || feedIcon != null) {
-      map['feed_icon'] = Variable<String>(feedIcon);
-    }
-    if (!nullToAbsent || categoryId != null) {
-      map['category_id'] = Variable<int>(categoryId);
-    }
+    map['id'] = Variable<int>(id);
+    map['feed_title'] = Variable<String>(feedTitle);
+    map['feed_icon'] = Variable<String>(feedIcon);
+    map['category_id'] = Variable<int>(categoryId);
     return map;
   }
 
   FeedsCompanion toCompanion(bool nullToAbsent) {
     return FeedsCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      feedTitle: feedTitle == null && nullToAbsent
-          ? const Value.absent()
-          : Value(feedTitle),
-      feedIcon: feedIcon == null && nullToAbsent
-          ? const Value.absent()
-          : Value(feedIcon),
-      categoryId: categoryId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(categoryId),
+      id: Value(id),
+      feedTitle: Value(feedTitle),
+      feedIcon: Value(feedIcon),
+      categoryId: Value(categoryId),
     );
   }
 
   factory Feed.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Feed(
       id: serializer.fromJson<int>(json['id']),
@@ -689,7 +624,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
@@ -699,7 +634,8 @@ class Feed extends DataClass implements Insertable<Feed> {
     };
   }
 
-  Feed copyWith({int id, String feedTitle, String feedIcon, int categoryId}) =>
+  Feed copyWith(
+          {int? id, String? feedTitle, String? feedIcon, int? categoryId}) =>
       Feed(
         id: id ?? this.id,
         feedTitle: feedTitle ?? this.feedTitle,
@@ -744,19 +680,19 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.categoryId = const Value.absent(),
   });
   FeedsCompanion.insert({
-    @required int id,
-    @required String feedTitle,
-    @required String feedIcon,
-    @required int categoryId,
+    required int id,
+    required String feedTitle,
+    required String feedIcon,
+    required int categoryId,
   })  : id = Value(id),
         feedTitle = Value(feedTitle),
         feedIcon = Value(feedIcon),
         categoryId = Value(categoryId);
   static Insertable<Feed> custom({
-    Expression<int> id,
-    Expression<String> feedTitle,
-    Expression<String> feedIcon,
-    Expression<int> categoryId,
+    Expression<int>? id,
+    Expression<String>? feedTitle,
+    Expression<String>? feedIcon,
+    Expression<int>? categoryId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -767,10 +703,10 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
   }
 
   FeedsCompanion copyWith(
-      {Value<int> id,
-      Value<String> feedTitle,
-      Value<String> feedIcon,
-      Value<int> categoryId}) {
+      {Value<int>? id,
+      Value<String>? feedTitle,
+      Value<String>? feedIcon,
+      Value<int>? categoryId}) {
     return FeedsCompanion(
       id: id ?? this.id,
       feedTitle: feedTitle ?? this.feedTitle,
@@ -811,24 +747,19 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
 
 class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $FeedsTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
   @override
-  GeneratedIntColumn get id => _id ??= _constructId();
+  late final GeneratedIntColumn id = _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
-      'id',
-      $tableName,
-      false,
-    );
+    return GeneratedIntColumn('id', $tableName, false,
+        $customConstraints: 'UNIQUE');
   }
 
   final VerificationMeta _feedTitleMeta = const VerificationMeta('feedTitle');
-  GeneratedTextColumn _feedTitle;
   @override
-  GeneratedTextColumn get feedTitle => _feedTitle ??= _constructFeedTitle();
+  late final GeneratedTextColumn feedTitle = _constructFeedTitle();
   GeneratedTextColumn _constructFeedTitle() {
     return GeneratedTextColumn(
       'feed_title',
@@ -838,9 +769,8 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   }
 
   final VerificationMeta _feedIconMeta = const VerificationMeta('feedIcon');
-  GeneratedTextColumn _feedIcon;
   @override
-  GeneratedTextColumn get feedIcon => _feedIcon ??= _constructFeedIcon();
+  late final GeneratedTextColumn feedIcon = _constructFeedIcon();
   GeneratedTextColumn _constructFeedIcon() {
     return GeneratedTextColumn(
       'feed_icon',
@@ -850,9 +780,8 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   }
 
   final VerificationMeta _categoryIdMeta = const VerificationMeta('categoryId');
-  GeneratedIntColumn _categoryId;
   @override
-  GeneratedIntColumn get categoryId => _categoryId ??= _constructCategoryId();
+  late final GeneratedIntColumn categoryId = _constructCategoryId();
   GeneratedIntColumn _constructCategoryId() {
     return GeneratedIntColumn(
       'category_id',
@@ -875,19 +804,19 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
     }
     if (data.containsKey('feed_title')) {
       context.handle(_feedTitleMeta,
-          feedTitle.isAcceptableOrUnknown(data['feed_title'], _feedTitleMeta));
+          feedTitle.isAcceptableOrUnknown(data['feed_title']!, _feedTitleMeta));
     } else if (isInserting) {
       context.missing(_feedTitleMeta);
     }
     if (data.containsKey('feed_icon')) {
       context.handle(_feedIconMeta,
-          feedIcon.isAcceptableOrUnknown(data['feed_icon'], _feedIconMeta));
+          feedIcon.isAcceptableOrUnknown(data['feed_icon']!, _feedIconMeta));
     } else if (isInserting) {
       context.missing(_feedIconMeta);
     }
@@ -895,7 +824,7 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
       context.handle(
           _categoryIdMeta,
           categoryId.isAcceptableOrUnknown(
-              data['category_id'], _categoryIdMeta));
+              data['category_id']!, _categoryIdMeta));
     } else if (isInserting) {
       context.missing(_categoryIdMeta);
     }
@@ -905,7 +834,7 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id, categoryId};
   @override
-  Feed map(Map<String, dynamic> data, {String tablePrefix}) {
+  Feed map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Feed.fromData(data, _db, prefix: effectivePrefix);
   }
@@ -919,41 +848,35 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
 class Category extends DataClass implements Insertable<Category> {
   final int id;
   final String categoryName;
-  Category({@required this.id, @required this.categoryName});
+  Category({required this.id, required this.categoryName});
   factory Category.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String prefix}) {
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     return Category(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       categoryName: stringType
-          .mapFromDatabaseResponse(data['${effectivePrefix}category_name']),
+          .mapFromDatabaseResponse(data['${effectivePrefix}category_name'])!,
     );
   }
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
-    if (!nullToAbsent || categoryName != null) {
-      map['category_name'] = Variable<String>(categoryName);
-    }
+    map['id'] = Variable<int>(id);
+    map['category_name'] = Variable<String>(categoryName);
     return map;
   }
 
   CategoriesCompanion toCompanion(bool nullToAbsent) {
     return CategoriesCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      categoryName: categoryName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(categoryName),
+      id: Value(id),
+      categoryName: Value(categoryName),
     );
   }
 
   factory Category.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer}) {
+      {ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return Category(
       id: serializer.fromJson<int>(json['id']),
@@ -961,7 +884,7 @@ class Category extends DataClass implements Insertable<Category> {
     );
   }
   @override
-  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
@@ -969,7 +892,7 @@ class Category extends DataClass implements Insertable<Category> {
     };
   }
 
-  Category copyWith({int id, String categoryName}) => Category(
+  Category copyWith({int? id, String? categoryName}) => Category(
         id: id ?? this.id,
         categoryName: categoryName ?? this.categoryName,
       );
@@ -1001,11 +924,11 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   });
   CategoriesCompanion.insert({
     this.id = const Value.absent(),
-    @required String categoryName,
+    required String categoryName,
   }) : categoryName = Value(categoryName);
   static Insertable<Category> custom({
-    Expression<int> id,
-    Expression<String> categoryName,
+    Expression<int>? id,
+    Expression<String>? categoryName,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1013,7 +936,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     });
   }
 
-  CategoriesCompanion copyWith({Value<int> id, Value<String> categoryName}) {
+  CategoriesCompanion copyWith({Value<int>? id, Value<String>? categoryName}) {
     return CategoriesCompanion(
       id: id ?? this.id,
       categoryName: categoryName ?? this.categoryName,
@@ -1045,26 +968,20 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
 class $CategoriesTable extends Categories
     with TableInfo<$CategoriesTable, Category> {
   final GeneratedDatabase _db;
-  final String _alias;
+  final String? _alias;
   $CategoriesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  GeneratedIntColumn _id;
   @override
-  GeneratedIntColumn get id => _id ??= _constructId();
+  late final GeneratedIntColumn id = _constructId();
   GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn(
-      'id',
-      $tableName,
-      false,
-    );
+    return GeneratedIntColumn('id', $tableName, false,
+        $customConstraints: 'UNIQUE');
   }
 
   final VerificationMeta _categoryNameMeta =
       const VerificationMeta('categoryName');
-  GeneratedTextColumn _categoryName;
   @override
-  GeneratedTextColumn get categoryName =>
-      _categoryName ??= _constructCategoryName();
+  late final GeneratedTextColumn categoryName = _constructCategoryName();
   GeneratedTextColumn _constructCategoryName() {
     return GeneratedTextColumn(
       'category_name',
@@ -1087,13 +1004,13 @@ class $CategoriesTable extends Categories
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id'], _idMeta));
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('category_name')) {
       context.handle(
           _categoryNameMeta,
           categoryName.isAcceptableOrUnknown(
-              data['category_name'], _categoryNameMeta));
+              data['category_name']!, _categoryNameMeta));
     } else if (isInserting) {
       context.missing(_categoryNameMeta);
     }
@@ -1103,7 +1020,7 @@ class $CategoriesTable extends Categories
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Category map(Map<String, dynamic> data, {String tablePrefix}) {
+  Category map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
     return Category.fromData(data, _db, prefix: effectivePrefix);
   }
@@ -1116,12 +1033,9 @@ class $CategoriesTable extends Categories
 
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
-  $ArticlesTable _articles;
-  $ArticlesTable get articles => _articles ??= $ArticlesTable(this);
-  $FeedsTable _feeds;
-  $FeedsTable get feeds => _feeds ??= $FeedsTable(this);
-  $CategoriesTable _categories;
-  $CategoriesTable get categories => _categories ??= $CategoriesTable(this);
+  late final $ArticlesTable articles = $ArticlesTable(this);
+  late final $FeedsTable feeds = $FeedsTable(this);
+  late final $CategoriesTable categories = $CategoriesTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override

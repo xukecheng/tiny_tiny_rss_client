@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ExpansionArticles extends StatefulWidget {
-  ExpansionArticles({Key key, this.articleList}) : super(key: key);
+  ExpansionArticles(this.articleList);
   // 接收第三篇之后的所有文章
   final List<Widget> articleList;
 

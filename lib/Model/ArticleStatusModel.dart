@@ -16,6 +16,7 @@ class ArticleModel with ChangeNotifier {
     } else {
       this.initData = await AppDatabase().getArticlesInFeeds(isRead: 0);
     }
+    print("length" + initData.length.toString());
     notifyListeners();
   }
 
@@ -37,7 +38,7 @@ class ArticleModel with ChangeNotifier {
         articleIdList.add(articlesInFeed.feedArticles[articleIndex].id);
       });
     }
-    AppDatabase().markRead(idList: articleIdList, isRead: isRead);
+    AppDatabase().markRead(articleIdList, isRead: isRead);
     notifyListeners();
   }
 
@@ -46,7 +47,7 @@ class ArticleModel with ChangeNotifier {
     int articleId = articlesInFeed.feedArticles[articleIndex].id;
     articlesInFeed.feedArticles[articleIndex] =
         articlesInFeed.feedArticles[articleIndex].copyWith(isStar: isStar);
-    AppDatabase().markStar(id: articleId, isStar: isStar);
+    AppDatabase().markStar(articleId, isStar: isStar);
     notifyListeners();
   }
 }

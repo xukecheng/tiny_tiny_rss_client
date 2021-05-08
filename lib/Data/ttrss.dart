@@ -23,13 +23,13 @@ class TinyTinyRss {
     print('登录中');
   }
 
-  Future<bool> checkLoginStatus({String sessionId = ''}) async {
-    if (sessionId != null) {
+  Future<bool> checkLoginStatus(String sessionId) async {
+    if (sessionId != '') {
       Response response = await dio.post(
         "api/",
         data: {
           "op": "isLoggedIn",
-          "sid": sessionId ?? '',
+          "sid": sessionId,
         },
       );
       if (!json.decode(response.data)['content']['status']) {
@@ -47,10 +47,10 @@ class TinyTinyRss {
     }
   }
 
-  markRead({List articleIdList, int isRead = 1}) async {
-    String sessionId;
+  markRead(List articleIdList, {int isRead = 1}) async {
+    late String sessionId;
     await Tool.getData<String>('sessionId').then((value) => sessionId = value);
-    await this.checkLoginStatus(sessionId: sessionId);
+    await this.checkLoginStatus(sessionId);
     // 调用接口设置已读
     try {
       String articleIdString = articleIdList.join(',');
@@ -69,10 +69,10 @@ class TinyTinyRss {
     }
   }
 
-  markStar({int id, int isStar = 1}) async {
-    String sessionId;
+  markStar(int id, {int isStar = 1}) async {
+    late String sessionId;
     await Tool.getData<String>('sessionId').then((value) => sessionId = value);
-    await this.checkLoginStatus(sessionId: sessionId);
+    await this.checkLoginStatus(sessionId);
     // 调用接口设置已读
     try {
       await dio.post(
@@ -90,7 +90,7 @@ class TinyTinyRss {
     }
   }
 
-  insertArticles({String sessionId = ''}) async {
+  insertArticles(String sessionId) async {
     try {
       Response response = await dio.post(
         "api/",
@@ -126,7 +126,7 @@ class TinyTinyRss {
     }
   }
 
-  insertCategoryAndFeed({String sessionId = ''}) async {
+  insertCategoryAndFeed(String sessionId) async {
     try {
       Response response = await dio.post(
         "api/",

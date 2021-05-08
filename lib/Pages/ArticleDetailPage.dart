@@ -9,7 +9,7 @@ import '../Data/database.dart';
 
 class ArticleDetailPage extends StatelessWidget {
   final int id;
-  ArticleDetailPage({this.id});
+  ArticleDetailPage(this.id);
 
   void _launchURL(url) async {
     if (await canLaunch(url)) {
@@ -55,7 +55,7 @@ class ArticleDetailPage extends StatelessWidget {
                       icon: Icon(Icons.open_in_browser),
                       onPressed: () {
                         this._launchURL(
-                          snapshot.data.articleOriginLink,
+                          snapshot.data!.articleOriginLink,
                         );
                       },
                     )
@@ -68,7 +68,7 @@ class ArticleDetailPage extends StatelessWidget {
                     children: [
                       // 文章标题
                       Text(
-                        snapshot.data.title,
+                        snapshot.data!.title,
                         style: TextStyle(decoration: TextDecoration.none),
                       )
                           .bold()
@@ -82,30 +82,31 @@ class ArticleDetailPage extends StatelessWidget {
                       ),
                       // 富文本渲染内容
                       HtmlWidget(
-                        snapshot.data.htmlContent,
+                        snapshot.data!.htmlContent,
                         // 捕捉点击图片事件
                         factoryBuilder: () => ImageClickWidgetFactory(
                           context: context,
                         ),
                         customStylesBuilder: (element) {
-                          if (element.localName.contains('p')) {
+                          if (element.localName!.contains('p')) {
                             return {
                               'white-space': 'normal',
                               'word-break': 'break-all',
                             };
-                          } else if (element.localName.contains('blockquote')) {
+                          } else if (element.localName!
+                              .contains('blockquote')) {
                             return {
                               'background-color': 'rgba(0, 0, 0, 0.04)',
                               'margin': '0',
                               'padding': '0.5em 0.5em'
                             };
-                          } else if (element.localName.contains('ul')) {
+                          } else if (element.localName!.contains('ul')) {
                             return {'padding': '0 0 0 25px'};
-                          } else if (element.localName.contains('li')) {
+                          } else if (element.localName!.contains('li')) {
                             return {'margin-bottom': '10px'};
-                          } else if (element.localName.contains('a')) {
+                          } else if (element.localName!.contains('a')) {
                             return {'border-bottom': ''};
-                          } else if (element.localName.contains('figure')) {
+                          } else if (element.localName!.contains('figure')) {
                             return {
                               'margin': '0',
                               'font-size': '0.857em',

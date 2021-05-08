@@ -36,37 +36,33 @@ class MyApp extends StatelessWidget {
     //给Application的router赋值router实例对象
     Application.router = router;
 
-    return MultiProvider(
-        providers: [
-          Provider.value(value: AppDatabase()),
-          ChangeNotifierProvider.value(value: ArticleModel()),
-        ],
-        // create: (_) => AppDatabase(),
-        child: MaterialApp(
-          theme: new ThemeData(
-            primaryColor: Colors.white,
-          ),
-          //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
-          onGenerateRoute: Application.router.generator,
-          home: Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  "TinyTinyRSS",
-                  style: TextStyle(
-                    color: Tool().colorFromHex("#f5712c"),
-                  ),
-                ),
+    return Provider(
+        create: (_) => AppDatabase(),
+        child: ChangeNotifierProvider(
+            create: (_) => ArticleModel(),
+            child: MaterialApp(
+              theme: new ThemeData(
+                primaryColor: Colors.white,
               ),
-              body: UnreadPage(),
-              backgroundColor: Tool().colorFromHex("#f5f5f5"),
-              bottomNavigationBar: BottomNavigartor()),
-        ));
+              //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
+              onGenerateRoute: Application.router.generator,
+              home: Scaffold(
+                  appBar: AppBar(
+                    title: Text(
+                      "TinyTinyRSS",
+                      style: TextStyle(
+                        color: Tool().colorFromHex("#f5712c"),
+                      ),
+                    ),
+                  ),
+                  body: UnreadPage(),
+                  backgroundColor: Tool().colorFromHex("#f5f5f5"),
+                  bottomNavigationBar: BottomNavigartor()),
+            )));
   }
 }
 
 class BottomNavigartor extends StatefulWidget {
-  BottomNavigartor({Key key}) : super(key: key);
-
   @override
   _BottomNavigartorState createState() => _BottomNavigartorState();
 }

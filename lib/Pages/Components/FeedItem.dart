@@ -18,7 +18,8 @@ class FeedItem extends StatelessWidget {
   final ArticleModel provider;
 
   // Feed 下标记已读
-  void _setReadStatus(List<int> articleIndexList, int isRead, {int feedIndex}) {
+  void _setReadStatus(List<int> articleIndexList, int isRead,
+      {int? feedIndex}) {
     this.provider.setReadStatus(
           feedIndex != null ? feedIndex : this.feedIndex,
           articleIndexList,
@@ -145,14 +146,14 @@ class FeedItem extends StatelessWidget {
               endIndent: 20,
             ),
             // 第三篇之后的展开收起文章组件
-            ExpansionArticles(articleList: articleList.sublist(3)),
+            ExpansionArticles(articleList.sublist(3)),
           ]
         : articleList;
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build' + this.articlesInFeed.feedTitle);
+    print('build' + this.articlesInFeed.feedTitle + feedIndex.toString());
     return <Widget>[
       Card(
         child: <Widget>[
@@ -178,7 +179,7 @@ class FeedItem extends StatelessWidget {
                 )
                     .fontSize(16)
                     .fontWeight(FontWeight.w600)
-                    .textColor(Colors.blueGrey[700])
+                    .textColor(Colors.blueGrey[700]!)
                     .padding(left: 10),
               ),
               // 全部已读 Icon

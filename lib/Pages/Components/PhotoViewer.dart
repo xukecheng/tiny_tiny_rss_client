@@ -27,10 +27,10 @@ class PhotoViewer extends StatefulWidget {
 }
 
 class _PhotoViewerState extends State<PhotoViewer> {
-  PageController pageController;
-  int nowPosition;
-  int initialPage;
-  List<Widget> dotWidgets;
+  late PageController pageController;
+  late int nowPosition;
+  late int initialPage;
+  late List<Widget> dotWidgets;
 
   _PhotoViewerState({this.initialPage = 0});
 

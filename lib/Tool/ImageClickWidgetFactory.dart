@@ -8,7 +8,7 @@ class ImageClickWidgetFactory extends WidgetFactory {
   final context;
   List imageList = [];
   @override
-  Widget buildImage(BuildMetadata meta, ImageMetadata image) {
+  Widget? buildImage(BuildMetadata meta, ImageMetadata image) {
     final built = super.buildImage(meta, image);
     if (built == null) return built;
     imageList.add(image.sources.first.url);

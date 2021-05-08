@@ -11,8 +11,6 @@ import '../Model/ArticleStatusModel.dart';
 import '../Tool/Tool.dart';
 
 class UnreadPage extends StatefulWidget {
-  UnreadPage({Key key}) : super(key: key);
-
   @override
   _UnreadPageState createState() => _UnreadPageState();
 }
@@ -37,51 +35,52 @@ class _UnreadPageState extends State<UnreadPage> {
   Widget build(BuildContext context) {
     // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果
     return this._isLoadComplete
-        ? LiquidPullToRefresh(
-            onRefresh: () async {
-              await Provider.of<ArticleModel>(context, listen: false).update();
+        ? Selector<ArticleModel, ArticleModel>(
+            selector: (context, provider) => provider,
+            shouldRebuild: (prev, next) => true,
+            builder: (context, provider, child) {
+              print("total" + provider.total.toString());
+              return LiquidPullToRefresh(
+                  onRefresh: () async {
+                    await Provider.of<ArticleModel>(context, listen: false)
+                        .update();
+                  },
+                  springAnimationDurationInMilliseconds: 250,
+                  height: 80,
+                  color: Tool().colorFromHex("#f5712c"),
+                  showChildOpacityTransition: false,
+                  child: provider.total > 0
+                      ? ListView.builder(
+                          physics: AlwaysScrollableScrollPhysics(),
+                          itemCount: provider.total,
+                          itemBuilder: (context, index) {
+                            return Selector<ArticleModel, ArticlesInFeed>(
+                                selector: (context, provider) =>
+                                    provider.getData[index],
+                                builder: (context, data, child) {
+                                  return FeedItem(
+                                    index,
+                                    data,
+                                    provider,
+                                  );
+                                });
+                          },
+                        )
+                      : ListView(
+                          children: [
+                            Text(
+                              "没有新文章",
+                            )
+                                .bold()
+                                .fontSize(20)
+                                .textColor(
+                                  Tool().colorFromHex("#f5712c"),
+                                )
+                                .center()
+                                .padding(top: 300)
+                          ],
+                        ));
             },
-            springAnimationDurationInMilliseconds: 250,
-            height: 80,
-            color: Tool().colorFromHex("#f5712c"),
-            showChildOpacityTransition: false,
-            child: Selector<ArticleModel, ArticleModel>(
-              selector: (context, provider) => provider,
-              shouldRebuild: (prev, next) => false,
-              builder: (context, provider, child) {
-                return provider.total > 0
-                    ? ListView.builder(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        itemCount: provider.total,
-                        itemBuilder: (context, index) {
-                          return Selector<ArticleModel, ArticlesInFeed>(
-                              selector: (context, provider) =>
-                                  provider.getData[index],
-                              builder: (context, data, child) {
-                                return FeedItem(
-                                  index,
-                                  data,
-                                  provider,
-                                );
-                              });
-                        },
-                      )
-                    : ListView(
-                        children: [
-                          Text(
-                            "没有新文章",
-                          )
-                              .bold()
-                              .fontSize(20)
-                              .textColor(
-                                Tool().colorFromHex("#f5712c"),
-                              )
-                              .center()
-                              .padding(top: 300)
-                        ],
-                      );
-              },
-            ),
           )
         : Loading();
   }
