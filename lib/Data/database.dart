@@ -103,7 +103,7 @@ class AppDatabase extends _$AppDatabase {
     // 完成 Feed 和分类数据获取
     List<List> feedTreeData =
         await TinyTinyRss().insertCategoryAndFeed(sessionId);
-    feedTreeData.first.map((feed) => this.insertFeed(feed));
+    feedTreeData.first.forEach((feed) => this.insertFeed(feed));
     feedTreeData.last.forEach((category) => this.insertCategory(category));
   }
 

@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 
 import '../database.dart';
 
-AppDatabase constructDb({bool logStatements = false}) {
+AppDatabase constructDb({bool logStatements = true}) {
   if (Platform.isIOS || Platform.isAndroid) {
     final executor = LazyDatabase(() async {
       final dataDir = await paths.getApplicationDocumentsDirectory();

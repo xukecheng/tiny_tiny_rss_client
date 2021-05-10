@@ -11,8 +11,10 @@ import 'utils/config.dart';
 import 'Routers/Application.dart';
 import 'Routers/Routers.dart';
 import 'Pages/UnreadPage.dart';
+import 'Pages/FavoritePage.dart';
 import 'Data/database.dart';
 import 'Model/ArticleModel.dart';
+import 'Model/BottomNavyModel.dart';
 
 void main() async {
   Config.env = Env.PROD;
@@ -28,6 +30,10 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  final pages = [
+    UnreadPage(),
+    FavoritePage(),
+  ];
   @override
   Widget build(BuildContext context) {
     final router = FluroRouter();
@@ -36,54 +42,55 @@ class MyApp extends StatelessWidget {
     //给Application的router赋值router实例对象
     Application.router = router;
 
-    return Provider(
-        create: (_) => constructDb(),
-        child: ChangeNotifierProvider(
-            create: (context) {
-              final db = Provider.of<AppDatabase>(context, listen: false);
-              return ArticleModel(db);
-            },
-            child: MaterialApp(
-              theme: new ThemeData(
-                primaryColor: Colors.white,
+    return MultiProvider(
+      providers: [
+        Provider<AppDatabase>(create: (_) => constructDb()),
+        ChangeNotifierProvider<BottomNavyModel>(
+            create: (_) => BottomNavyModel()),
+      ],
+      child: ChangeNotifierProvider(
+        create: (context) {
+          final db = Provider.of<AppDatabase>(context, listen: false);
+          return ArticleModel(db);
+        },
+        child: MaterialApp(
+          theme: new ThemeData(
+            primaryColor: Colors.white,
+          ),
+          //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
+          onGenerateRoute: Application.router.generator,
+          home: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                "TinyTinyRSS",
+                style: TextStyle(
+                  color: Tool().colorFromHex("#f5712c"),
+                ),
               ),
-              //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
-              onGenerateRoute: Application.router.generator,
-              home: Scaffold(
-                  appBar: AppBar(
-                    title: Text(
-                      "TinyTinyRSS",
-                      style: TextStyle(
-                        color: Tool().colorFromHex("#f5712c"),
-                      ),
-                    ),
-                  ),
-                  body: UnreadPage(),
-                  backgroundColor: Tool().colorFromHex("#f5f5f5"),
-                  bottomNavigationBar: BottomNavigartor()),
-            )));
+            ),
+            body: Selector<BottomNavyModel, int>(
+              selector: (context, provider) => provider.currentIndex,
+              builder: (context, data, child) {
+                return pages[data];
+              },
+            ),
+            backgroundColor: Tool().colorFromHex("#f5f5f5"),
+            bottomNavigationBar: BottomNavigator(),
+          ),
+        ),
+      ),
+    );
   }
 }
 
-class BottomNavigartor extends StatefulWidget {
-  @override
-  _BottomNavigartorState createState() => _BottomNavigartorState();
-}
-
-class _BottomNavigartorState extends State<BottomNavigartor> {
-  int _currentIndex = 0;
+class BottomNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<BottomNavyModel>(context);
     return BottomNavyBar(
-      selectedIndex: _currentIndex,
-      showElevation: true, // use this to remove appBar's elevation
-      onItemSelected: (index) => setState(
-        () {
-          _currentIndex = index;
-          // _pageController.animateToPage(index,
-          //     duration: Duration(milliseconds: 300), curve: Curves.ease);
-        },
-      ),
+      selectedIndex: provider.currentIndex,
+      onItemSelected: (int index) =>
+          provider.currentIndex = index > 1 ? 1 : index,
       items: [
         BottomNavyBarItem(
           icon: Icon(Icons.home),
