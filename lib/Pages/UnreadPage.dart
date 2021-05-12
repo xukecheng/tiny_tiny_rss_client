@@ -9,6 +9,8 @@ import 'Components/Loading.dart';
 import '../Data/database.dart';
 import '../Model/ArticleModel.dart';
 import '../Tool/Tool.dart';
+import '../Tool/SizeCalculate.dart';
+import '../Extension/Int.dart';
 
 class UnreadPage extends StatefulWidget {
   @override
@@ -36,6 +38,9 @@ class _UnreadPageState extends State<UnreadPage>
 
   @override
   Widget build(BuildContext context) {
+    // 初始化 SizeCalculate
+    SizeCalculate.initialize(context);
+
     // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果
     return this._isLoadComplete
         ? Selector<ArticleModel, ArticleModel>(
@@ -47,7 +52,7 @@ class _UnreadPageState extends State<UnreadPage>
                         .update();
                   },
                   springAnimationDurationInMilliseconds: 250,
-                  height: 80,
+                  height: (160.rpx),
                   color: Tool().colorFromHex("#f5712c"),
                   showChildOpacityTransition: false,
                   child: provider.total > 0
