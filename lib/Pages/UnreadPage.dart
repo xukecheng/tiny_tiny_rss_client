@@ -15,10 +15,13 @@ class UnreadPage extends StatefulWidget {
   _UnreadPageState createState() => _UnreadPageState();
 }
 
-class _UnreadPageState extends State<UnreadPage> {
+class _UnreadPageState extends State<UnreadPage>
+    with AutomaticKeepAliveClientMixin {
   bool _isLoadComplete = false;
 
   @override
+  bool get wantKeepAlive => true;
+
   void initState() {
     super.initState();
     // 初始化未读文章
@@ -37,7 +40,6 @@ class _UnreadPageState extends State<UnreadPage> {
     return this._isLoadComplete
         ? Selector<ArticleModel, ArticleModel>(
             selector: (context, provider) => provider,
-            shouldRebuild: (prev, next) => true,
             builder: (context, provider, child) {
               return LiquidPullToRefresh(
                   onRefresh: () async {

@@ -30,10 +30,13 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final pages = [
+  final List<Widget> _pages = [
     UnreadPage(),
     FavoritePage(),
   ];
+
+  final PageController _pageController = PageController(initialPage: 0);
+
   @override
   Widget build(BuildContext context) {
     final router = FluroRouter();
@@ -60,23 +63,55 @@ class MyApp extends StatelessWidget {
           //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
           onGenerateRoute: Application.router.generator,
           home: Scaffold(
-            appBar: AppBar(
-              title: Text(
-                "TinyTinyRSS",
-                style: TextStyle(
-                  color: Tool().colorFromHex("#f5712c"),
+              appBar: AppBar(
+                title: Text(
+                  "TinyTinyRSS",
+                  style: TextStyle(
+                    color: Tool().colorFromHex("#f5712c"),
+                  ),
                 ),
               ),
-            ),
-            body: Selector<BottomNavyModel, int>(
-              selector: (context, provider) => provider.currentIndex,
-              builder: (context, data, child) {
-                return pages[data];
-              },
-            ),
-            backgroundColor: Tool().colorFromHex("#f5f5f5"),
-            bottomNavigationBar: BottomNavigator(),
-          ),
+              body: Selector<BottomNavyModel, int>(
+                selector: (context, provider) => provider.currentIndex,
+                builder: (context, index, child) {
+                  return PageView(
+                    controller: this._pageController,
+                    children: this._pages,
+                  );
+                },
+              ),
+              backgroundColor: Tool().colorFromHex("#f5f5f5"),
+              bottomNavigationBar: Selector<BottomNavyModel, int>(
+                  selector: (context, provider) => provider.currentIndex,
+                  shouldRebuild: (prev, next) => false,
+                  builder: (context, data, child) {
+                    return BottomNavyBar(
+                      selectedIndex: data,
+                      onItemSelected: (int index) {
+                        data = index > 1 ? 1 : index;
+                        this._pageController.jumpToPage(data);
+                      },
+                      items: [
+                        BottomNavyBarItem(
+                          icon: Icon(Icons.home),
+                          title: Text('Home'),
+                          activeColor: Colors.red,
+                        ),
+                        BottomNavyBarItem(
+                            icon: Icon(Icons.favorite),
+                            title: Text('收藏'),
+                            activeColor: Colors.purpleAccent),
+                        BottomNavyBarItem(
+                            icon: Icon(Icons.search),
+                            title: Text('搜索'),
+                            activeColor: Colors.pink),
+                        BottomNavyBarItem(
+                            icon: Icon(Icons.settings),
+                            title: Text('Settings'),
+                            activeColor: Colors.blue),
+                      ],
+                    );
+                  })),
         ),
       ),
     );
