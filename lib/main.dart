@@ -63,14 +63,14 @@ class MyApp extends StatelessWidget {
           //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
           onGenerateRoute: Application.router.generator,
           home: Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  "TinyTinyRSS",
-                  style: TextStyle(
-                    color: Tool().colorFromHex("#f5712c"),
-                  ),
-                ),
-              ),
+              // appBar: AppBar(
+              //   title: Text(
+              //     "TinyTinyRSS",
+              //     style: TextStyle(
+              //       color: Tool().colorFromHex("#f5712c"),
+              //     ),
+              //   ),
+              // ),
               body: Selector<BottomNavyModel, int>(
                 selector: (context, provider) => provider.currentIndex,
                 builder: (context, index, child) {
@@ -80,11 +80,11 @@ class MyApp extends StatelessWidget {
                   );
                 },
               ),
-              backgroundColor: Tool().colorFromHex("#f5f5f5"),
+              backgroundColor: Colors.white,
               bottomNavigationBar: Selector<BottomNavyModel, int>(
                   selector: (context, provider) => provider.currentIndex,
-                  shouldRebuild: (prev, next) => false,
                   builder: (context, data, child) {
+                    print("build BottomNavyBar");
                     return BottomNavyBar(
                       selectedIndex: data,
                       onItemSelected: (int index) {

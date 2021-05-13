@@ -47,45 +47,46 @@ class _UnreadPageState extends State<UnreadPage>
             selector: (context, provider) => provider,
             builder: (context, provider, child) {
               return LiquidPullToRefresh(
-                  onRefresh: () async {
-                    await Provider.of<ArticleModel>(context, listen: false)
-                        .update();
-                  },
-                  springAnimationDurationInMilliseconds: 250,
-                  height: (160.rpx),
-                  color: Tool().colorFromHex("#f5712c"),
-                  showChildOpacityTransition: false,
-                  child: provider.total > 0
-                      ? ListView.builder(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          itemCount: provider.total,
-                          itemBuilder: (context, index) {
-                            return Selector<ArticleModel, ArticlesInFeed>(
-                                selector: (context, provider) =>
-                                    provider.getData[index],
-                                builder: (context, data, child) {
-                                  return FeedItem(
-                                    index,
-                                    data,
-                                    provider,
-                                  );
-                                });
-                          },
-                        )
-                      : ListView(
-                          children: [
-                            Text(
-                              "没有新文章",
-                            )
-                                .bold()
-                                .fontSize(20)
-                                .textColor(
-                                  Tool().colorFromHex("#f5712c"),
-                                )
-                                .center()
-                                .padding(top: 300)
-                          ],
-                        ));
+                onRefresh: () async {
+                  await Provider.of<ArticleModel>(context, listen: false)
+                      .update();
+                },
+                springAnimationDurationInMilliseconds: 250,
+                height: (160.rpx),
+                color: Tool().colorFromHex("#f5712c"),
+                showChildOpacityTransition: false,
+                child: provider.total > 0
+                    ? ListView.builder(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: provider.total,
+                        itemBuilder: (context, index) {
+                          return Selector<ArticleModel, ArticlesInFeed>(
+                              selector: (context, provider) =>
+                                  provider.getData[index],
+                              builder: (context, data, child) {
+                                return FeedItem(
+                                  index,
+                                  data,
+                                  provider,
+                                );
+                              });
+                        },
+                      )
+                    : ListView(
+                        children: [
+                          Text(
+                            "没有新文章",
+                          )
+                              .bold()
+                              .fontSize(20)
+                              .textColor(
+                                Tool().colorFromHex("#f5712c"),
+                              )
+                              .center()
+                              .padding(top: 300)
+                        ],
+                      ),
+              );
             },
           )
         : Loading();

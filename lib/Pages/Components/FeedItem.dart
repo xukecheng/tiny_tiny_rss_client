@@ -6,7 +6,11 @@ import 'package:fluro/fluro.dart';
 import 'ArticleItem.dart';
 import 'FeedItemExpansion.dart';
 
+import '../../Tool/SizeCalculate.dart';
 import '../../Tool/Tool.dart';
+import '../../Extension/Int.dart';
+import '../../Extension/Double.dart';
+
 import '../../Data/database.dart';
 import '../../Model/ArticleModel.dart';
 import '../../Routers/Application.dart';
@@ -110,22 +114,10 @@ class FeedItem extends StatelessWidget {
     this.articlesInFeed.feedArticles.asMap().forEach(
       (index, Article article) {
         int articleId = article.id;
-        Widget articleWidget = InkWell(
-          onTap: () {
-            this._setReadStatus([index], 1);
-            // 点击跳转详情页
-            Application.router.navigateTo(
-              context,
-              '/articleDetail?articleId=$articleId',
-              transition: TransitionType.cupertino,
-            );
-          },
-          onLongPress: () => this._longPress(context, index),
-          child: ArticleItem(
-            this.feedIndex,
-            index,
-            provider,
-          ),
+        Widget articleWidget = ArticleItem(
+          this.feedIndex,
+          index,
+          provider,
         );
         articleList.add(articleWidget);
       },
@@ -149,52 +141,61 @@ class FeedItem extends StatelessWidget {
         : articleList;
   }
 
+  // 单篇文章
+  Widget getArticleItem(BuildContext context) {
+    Widget a = <Widget>[
+      <Widget>[
+        Text("2021-04-01 16:52")
+            .fontSize(24.rpx)
+            .textColor(Tool().colorFromHex("#E87E04"))
+            .padding(bottom: 20.rpx),
+        Text("学生利器：微软为 Edge 浏览器稳定版新增数学求解器功能")
+            .fontSize(32.rpx)
+            .bold()
+            .width(454.rpx)
+            .padding(bottom: 20.rpx),
+        Text("IT之家 4 月 30 日消息 上个月，微软在其 Edge 浏览器中宣布了一项新的“Math Solver”（数学求解器）功能…")
+            .fontSize(24.rpx)
+            .width(454.rpx),
+      ].toColumn(crossAxisAlignment: CrossAxisAlignment.start),
+      CachedNetworkImage(
+        imageUrl:
+            "https://picgo-1253786286.cos.ap-guangzhou.myqcloud.com/image/1620923765.png",
+        fit: BoxFit.fill,
+      ).clipRRect(all: 8.rpx).constrained(height: 180.rpx, width: 180.rpx)
+    ]
+        .toRow(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start)
+        .gestures(onTap: () {
+      Application.router.navigateTo(
+        context,
+        '/articleDetail?articleId=1884412',
+        transition: TransitionType.cupertino,
+      );
+    }).padding(bottom: 40.rpx);
+    List<Widget> aritcleList = [a, a, a, a, a];
+    return aritcleList.toColumn();
+  }
+
   @override
   Widget build(BuildContext context) {
     print('build' + this.articlesInFeed.feedTitle + feedIndex.toString());
-    return <Widget>[
-      Card(
-        child: <Widget>[
-          // 卡片顶部 -> Feed 信息
-          Flex(
-            direction: Axis.horizontal,
-            children: [
-              // Feed Icon
-              Expanded(
-                flex: 1,
-                child: CachedNetworkImage(
-                  imageUrl: this.articlesInFeed.feedIcon,
-                  fit: BoxFit.fill,
-                ).clipOval().width(28).height(28),
-              ),
-              // Feed 标题
-              Expanded(
-                flex: 10,
-                child: Text(
-                  this.articlesInFeed.feedTitle,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                )
-                    .fontSize(16)
-                    .fontWeight(FontWeight.w600)
-                    .textColor(Colors.blueGrey[700]!)
-                    .padding(left: 10),
-              ),
-              // 全部已读 Icon
-              IconButton(
-                icon: Icon(Icons.done_all)
-                    .iconColor(Tool().colorFromHex("#f5712c")),
-                onPressed: () => this._setReadStatus([], 1),
-              ),
-            ],
-          ).height(60).padding(left: 15, right: 15),
-          Divider(
-            height: 0,
-          ),
-          // Feed 下的文章列表
-          Column(children: this._getArticleTile(context)),
-        ].toColumn(),
-      ).padding(left: 10, top: 10, right: 10, bottom: 10),
-    ].toColumn();
+    return Container(
+            padding: EdgeInsets.all(30.rpx),
+            child: <Widget>[
+              Text(this.articlesInFeed.feedTitle)
+                  .fontSize((52.rpx))
+                  .fontWeight(FontWeight.w900)
+                  .textColor(
+                    Tool().colorFromHex("#D35400"),
+                  )
+                  .padding(bottom: 40.rpx),
+              this._getArticleTile(context).toColumn(),
+            ]
+                .toColumn(crossAxisAlignment: CrossAxisAlignment.start)
+                .alignment(Alignment.centerLeft))
+        .decorated()
+        .padding(bottom: 80.rpx);
   }
 }
