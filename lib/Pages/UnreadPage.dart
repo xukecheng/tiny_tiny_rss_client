@@ -20,9 +20,10 @@ class UnreadPage extends StatefulWidget {
 class _UnreadPageState extends State<UnreadPage>
     with AutomaticKeepAliveClientMixin {
   bool _isLoadComplete = false;
+  bool _wantKeepAlive = true;
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => _wantKeepAlive;
 
   void initState() {
     super.initState();
@@ -48,8 +49,15 @@ class _UnreadPageState extends State<UnreadPage>
             builder: (context, provider, child) {
               return LiquidPullToRefresh(
                 onRefresh: () async {
-                  await Provider.of<ArticleModel>(context, listen: false)
-                      .update();
+                  setState(() {
+                    this._wantKeepAlive = false;
+                    this.updateKeepAlive();
+                  });
+                  await provider.update();
+                  setState(() {
+                    this._wantKeepAlive = true;
+                    this.updateKeepAlive();
+                  });
                 },
                 springAnimationDurationInMilliseconds: 250,
                 height: (160.rpx),

@@ -32,9 +32,7 @@ class _ExpansionArticlesState extends State<ExpansionArticles> {
                 title: isExpanded ? Text("收起") : Text("展开"),
               );
             },
-            body: Column(
-              children: widget.articleList,
-            ),
+            body: widget.articleList.toColumn(),
             isExpanded: this.expandedStatus,
           )
         ],

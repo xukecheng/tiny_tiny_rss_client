@@ -96,15 +96,16 @@ class AppDatabase extends _$AppDatabase {
       await Tool.getData<String>('sessionId')
           .then((value) => sessionId = value);
     }
+    await customUpdate("UPDATE articles SET is_read = 1 ");
     // 完成文章数据获取
     List<Article> articleList = await TinyTinyRss().insertArticles(sessionId);
     await Future.forEach(
-        articleList, (Article article) => this.insertArticle(article));
+        articleList, (Article article) => this._insertArticle(article));
     // 完成 Feed 和分类数据获取
     List<List> feedTreeData =
         await TinyTinyRss().insertCategoryAndFeed(sessionId);
-    feedTreeData.first.forEach((feed) => this.insertFeed(feed));
-    feedTreeData.last.forEach((category) => this.insertCategory(category));
+    feedTreeData.first.forEach((feed) => this._insertFeed(feed));
+    feedTreeData.last.forEach((category) => this._insertCategory(category));
   }
 
   Future<List<ArticlesInFeed>> getArticlesInFeeds(
@@ -142,7 +143,7 @@ class AppDatabase extends _$AppDatabase {
     idList.forEach((id) async {
       final query = (select(articles)..where((a) => a.id.equals(id)));
       List<Article> result = await query.get();
-      update(articles).replace(Article(
+      this._updateArticle(Article(
           id: result.first.id,
           feedId: result.first.feedId,
           title: result.first.title,
@@ -160,7 +161,7 @@ class AppDatabase extends _$AppDatabase {
     TinyTinyRss().markStar(id, isStar: isStar);
     final query = (select(articles)..where((a) => a.id.equals(id)));
     List<Article> result = await query.get();
-    update(articles).replace(Article(
+    this._updateArticle(Article(
         id: result.first.id,
         feedId: result.first.feedId,
         title: result.first.title,
@@ -173,10 +174,11 @@ class AppDatabase extends _$AppDatabase {
         publishTime: result.first.publishTime));
   }
 
-  Future insertArticle(Article article) =>
+  Future _updateArticle(Article article) => update(articles).replace(article);
+  Future _insertArticle(Article article) =>
       into(articles).insertOnConflictUpdate(article);
-  Future insertFeed(Feed feed) => into(feeds).insertOnConflictUpdate(feed);
-  Future insertCategory(Category category) =>
+  Future _insertFeed(Feed feed) => into(feeds).insertOnConflictUpdate(feed);
+  Future _insertCategory(Category category) =>
       into(categories).insertOnConflictUpdate(category);
 
   Future<List<Feed>> _getFeeds({int isRead: 0}) => ((select(articles)

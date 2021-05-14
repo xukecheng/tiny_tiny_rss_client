@@ -4,7 +4,7 @@ import 'package:html/parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Tool {
-  String timestampToDate(timestamp) {
+  String timestampToDate(int timestamp) {
     return formatDate(DateTime.fromMillisecondsSinceEpoch(timestamp * 1000),
         [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]);
   }
