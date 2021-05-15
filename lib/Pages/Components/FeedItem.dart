@@ -36,7 +36,7 @@ class FeedItem extends StatelessWidget {
   }
 
   // 生成单 Feed 下的文章流
-  List<Widget> _getFeedArticle(BuildContext context) {
+  List<Widget> _getFeedArticle() {
     List<Widget> articleList = [];
     this.articlesInFeed.feedArticles.asMap().forEach(
       (index, Article article) {
@@ -55,20 +55,15 @@ class FeedItem extends StatelessWidget {
             articleList[0],
             articleList[1],
             articleList[2],
-            Divider(
-              height: 0,
-              indent: 20,
-              endIndent: 20,
-            ),
             // 第三篇之后的展开收起文章组件
-            ExpansionArticles(articleList.sublist(3)),
+            ExpansionArticles(articleList.sublist(3)).padding(top: 40.rpx),
           ]
         : articleList;
   }
 
   List<Widget> _buildFeedItem(BuildContext context) {
     List<Widget> feedItem = [this._getFeedTitle()];
-    feedItem.addAll(this._getFeedArticle(context));
+    feedItem.addAll(this._getFeedArticle());
     return feedItem;
   }
 

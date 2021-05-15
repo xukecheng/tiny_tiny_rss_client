@@ -60,12 +60,13 @@ class _UnreadPageState extends State<UnreadPage>
                   });
                 },
                 springAnimationDurationInMilliseconds: 250,
-                height: (160.rpx),
+                height: (180.rpx),
                 color: Tool().colorFromHex("#f5712c"),
                 showChildOpacityTransition: false,
                 child: provider.total > 0
                     ? ListView.builder(
-                        physics: AlwaysScrollableScrollPhysics(),
+                        physics: BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
                         itemCount: provider.total,
                         itemBuilder: (context, index) {
                           return Selector<ArticleModel, ArticlesInFeed>(
@@ -81,17 +82,19 @@ class _UnreadPageState extends State<UnreadPage>
                         },
                       )
                     : ListView(
+                        physics: BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
                         children: [
                           Text(
                             "没有新文章",
                           )
                               .bold()
-                              .fontSize(20)
+                              .fontSize(40.rpx)
                               .textColor(
                                 Tool().colorFromHex("#f5712c"),
                               )
                               .center()
-                              .padding(top: 300)
+                              .padding(top: 549.rpx)
                         ],
                       ),
               );

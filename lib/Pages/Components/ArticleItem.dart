@@ -112,14 +112,11 @@ class ArticleItem extends StatelessWidget {
   List<Widget> _getArticleSlideItem(int isRead, int isStar) {
     return <Widget>[
       IconSlideAction(
-          caption: isRead == 1 ? '未读' : '已读',
-          color: Colors.blue,
-          icon: Icons.archive,
+          icon: isRead == 1 ? Icons.undo : Icons.done,
           onTap: () =>
               this._setReadStatus([this.articleIndex], isRead == 1 ? 0 : 1)),
       IconSlideAction(
-        caption: '收藏',
-        color: Colors.red,
+        foregroundColor: Colors.red,
         icon: isStar == 1 ? Icons.favorite : Icons.favorite_border,
         onTap: () => provider.setStarStatus(
             this.feedIndex, this.articleIndex, isStar == 1 ? 0 : 1),
@@ -128,12 +125,12 @@ class ArticleItem extends StatelessWidget {
   }
 
   void _toArticleDetail(BuildContext context, int id) {
-    this._setReadStatus([this.articleIndex], 1);
     Application.router.navigateTo(
       context,
       '/articleDetail?articleId=$id',
       transition: TransitionType.cupertino,
     );
+    this._setReadStatus([this.articleIndex], 1);
   }
 
   void _setReadStatus(List<int> articleIndexList, int needReadStatus,
@@ -164,8 +161,6 @@ class ArticleItem extends StatelessWidget {
           i
       ];
     }
-    print(feedIndexList);
-    print(articleIndexList);
 
     feedIndexList
         .forEach((index) => this._setReadStatus([], 1, feedIndex: index));
@@ -194,7 +189,6 @@ class ArticleItem extends StatelessWidget {
             provider.getData[this.feedIndex].feedArticles[this.articleIndex],
         builder: (context, data, child) {
           bool hasImage = data.flavorImage.isNotEmpty;
-
           return Slidable(
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
