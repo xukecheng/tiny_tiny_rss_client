@@ -17,8 +17,8 @@ class _ExpansionArticlesState extends State<ExpansionArticles> {
   // 默认收起
   bool expandedStatus = false;
 
-  List<Widget> _getButtonContent() {
-    return [
+  Widget _getButtonContent() {
+    return <Widget>[
       Text(this.expandedStatus ? 'Hide More' : 'Read More')
           .textColor(Colors.white)
           .bold()
@@ -26,38 +26,41 @@ class _ExpansionArticlesState extends State<ExpansionArticles> {
       Icon(this.expandedStatus ? Icons.expand_less : Icons.expand_more)
           .iconColor(Colors.white)
           .padding(right: 48.rpx)
-    ];
+    ]
+        .toRow(mainAxisAlignment: MainAxisAlignment.spaceAround)
+        .center()
+        .backgroundColor(Tool().colorFromHex("F89406"))
+        .clipRRect(all: 800.rpx)
+        .constrained(width: 280.rpx, height: 75.rpx)
+        .alignment(Alignment.center)
+        .gestures(onTap: () {
+      setState(() {
+        this.expandedStatus = !this.expandedStatus;
+      });
+    });
   }
 
   Widget _getExpandArticle() {
-    return AnimatedCrossFade(
-      firstCurve: Curves.easeInCirc,
-      secondCurve: Curves.linearToEaseOut,
-      firstChild: Container(),
-      secondChild: widget.articleList.toColumn().padding(top: 60.rpx),
+    return AnimatedSwitcher(
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return SizeTransition(
+          axisAlignment: 4,
+          axis: Axis.vertical,
+          sizeFactor: animation,
+          child: child,
+        );
+      },
+      child: expandedStatus
+          ? widget.articleList.toColumn().padding(top: 60.rpx)
+          : Container(),
       duration: Duration(milliseconds: 300),
-      crossFadeState: this.expandedStatus
-          ? CrossFadeState.showSecond
-          : CrossFadeState.showFirst,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return <Widget>[
-      this
-          ._getButtonContent()
-          .toRow(mainAxisAlignment: MainAxisAlignment.spaceAround)
-          .center()
-          .backgroundColor(Tool().colorFromHex("F89406"))
-          .clipRRect(all: 800.rpx)
-          .constrained(width: 280.rpx, height: 75.rpx)
-          .alignment(Alignment.center)
-          .gestures(onTap: () {
-        setState(() {
-          this.expandedStatus = !this.expandedStatus;
-        });
-      }),
+      this._getButtonContent(),
       this._getExpandArticle(),
     ].toColumn();
   }

@@ -64,7 +64,10 @@ class ArticleItem extends StatelessWidget {
       visible: hasImage ? true : false,
       child: CachedNetworkImage(
         imageUrl: flavorImage,
-        fit: BoxFit.fill,
+        fit: BoxFit.cover,
+        progressIndicatorBuilder: (context, url, downloadProgress) =>
+            CircularProgressIndicator(value: downloadProgress.progress),
+        errorWidget: (context, url, error) => Icon(Icons.error),
       ).clipRRect(all: 8.rpx).constrained(height: 180.rpx, width: 180.rpx),
     );
   }
