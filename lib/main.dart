@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:fluro/fluro.dart';
 import 'package:provider/provider.dart';
 import 'package:tiny_tiny_rss_client/Tool/Tool.dart';
@@ -8,10 +7,14 @@ import 'package:tiny_tiny_rss_client/Tool/Tool.dart';
 import 'dart:io';
 
 import 'utils/config.dart';
-import 'Routers/Application.dart';
-import 'Routers/Routers.dart';
+
 import 'Pages/UnreadPage.dart';
 import 'Pages/FavoritePage.dart';
+import 'Pages/SearchPage.dart';
+import 'Pages/SettingPage.dart';
+
+import 'Routers/Application.dart';
+import 'Routers/Routers.dart';
 import 'Data/database.dart';
 import 'Model/ArticleModel.dart';
 import 'Model/BottomNavyModel.dart';
@@ -19,40 +22,34 @@ import 'Model/BottomNavyModel.dart';
 void main() async {
   Config.env = Env.PROD;
   runApp(MyApp());
-  if (Platform.isAndroid) {
-    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarDividerColor: Colors.transparent,
-    );
-    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
-  }
 }
 
 class MyApp extends StatelessWidget {
   final List<Widget> _pages = [
     UnreadPage(),
     FavoritePage(),
+    SearchPage(),
+    SettingPage()
   ];
 
   final PageController _pageController = PageController(initialPage: 0);
 
   List<BottomNavigationBarItem> get getBottomTabbarItemList => [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
+          icon: Icon(Icons.home_rounded),
+          label: 'Unread',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.favorite),
-          label: 'favorite',
+          label: 'Favorite',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.search),
-          label: 'search',
+          label: 'Search',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.settings),
-          label: 'Profile',
+          label: 'Setting',
         )
       ];
 
@@ -63,7 +60,6 @@ class MyApp extends StatelessWidget {
     Routes.configureRoutes(router);
     //给Application的router赋值router实例对象
     Application.router = router;
-
     return MultiProvider(
       providers: [
         Provider<AppDatabase>(create: (_) => constructDb()),
@@ -98,8 +94,7 @@ class MyApp extends StatelessWidget {
                   builder: (context, index, child) {
                     return BottomNavigationBar(
                       onTap: (int selectedIndex) {
-                        provider.currentIndex =
-                            selectedIndex > 1 ? 1 : selectedIndex;
+                        provider.currentIndex = selectedIndex;
                         this._pageController.jumpToPage(selectedIndex);
                       },
                       currentIndex: index,

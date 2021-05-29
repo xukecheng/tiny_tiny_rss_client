@@ -78,7 +78,7 @@ class _UnreadPageState extends State<UnreadPage>
                   });
                 },
                 springAnimationDurationInMilliseconds: 250,
-                height: (280.rpx),
+                height: (200.rpx),
                 color: Tool().colorFromHex("#f5712c"),
                 showChildOpacityTransition: false,
                 child: provider.total > 0

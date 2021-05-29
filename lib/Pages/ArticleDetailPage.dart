@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -28,6 +29,7 @@ class ArticleDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppDatabase database = Provider.of<AppDatabase>(context, listen: false);
+
     return FutureBuilder<Article>(
       future: getArticleDetail(database),
       builder: (BuildContext context, AsyncSnapshot<Article> snapshot) {
