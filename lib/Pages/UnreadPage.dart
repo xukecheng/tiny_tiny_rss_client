@@ -37,6 +37,24 @@ class _UnreadPageState extends State<UnreadPage>
     });
   }
 
+  Widget _getZeroItemList() {
+    return ListView(
+      physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      children: [
+        Text(
+          "没有新文章",
+        )
+            .bold()
+            .fontSize(40.rpx)
+            .textColor(
+              Tool().colorFromHex("#f5712c"),
+            )
+            .center()
+            .padding(top: SizeCalculate.screenHeight / 2 - 144.rpx)
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // 初始化 SizeCalculate
@@ -60,7 +78,7 @@ class _UnreadPageState extends State<UnreadPage>
                   });
                 },
                 springAnimationDurationInMilliseconds: 250,
-                height: (180.rpx),
+                height: (280.rpx),
                 color: Tool().colorFromHex("#f5712c"),
                 showChildOpacityTransition: false,
                 child: provider.total > 0
@@ -81,22 +99,7 @@ class _UnreadPageState extends State<UnreadPage>
                               });
                         },
                       )
-                    : ListView(
-                        physics: BouncingScrollPhysics(
-                            parent: AlwaysScrollableScrollPhysics()),
-                        children: [
-                          Text(
-                            "没有新文章",
-                          )
-                              .bold()
-                              .fontSize(40.rpx)
-                              .textColor(
-                                Tool().colorFromHex("#f5712c"),
-                              )
-                              .center()
-                              .padding(top: 549.rpx)
-                        ],
-                      ),
+                    : this._getZeroItemList(),
               );
             },
           )

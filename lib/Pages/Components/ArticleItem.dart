@@ -188,16 +188,17 @@ class ArticleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<ArticleModel, Article>(
-        selector: (context, provider) =>
-            provider.getData[this.feedIndex].feedArticles[this.articleIndex],
-        builder: (context, data, child) {
-          bool hasImage = data.flavorImage.isNotEmpty;
-          return Slidable(
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            child: this._getArticleItem(context, data, hasImage),
-            actions: this._getArticleSlideItem(data.isRead, data.isStar),
-          );
-        });
+      selector: (context, provider) =>
+          provider.getData[this.feedIndex].feedArticles[this.articleIndex],
+      builder: (context, data, child) {
+        bool hasImage = data.flavorImage.isNotEmpty;
+        return Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          child: this._getArticleItem(context, data, hasImage),
+          actions: this._getArticleSlideItem(data.isRead, data.isStar),
+        );
+      },
+    );
   }
 }

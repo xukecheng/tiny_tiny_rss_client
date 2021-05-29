@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:fluro/fluro.dart';
 import 'package:provider/provider.dart';
+import 'package:tiny_tiny_rss_client/Tool/Tool.dart';
 
 import 'dart:io';
 
@@ -36,6 +37,25 @@ class MyApp extends StatelessWidget {
 
   final PageController _pageController = PageController(initialPage: 0);
 
+  List<BottomNavigationBarItem> get getBottomTabbarItemList => [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite),
+          label: 'favorite',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search),
+          label: 'search',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          label: 'Profile',
+        )
+      ];
+
   @override
   Widget build(BuildContext context) {
     final router = FluroRouter();
@@ -61,89 +81,41 @@ class MyApp extends StatelessWidget {
           ),
           //generator生成的意思，生成路由的回调函数，当导航的命名路由的时候，会使用这个来生成路由
           onGenerateRoute: Application.router.generator,
-          home: Scaffold(
-              // appBar: AppBar(
-              //   title: Text(
-              //     "TinyTinyRSS",
-              //     style: TextStyle(
-              //       color: Tool().colorFromHex("#f5712c"),
-              //     ),
-              //   ),
-              // ),
-              body: Selector<BottomNavyModel, int>(
-                selector: (context, provider) => provider.currentIndex,
-                builder: (context, index, child) {
-                  return PageView(
-                    controller: this._pageController,
-                    children: this._pages,
-                  );
-                },
-              ),
-              backgroundColor: Colors.white,
-              bottomNavigationBar: Selector<BottomNavyModel, int>(
+          home: Selector<BottomNavyModel, BottomNavyModel>(
+            selector: (context, provider) => provider,
+            builder: (context, provider, child) {
+              return Scaffold(
+                body: PageView(
+                  controller: this._pageController,
+                  children: this._pages,
+                  onPageChanged: (int index) {
+                    provider.currentIndex = index;
+                  },
+                ),
+                backgroundColor: Colors.white,
+                bottomNavigationBar: Selector<BottomNavyModel, int>(
                   selector: (context, provider) => provider.currentIndex,
-                  builder: (context, data, child) {
-                    print("build BottomNavyBar");
-                    return BottomNavyBar(
-                      selectedIndex: data,
-                      onItemSelected: (int index) {
-                        data = index > 1 ? 1 : index;
-                        this._pageController.jumpToPage(data);
+                  builder: (context, index, child) {
+                    return BottomNavigationBar(
+                      onTap: (int selectedIndex) {
+                        provider.currentIndex =
+                            selectedIndex > 1 ? 1 : selectedIndex;
+                        this._pageController.jumpToPage(selectedIndex);
                       },
-                      items: [
-                        BottomNavyBarItem(
-                          icon: Icon(Icons.home),
-                          title: Text('Home'),
-                          activeColor: Colors.red,
-                        ),
-                        BottomNavyBarItem(
-                            icon: Icon(Icons.favorite),
-                            title: Text('收藏'),
-                            activeColor: Colors.purpleAccent),
-                        BottomNavyBarItem(
-                            icon: Icon(Icons.search),
-                            title: Text('搜索'),
-                            activeColor: Colors.pink),
-                        BottomNavyBarItem(
-                            icon: Icon(Icons.settings),
-                            title: Text('Settings'),
-                            activeColor: Colors.blue),
-                      ],
+                      currentIndex: index,
+                      backgroundColor: Tool().colorFromHex("#225555"),
+                      selectedItemColor: Colors.white,
+                      unselectedItemColor: Tool().colorFromHex("#c6d3d3"),
+                      type: BottomNavigationBarType.fixed,
+                      items: this.getBottomTabbarItemList,
                     );
-                  })),
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
-    );
-  }
-}
-
-class BottomNavigator extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var provider = Provider.of<BottomNavyModel>(context);
-    return BottomNavyBar(
-      selectedIndex: provider.currentIndex,
-      onItemSelected: (int index) =>
-          provider.currentIndex = index > 1 ? 1 : index,
-      items: [
-        BottomNavyBarItem(
-          icon: Icon(Icons.home),
-          title: Text('Home'),
-          activeColor: Colors.red,
-        ),
-        BottomNavyBarItem(
-            icon: Icon(Icons.favorite),
-            title: Text('收藏'),
-            activeColor: Colors.purpleAccent),
-        BottomNavyBarItem(
-            icon: Icon(Icons.search),
-            title: Text('搜索'),
-            activeColor: Colors.pink),
-        BottomNavyBarItem(
-            icon: Icon(Icons.settings),
-            title: Text('Settings'),
-            activeColor: Colors.blue),
-      ],
     );
   }
 }

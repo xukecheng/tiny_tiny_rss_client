@@ -15,22 +15,23 @@ class FeedItem extends StatelessWidget {
   final ArticlesInFeed articlesInFeed;
   final ArticleModel provider;
 
-  // Feed 下标记已读
-  // void _setReadStatus(List<int> articleIndexList, int isRead,
-  //     {int? feedIndex}) {
-  //   this.provider.setReadStatus(
-  //         feedIndex != null ? feedIndex : this.feedIndex,
-  //         articleIndexList,
-  //         isRead,
-  //       );
-  // }
-
   Widget _getFeedTitle() {
-    return Text(this.articlesInFeed.feedTitle)
-        .fontSize((52.rpx))
-        .fontWeight(FontWeight.w900)
-        .textColor(
-          Tool().colorFromHex("#D35400"),
+    return [
+      Text(this.articlesInFeed.feedTitle)
+          .fontSize((52.rpx))
+          .fontWeight(FontWeight.w900)
+          .textColor(
+            Tool().colorFromHex("#D35400"),
+          )
+          .width(598.rpx),
+      IconButton(
+        onPressed: () => this.provider.setReadStatus(feedIndex, [], 1),
+        icon: Icon(Icons.done_all),
+      )
+    ]
+        .toRow(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
         )
         .padding(bottom: 40.rpx);
   }
