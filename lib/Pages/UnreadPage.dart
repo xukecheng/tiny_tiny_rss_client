@@ -7,7 +7,7 @@ import 'Components/FeedItem.dart';
 import 'Components/Loading.dart';
 
 import '../Data/database.dart';
-import '../Model/ArticleModel.dart';
+import '../Model/UnreadArticleModel.dart';
 import '../Tool/Tool.dart';
 import '../Tool/SizeCalculate.dart';
 import '../Extension/Int.dart';
@@ -28,7 +28,7 @@ class _UnreadPageState extends State<UnreadPage>
   void initState() {
     super.initState();
     // 初始化未读文章
-    Provider.of<ArticleModel>(context, listen: false)
+    Provider.of<UnreadArticleModel>(context, listen: false)
         .update(isLaunch: true)
         .then((value) {
       setState(() {
@@ -62,7 +62,7 @@ class _UnreadPageState extends State<UnreadPage>
 
     // 先判断是否 Loading 完成，没有的话继续展示 Loading 效果
     return this._isLoadComplete
-        ? Selector<ArticleModel, ArticleModel>(
+        ? Selector<UnreadArticleModel, UnreadArticleModel>(
             selector: (context, provider) => provider,
             builder: (context, provider, child) {
               return LiquidPullToRefresh(
@@ -87,7 +87,7 @@ class _UnreadPageState extends State<UnreadPage>
                             parent: AlwaysScrollableScrollPhysics()),
                         itemCount: provider.total,
                         itemBuilder: (context, index) {
-                          return Selector<ArticleModel, ArticlesInFeed>(
+                          return Selector<UnreadArticleModel, ArticlesInFeed>(
                               selector: (context, provider) =>
                                   provider.getData[index],
                               builder: (context, data, child) {

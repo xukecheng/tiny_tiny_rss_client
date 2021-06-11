@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../Data/database.dart';
 
-class ArticleModel with ChangeNotifier {
-  ArticleModel(this.db);
+class FavoriteArticleModel with ChangeNotifier {
+  FavoriteArticleModel(this.db);
   final AppDatabase db;
   List<ArticlesInFeed> initData = [];
 
@@ -11,13 +11,8 @@ class ArticleModel with ChangeNotifier {
 
   int get total => initData.length;
 
-  Future<void> update({bool isLaunch = false}) async {
-    if (isLaunch) {
-      this.initData =
-          await db.getArticlesInFeeds(isRead: 0, isLaunch: isLaunch);
-    } else {
-      this.initData = await db.getArticlesInFeeds(isRead: 0);
-    }
+  Future<void> update() async {
+    this.initData = await db.getFavoriteArticlesInFeeds();
     notifyListeners();
   }
 

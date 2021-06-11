@@ -108,7 +108,7 @@ class AppDatabase extends _$AppDatabase {
     feedTreeData.last.forEach((category) => this._insertCategory(category));
   }
 
-  Future<List<ArticlesInFeed>> getArticlesInFeeds(
+  Future<List<ArticlesInFeed>> getUnreadArticlesInFeeds(
       {int isRead = 0, bool isLaunch = false}) async {
     List<ArticlesInFeed> articlesInFeeds = [];
 
@@ -116,8 +116,25 @@ class AppDatabase extends _$AppDatabase {
       await this._initData();
     }
     List<Feed> feedList = await this._getFeeds(isRead: isRead);
+
     await Future.forEach(feedList, (Feed feed) async {
       var feedArticles = await this._getArticles(feed.id, isRead: isRead);
+      ArticlesInFeed articlesInfeed = ArticlesInFeed(feed.id, feed.feedTitle,
+          feed.feedIcon, feed.categoryId, feedArticles);
+      articlesInFeeds.add(articlesInfeed);
+    });
+
+    return articlesInFeeds;
+  }
+
+  Future<List<ArticlesInFeed>> getFavoriteArticlesInFeeds() async {
+    List<ArticlesInFeed> articlesInFeeds = [];
+
+    await this._initData();
+    List<Feed> feedList = await this._getFeeds(isStar: 1);
+
+    await Future.forEach(feedList, (Feed feed) async {
+      var feedArticles = await this._getArticles(feed.id, isStar: 1);
       ArticlesInFeed articlesInfeed = ArticlesInFeed(feed.id, feed.feedTitle,
           feed.feedIcon, feed.categoryId, feedArticles);
       articlesInFeeds.add(articlesInfeed);
@@ -181,7 +198,9 @@ class AppDatabase extends _$AppDatabase {
   Future _insertCategory(Category category) =>
       into(categories).insertOnConflictUpdate(category);
 
-  Future<List<Feed>> _getFeeds({int isRead: 0}) => ((select(articles)
+  Future<List<Feed>> _getFeeds({int? isRead, int? isStar}) {
+    if (isRead != null) {
+      return ((select(articles)
                 ..where(
                   (a) => a.isRead.equals(isRead),
                 ))
@@ -204,14 +223,48 @@ class AppDatabase extends _$AppDatabase {
           categoryId: categoryId!,
         );
       }).get();
+    } else {
+      return ((select(articles)
+                ..where(
+                  (a) => a.isStar.equals(isStar),
+                ))
+              .join([
+        innerJoin(
+          feeds,
+          feeds.id.equalsExp(articles.feedId),
+        )
+      ])
+                ..groupBy([articles.feedId]))
+          .map((rows) {
+        final id = rows.read(feeds.id);
+        final feedTitle = rows.read(feeds.feedTitle);
+        final feedIcon = rows.read(feeds.feedIcon);
+        final categoryId = rows.read(feeds.categoryId);
+        return Feed(
+          id: id!,
+          feedTitle: feedTitle!,
+          feedIcon: feedIcon!,
+          categoryId: categoryId!,
+        );
+      }).get();
+    }
+  }
 
-  Future<List<Article>> _getArticles(int feedId, {int isRead = 0}) =>
-      (select(articles)
+  Future<List<Article>> _getArticles(int feedId, {int? isRead, int? isStar}) {
+    if (isRead != null) {
+      return (select(articles)
             ..where(
               (a) => a.isRead.equals(isRead) & a.feedId.equals(feedId),
             ))
           .get();
-
+    } else {
+      return (select(articles)
+            ..where(
+              (a) => a.isStar.equals(isStar) & a.feedId.equals(feedId),
+            ))
+          .get();
+    }
+  }
   // void close() {
   //   MyDatabase().close();
   // }

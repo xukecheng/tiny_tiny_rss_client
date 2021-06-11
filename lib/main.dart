@@ -16,7 +16,7 @@ import 'Pages/SettingPage.dart';
 import 'Routers/Application.dart';
 import 'Routers/Routers.dart';
 import 'Data/database.dart';
-import 'Model/ArticleModel.dart';
+import 'Model/UnreadArticleModel.dart';
 import 'Model/BottomNavyModel.dart';
 
 void main() async {
@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
       child: ChangeNotifierProvider(
         create: (context) {
           final db = Provider.of<AppDatabase>(context, listen: false);
-          return ArticleModel(db);
+          return UnreadArticleModel(db);
         },
         child: MaterialApp(
           theme: new ThemeData(

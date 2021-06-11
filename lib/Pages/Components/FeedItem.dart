@@ -7,13 +7,13 @@ import 'FeedItemExpansion.dart';
 import '../../Tool/Tool.dart';
 import '../../Extension/Int.dart';
 import '../../Data/database.dart';
-import '../../Model/ArticleModel.dart';
+import '../../Model/UnreadArticleModel.dart';
 
 class FeedItem extends StatelessWidget {
   FeedItem(this.feedIndex, this.articlesInFeed, this.provider);
   final int feedIndex;
   final ArticlesInFeed articlesInFeed;
-  final ArticleModel provider;
+  final UnreadArticleModel provider;
 
   Widget _getFeedTitle() {
     return [

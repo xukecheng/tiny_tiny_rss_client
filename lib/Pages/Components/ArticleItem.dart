@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:fluro/fluro.dart';
 
 import '../../Data/database.dart';
-import '../../Model/ArticleModel.dart';
+import '../../Model/UnreadArticleModel.dart';
 import '../../Tool/Tool.dart';
 import '../../Tool/SizeCalculate.dart';
 import '../../Extension/Int.dart';
@@ -20,7 +20,7 @@ class ArticleItem extends StatelessWidget {
   );
   final int feedIndex;
   final int articleIndex;
-  final ArticleModel provider;
+  final UnreadArticleModel provider;
 
   Widget _getArticlePublishTime(int publishTime) {
     return Text(Tool().timestampToDate(publishTime))
@@ -187,7 +187,7 @@ class ArticleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<ArticleModel, Article>(
+    return Selector<UnreadArticleModel, Article>(
       selector: (context, provider) =>
           provider.getData[this.feedIndex].feedArticles[this.articleIndex],
       builder: (context, data, child) {
