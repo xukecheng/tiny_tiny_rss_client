@@ -75,9 +75,6 @@ class ArticleStatus {
 @UseMoor(tables: [Articles, Feeds, Categories])
 class AppDatabase extends _$AppDatabase {
   // we tell the database where to store the data with this constructor
-  // AppDatabase() : super(_openConnection()) {
-  //   moorRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-  // }
   AppDatabase(QueryExecutor e) : super(e);
 
   // you should bump this number whenever you change or add a table definition. Migrations
@@ -85,9 +82,7 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
-  // the schemaVersion getter and the constructor from the previous page
-  // have been omitted.
-
+  /// 初始化数据
   _initData() async {
     late String sessionId;
     await Tool.getData<String>('sessionId').then((value) => sessionId = value);
@@ -97,10 +92,12 @@ class AppDatabase extends _$AppDatabase {
           .then((value) => sessionId = value);
     }
     await customUpdate("UPDATE articles SET is_read = 1 ");
+
     // 完成文章数据获取
     List<Article> articleList = await TinyTinyRss().insertArticles(sessionId);
     await Future.forEach(
         articleList, (Article article) => this._insertArticle(article));
+
     // 完成 Feed 和分类数据获取
     List<List> feedTreeData =
         await TinyTinyRss().insertCategoryAndFeed(sessionId);
@@ -108,19 +105,29 @@ class AppDatabase extends _$AppDatabase {
     feedTreeData.last.forEach((category) => this._insertCategory(category));
   }
 
+  /// 获取 ArticlesInFeed 结构的未读文章
   Future<List<ArticlesInFeed>> getUnreadArticlesInFeeds(
       {int isRead = 0, bool isLaunch = false}) async {
     List<ArticlesInFeed> articlesInFeeds = [];
 
+    // 如果 isLaunch，那么就需要从云端拉取数据存入本地数据库
     if (!isLaunch) {
       await this._initData();
     }
+
+    // 根据 isRead 值获取有效的 Feeds
     List<Feed> feedList = await this._getFeeds(isRead: isRead);
 
+    // 根据上面的有效 Feeds 去获取 Feeds 下的文章，并整合成 ArticlesInFeed
     await Future.forEach(feedList, (Feed feed) async {
       var feedArticles = await this._getArticles(feed.id, isRead: isRead);
-      ArticlesInFeed articlesInfeed = ArticlesInFeed(feed.id, feed.feedTitle,
-          feed.feedIcon, feed.categoryId, feedArticles);
+      ArticlesInFeed articlesInfeed = ArticlesInFeed(
+        feed.id,
+        feed.feedTitle,
+        feed.feedIcon,
+        feed.categoryId,
+        feedArticles,
+      );
       articlesInFeeds.add(articlesInfeed);
     });
 
@@ -210,6 +217,7 @@ class AppDatabase extends _$AppDatabase {
           feeds.id.equalsExp(articles.feedId),
         )
       ])
+            ..orderBy([OrderingTerm.desc(articles.publishTime)])
             ..groupBy([articles.feedId]))
           .map((rows) {
         final id = rows.read(feeds.id);
@@ -234,6 +242,7 @@ class AppDatabase extends _$AppDatabase {
           feeds.id.equalsExp(articles.feedId),
         )
       ])
+            ..orderBy([OrderingTerm.desc(articles.publishTime)])
             ..groupBy([articles.feedId]))
           .map((rows) {
         final id = rows.read(feeds.id);
@@ -252,11 +261,14 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<Article>> _getArticles(int feedId, {int? isRead, int? isStar}) {
     if (isRead != null) {
-      return (select(articles)
-            ..where(
-              (a) => a.isRead.equals(isRead) & a.feedId.equals(feedId),
-            ))
-          .get();
+      final query = select(articles);
+      query
+        ..orderBy([
+          (t) =>
+              OrderingTerm(expression: t.publishTime, mode: OrderingMode.desc)
+        ]);
+      query.where((a) => a.isRead.equals(isRead) & a.feedId.equals(feedId));
+      return query.get();
     } else {
       return (select(articles)
             ..where(

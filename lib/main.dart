@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
 import 'package:provider/provider.dart';
 import 'package:tiny_tiny_rss_client/Tool/Tool.dart';
+import 'package:flutter/services.dart';
+
 import 'utils/config.dart';
 
 import 'Pages/UnreadPage.dart';
@@ -51,6 +53,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent));
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     final router = FluroRouter();
     //给routers.dart里面的传递FluroRouter传递router实例对象
     Routes.configureRoutes(router);
