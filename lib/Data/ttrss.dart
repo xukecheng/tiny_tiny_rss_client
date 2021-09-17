@@ -1,10 +1,17 @@
 import 'database.dart';
 
-import 'package:dio/dio.dart';
-import '../utils/config.dart';
 import 'dart:convert';
+
+import 'package:dio/dio.dart';
+
+import '../utils/config.dart';
 import '../Tool/Tool.dart';
 
+// Map<String, dynamic> headerData = {
+//   'Access-Control-Allow-Origin': '*',
+//   'Access-Control-Allow-Credentials': 'true',
+//   'Access-Control-Allow-Methods': 'GET,HEAD,OPTIONS,POST,PUT'
+// };
 BaseOptions options = BaseOptions(baseUrl: Config.apiHost);
 Dio dio = Dio(options);
 

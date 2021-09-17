@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluro/fluro.dart';
 import 'package:provider/provider.dart';
 import 'package:tiny_tiny_rss_client/Tool/Tool.dart';
-
-import 'dart:io';
-
 import 'utils/config.dart';
 
 import 'Pages/UnreadPage.dart';

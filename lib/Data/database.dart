@@ -210,7 +210,7 @@ class AppDatabase extends _$AppDatabase {
           feeds.id.equalsExp(articles.feedId),
         )
       ])
-                ..groupBy([articles.feedId]))
+            ..groupBy([articles.feedId]))
           .map((rows) {
         final id = rows.read(feeds.id);
         final feedTitle = rows.read(feeds.feedTitle);
@@ -234,7 +234,7 @@ class AppDatabase extends _$AppDatabase {
           feeds.id.equalsExp(articles.feedId),
         )
       ])
-                ..groupBy([articles.feedId]))
+            ..groupBy([articles.feedId]))
           .map((rows) {
         final id = rows.read(feeds.id);
         final feedTitle = rows.read(feeds.feedTitle);

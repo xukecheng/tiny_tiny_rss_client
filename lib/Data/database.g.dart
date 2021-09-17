@@ -32,27 +32,26 @@ class Article extends DataClass implements Insertable<Article> {
   factory Article.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return Article(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      feedId:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}feed_id'])!,
-      title:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}title'])!,
-      isStar:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}is_star'])!,
-      isRead:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}is_read'])!,
-      description: stringType
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      feedId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}feed_id'])!,
+      title: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}title'])!,
+      isStar: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_star'])!,
+      isRead: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_read'])!,
+      description: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}description'])!,
-      htmlContent:
-          stringType.mapFromDatabaseResponse(data['${effectivePrefix}body'])!,
-      flavorImage: stringType
+      htmlContent: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}body'])!,
+      flavorImage: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}flavor_image'])!,
-      articleOriginLink: stringType.mapFromDatabaseResponse(
+      articleOriginLink: const StringType().mapFromDatabaseResponse(
           data['${effectivePrefix}article_origin_link'])!,
-      publishTime: intType
+      publishTime: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}publish_time'])!,
     );
   }
@@ -180,7 +179,7 @@ class Article extends DataClass implements Insertable<Article> {
                                   $mrjc(articleOriginLink.hashCode,
                                       publishTime.hashCode))))))))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Article &&
           other.id == this.id &&
@@ -349,118 +348,52 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   final String? _alias;
   $ArticlesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        $customConstraints: 'UNIQUE');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'UNIQUE');
   final VerificationMeta _feedIdMeta = const VerificationMeta('feedId');
-  @override
-  late final GeneratedIntColumn feedId = _constructFeedId();
-  GeneratedIntColumn _constructFeedId() {
-    return GeneratedIntColumn(
-      'feed_id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> feedId = GeneratedColumn<int?>(
+      'feed_id', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedTextColumn title = _constructTitle();
-  GeneratedTextColumn _constructTitle() {
-    return GeneratedTextColumn(
-      'title',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> title = GeneratedColumn<String?>(
+      'title', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _isStarMeta = const VerificationMeta('isStar');
-  @override
-  late final GeneratedIntColumn isStar = _constructIsStar();
-  GeneratedIntColumn _constructIsStar() {
-    return GeneratedIntColumn(
-      'is_star',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> isStar = GeneratedColumn<int?>(
+      'is_star', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _isReadMeta = const VerificationMeta('isRead');
-  @override
-  late final GeneratedIntColumn isRead = _constructIsRead();
-  GeneratedIntColumn _constructIsRead() {
-    return GeneratedIntColumn(
-      'is_read',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> isRead = GeneratedColumn<int?>(
+      'is_read', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   final VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
-  @override
-  late final GeneratedTextColumn description = _constructDescription();
-  GeneratedTextColumn _constructDescription() {
-    return GeneratedTextColumn(
-      'description',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> description = GeneratedColumn<String?>(
+      'description', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _htmlContentMeta =
       const VerificationMeta('htmlContent');
-  @override
-  late final GeneratedTextColumn htmlContent = _constructHtmlContent();
-  GeneratedTextColumn _constructHtmlContent() {
-    return GeneratedTextColumn(
-      'body',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> htmlContent = GeneratedColumn<String?>(
+      'body', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _flavorImageMeta =
       const VerificationMeta('flavorImage');
-  @override
-  late final GeneratedTextColumn flavorImage = _constructFlavorImage();
-  GeneratedTextColumn _constructFlavorImage() {
-    return GeneratedTextColumn(
-      'flavor_image',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> flavorImage = GeneratedColumn<String?>(
+      'flavor_image', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _articleOriginLinkMeta =
       const VerificationMeta('articleOriginLink');
-  @override
-  late final GeneratedTextColumn articleOriginLink =
-      _constructArticleOriginLink();
-  GeneratedTextColumn _constructArticleOriginLink() {
-    return GeneratedTextColumn(
-      'article_origin_link',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> articleOriginLink =
+      GeneratedColumn<String?>('article_origin_link', aliasedName, false,
+          typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _publishTimeMeta =
       const VerificationMeta('publishTime');
-  @override
-  late final GeneratedIntColumn publishTime = _constructPublishTime();
-  GeneratedIntColumn _constructPublishTime() {
-    return GeneratedIntColumn(
-      'publish_time',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> publishTime = GeneratedColumn<int?>(
+      'publish_time', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -475,11 +408,9 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
         publishTime
       ];
   @override
-  $ArticlesTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'articles';
   @override
-  String get $tableName => _alias ?? 'articles';
-  @override
-  final String actualTableName = 'articles';
+  String get actualTableName => 'articles';
   @override
   VerificationContext validateIntegrity(Insertable<Article> instance,
       {bool isInserting = false}) {
@@ -559,8 +490,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   Set<GeneratedColumn> get $primaryKey => {id, feedId};
   @override
   Article map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Article.fromData(data, _db, prefix: effectivePrefix);
+    return Article.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -582,15 +513,14 @@ class Feed extends DataClass implements Insertable<Feed> {
   factory Feed.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return Feed(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      feedTitle: stringType
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      feedTitle: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}feed_title'])!,
-      feedIcon: stringType
+      feedIcon: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}feed_icon'])!,
-      categoryId: intType
+      categoryId: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}category_id'])!,
     );
   }
@@ -659,7 +589,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       $mrjc(
           feedTitle.hashCode, $mrjc(feedIcon.hashCode, categoryId.hashCode))));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Feed &&
           other.id == this.id &&
@@ -750,54 +680,29 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   final String? _alias;
   $FeedsTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        $customConstraints: 'UNIQUE');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'UNIQUE');
   final VerificationMeta _feedTitleMeta = const VerificationMeta('feedTitle');
-  @override
-  late final GeneratedTextColumn feedTitle = _constructFeedTitle();
-  GeneratedTextColumn _constructFeedTitle() {
-    return GeneratedTextColumn(
-      'feed_title',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> feedTitle = GeneratedColumn<String?>(
+      'feed_title', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _feedIconMeta = const VerificationMeta('feedIcon');
-  @override
-  late final GeneratedTextColumn feedIcon = _constructFeedIcon();
-  GeneratedTextColumn _constructFeedIcon() {
-    return GeneratedTextColumn(
-      'feed_icon',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> feedIcon = GeneratedColumn<String?>(
+      'feed_icon', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   final VerificationMeta _categoryIdMeta = const VerificationMeta('categoryId');
-  @override
-  late final GeneratedIntColumn categoryId = _constructCategoryId();
-  GeneratedIntColumn _constructCategoryId() {
-    return GeneratedIntColumn(
-      'category_id',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<int?> categoryId = GeneratedColumn<int?>(
+      'category_id', aliasedName, false,
+      typeName: 'INTEGER', requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [id, feedTitle, feedIcon, categoryId];
   @override
-  $FeedsTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'feeds';
   @override
-  String get $tableName => _alias ?? 'feeds';
-  @override
-  final String actualTableName = 'feeds';
+  String get actualTableName => 'feeds';
   @override
   VerificationContext validateIntegrity(Insertable<Feed> instance,
       {bool isInserting = false}) {
@@ -835,8 +740,8 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   Set<GeneratedColumn> get $primaryKey => {id, categoryId};
   @override
   Feed map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Feed.fromData(data, _db, prefix: effectivePrefix);
+    return Feed.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
@@ -852,11 +757,10 @@ class Category extends DataClass implements Insertable<Category> {
   factory Category.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
-    final intType = db.typeSystem.forDartType<int>();
-    final stringType = db.typeSystem.forDartType<String>();
     return Category(
-      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
-      categoryName: stringType
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      categoryName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}category_name'])!,
     );
   }
@@ -908,7 +812,7 @@ class Category extends DataClass implements Insertable<Category> {
   @override
   int get hashCode => $mrjf($mrjc(id.hashCode, categoryName.hashCode));
   @override
-  bool operator ==(dynamic other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Category &&
           other.id == this.id &&
@@ -971,33 +875,22 @@ class $CategoriesTable extends Categories
   final String? _alias;
   $CategoriesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        $customConstraints: 'UNIQUE');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'UNIQUE');
   final VerificationMeta _categoryNameMeta =
       const VerificationMeta('categoryName');
-  @override
-  late final GeneratedTextColumn categoryName = _constructCategoryName();
-  GeneratedTextColumn _constructCategoryName() {
-    return GeneratedTextColumn(
-      'category_name',
-      $tableName,
-      false,
-    );
-  }
-
+  late final GeneratedColumn<String?> categoryName = GeneratedColumn<String?>(
+      'category_name', aliasedName, false,
+      typeName: 'TEXT', requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [id, categoryName];
   @override
-  $CategoriesTable get asDslTable => this;
+  String get aliasedName => _alias ?? 'categories';
   @override
-  String get $tableName => _alias ?? 'categories';
-  @override
-  final String actualTableName = 'categories';
+  String get actualTableName => 'categories';
   @override
   VerificationContext validateIntegrity(Insertable<Category> instance,
       {bool isInserting = false}) {
@@ -1021,8 +914,8 @@ class $CategoriesTable extends Categories
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Category map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
-    return Category.fromData(data, _db, prefix: effectivePrefix);
+    return Category.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override

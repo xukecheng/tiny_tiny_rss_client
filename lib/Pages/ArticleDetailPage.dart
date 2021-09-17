@@ -12,11 +12,13 @@ class ArticleDetailPage extends StatelessWidget {
   final int id;
   ArticleDetailPage(this.id);
 
-  void _launchURL(url) async {
+  Future<bool> _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
+      return true;
     } else {
-      throw 'Could not launch $url';
+      print('Could not launch $url');
+      return false;
     }
   }
 
