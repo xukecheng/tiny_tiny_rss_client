@@ -60,7 +60,6 @@ class ArticleItem extends StatelessWidget {
   }
 
   Widget _getArticleImage(String flavorImage, bool hasImage) {
-    print(flavorImage);
     return Visibility(
       visible: hasImage ? true : false,
       child: CachedNetworkImage(
@@ -81,10 +80,10 @@ class ArticleItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start)
         .gestures(
-            onTap: () => this._toArticleDetail(context, data.id),
-            onLongPress: () => this._longPress(
-                  context,
-                ))
+          onTap: () => this._toArticleDetail(context, data.id),
+          onLongPress: () => this._longPress(context),
+          behavior: HitTestBehavior.translucent,
+        )
         .padding(bottom: 40.rpx);
   }
 

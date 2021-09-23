@@ -11,8 +11,8 @@ class FavoriteArticleModel with ChangeNotifier {
 
   int get total => initData.length;
 
-  Future<void> update() async {
-    this.initData = await db.getFavoriteArticlesInFeeds();
+  Future<void> update({bool isLaunch = false}) async {
+    this.initData = await db.getFavoriteArticlesInFeeds(isLaunch: isLaunch);
     notifyListeners();
   }
 

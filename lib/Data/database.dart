@@ -134,10 +134,15 @@ class AppDatabase extends _$AppDatabase {
     return articlesInFeeds;
   }
 
-  Future<List<ArticlesInFeed>> getFavoriteArticlesInFeeds() async {
+  Future<List<ArticlesInFeed>> getFavoriteArticlesInFeeds(
+      {bool isLaunch = false}) async {
     List<ArticlesInFeed> articlesInFeeds = [];
 
-    await this._initData();
+    // 如果 isLaunch，那么就需要从云端拉取数据存入本地数据库
+    if (!isLaunch) {
+      await this._initData();
+    }
+
     List<Feed> feedList = await this._getFeeds(isStar: 1);
 
     await Future.forEach(feedList, (Feed feed) async {

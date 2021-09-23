@@ -15,6 +15,7 @@ import 'Routers/Application.dart';
 import 'Routers/Routers.dart';
 import 'Data/database.dart';
 import 'Model/UnreadArticleModel.dart';
+import 'Model/FavoriteArticleModel.dart';
 import 'Model/BottomNavyModel.dart';
 
 void main() async {
@@ -67,11 +68,21 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<BottomNavyModel>(
             create: (_) => BottomNavyModel()),
       ],
-      child: ChangeNotifierProvider(
-        create: (context) {
-          final db = Provider.of<AppDatabase>(context, listen: false);
-          return UnreadArticleModel(db);
-        },
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) {
+              final db = Provider.of<AppDatabase>(context, listen: false);
+              return UnreadArticleModel(db);
+            },
+          ),
+          ChangeNotifierProvider(
+            create: (context) {
+              final db = Provider.of<AppDatabase>(context, listen: false);
+              return FavoriteArticleModel(db);
+            },
+          ),
+        ],
         child: MaterialApp(
           theme: new ThemeData(
             primaryColor: Colors.white,
