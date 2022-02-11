@@ -29,8 +29,7 @@ class Article extends DataClass implements Insertable<Article> {
       required this.flavorImage,
       required this.articleOriginLink,
       required this.publishTime});
-  factory Article.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Article.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Article(
       id: const IntType()
@@ -88,7 +87,7 @@ class Article extends DataClass implements Insertable<Article> {
 
   factory Article.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Article(
       id: serializer.fromJson<int>(json['id']),
       feedId: serializer.fromJson<int>(json['feedId']),
@@ -104,7 +103,7 @@ class Article extends DataClass implements Insertable<Article> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'feedId': serializer.toJson<int>(feedId),
@@ -160,24 +159,8 @@ class Article extends DataClass implements Insertable<Article> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          feedId.hashCode,
-          $mrjc(
-              title.hashCode,
-              $mrjc(
-                  isStar.hashCode,
-                  $mrjc(
-                      isRead.hashCode,
-                      $mrjc(
-                          description.hashCode,
-                          $mrjc(
-                              htmlContent.hashCode,
-                              $mrjc(
-                                  flavorImage.hashCode,
-                                  $mrjc(articleOriginLink.hashCode,
-                                      publishTime.hashCode))))))))));
+  int get hashCode => Object.hash(id, feedId, title, isStar, isRead,
+      description, htmlContent, flavorImage, articleOriginLink, publishTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -348,52 +331,62 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   final String? _alias;
   $ArticlesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
       'id', aliasedName, false,
-      typeName: 'INTEGER',
+      type: const IntType(),
       requiredDuringInsert: true,
       $customConstraints: 'UNIQUE');
   final VerificationMeta _feedIdMeta = const VerificationMeta('feedId');
+  @override
   late final GeneratedColumn<int?> feedId = GeneratedColumn<int?>(
       'feed_id', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
+      type: const IntType(), requiredDuringInsert: true);
   final VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
   late final GeneratedColumn<String?> title = GeneratedColumn<String?>(
       'title', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _isStarMeta = const VerificationMeta('isStar');
+  @override
   late final GeneratedColumn<int?> isStar = GeneratedColumn<int?>(
       'is_star', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
+      type: const IntType(), requiredDuringInsert: true);
   final VerificationMeta _isReadMeta = const VerificationMeta('isRead');
+  @override
   late final GeneratedColumn<int?> isRead = GeneratedColumn<int?>(
       'is_read', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
+      type: const IntType(), requiredDuringInsert: true);
   final VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
+  @override
   late final GeneratedColumn<String?> description = GeneratedColumn<String?>(
       'description', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _htmlContentMeta =
       const VerificationMeta('htmlContent');
+  @override
   late final GeneratedColumn<String?> htmlContent = GeneratedColumn<String?>(
       'body', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _flavorImageMeta =
       const VerificationMeta('flavorImage');
+  @override
   late final GeneratedColumn<String?> flavorImage = GeneratedColumn<String?>(
       'flavor_image', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _articleOriginLinkMeta =
       const VerificationMeta('articleOriginLink');
+  @override
   late final GeneratedColumn<String?> articleOriginLink =
       GeneratedColumn<String?>('article_origin_link', aliasedName, false,
-          typeName: 'TEXT', requiredDuringInsert: true);
+          type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _publishTimeMeta =
       const VerificationMeta('publishTime');
+  @override
   late final GeneratedColumn<int?> publishTime = GeneratedColumn<int?>(
       'publish_time', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
+      type: const IntType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -490,7 +483,7 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   Set<GeneratedColumn> get $primaryKey => {id, feedId};
   @override
   Article map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Article.fromData(data, _db,
+    return Article.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -510,8 +503,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       required this.feedTitle,
       required this.feedIcon,
       required this.categoryId});
-  factory Feed.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Feed.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Feed(
       id: const IntType()
@@ -545,7 +537,7 @@ class Feed extends DataClass implements Insertable<Feed> {
 
   factory Feed.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Feed(
       id: serializer.fromJson<int>(json['id']),
       feedTitle: serializer.fromJson<String>(json['feedTitle']),
@@ -555,7 +547,7 @@ class Feed extends DataClass implements Insertable<Feed> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'feedTitle': serializer.toJson<String>(feedTitle),
@@ -584,10 +576,7 @@ class Feed extends DataClass implements Insertable<Feed> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          feedTitle.hashCode, $mrjc(feedIcon.hashCode, categoryId.hashCode))));
+  int get hashCode => Object.hash(id, feedTitle, feedIcon, categoryId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -680,23 +669,27 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   final String? _alias;
   $FeedsTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
       'id', aliasedName, false,
-      typeName: 'INTEGER',
+      type: const IntType(),
       requiredDuringInsert: true,
       $customConstraints: 'UNIQUE');
   final VerificationMeta _feedTitleMeta = const VerificationMeta('feedTitle');
+  @override
   late final GeneratedColumn<String?> feedTitle = GeneratedColumn<String?>(
       'feed_title', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _feedIconMeta = const VerificationMeta('feedIcon');
+  @override
   late final GeneratedColumn<String?> feedIcon = GeneratedColumn<String?>(
       'feed_icon', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _categoryIdMeta = const VerificationMeta('categoryId');
+  @override
   late final GeneratedColumn<int?> categoryId = GeneratedColumn<int?>(
       'category_id', aliasedName, false,
-      typeName: 'INTEGER', requiredDuringInsert: true);
+      type: const IntType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [id, feedTitle, feedIcon, categoryId];
   @override
@@ -740,7 +733,7 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
   Set<GeneratedColumn> get $primaryKey => {id, categoryId};
   @override
   Feed map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Feed.fromData(data, _db,
+    return Feed.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -754,8 +747,7 @@ class Category extends DataClass implements Insertable<Category> {
   final int id;
   final String categoryName;
   Category({required this.id, required this.categoryName});
-  factory Category.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Category.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Category(
       id: const IntType()
@@ -781,7 +773,7 @@ class Category extends DataClass implements Insertable<Category> {
 
   factory Category.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Category(
       id: serializer.fromJson<int>(json['id']),
       categoryName: serializer.fromJson<String>(json['categoryName']),
@@ -789,7 +781,7 @@ class Category extends DataClass implements Insertable<Category> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'categoryName': serializer.toJson<String>(categoryName),
@@ -810,7 +802,7 @@ class Category extends DataClass implements Insertable<Category> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, categoryName.hashCode));
+  int get hashCode => Object.hash(id, categoryName);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -875,16 +867,18 @@ class $CategoriesTable extends Categories
   final String? _alias;
   $CategoriesTable(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
   late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
       'id', aliasedName, false,
-      typeName: 'INTEGER',
+      type: const IntType(),
       requiredDuringInsert: false,
       $customConstraints: 'UNIQUE');
   final VerificationMeta _categoryNameMeta =
       const VerificationMeta('categoryName');
+  @override
   late final GeneratedColumn<String?> categoryName = GeneratedColumn<String?>(
       'category_name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [id, categoryName];
   @override
@@ -914,7 +908,7 @@ class $CategoriesTable extends Categories
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Category map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Category.fromData(data, _db,
+    return Category.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 

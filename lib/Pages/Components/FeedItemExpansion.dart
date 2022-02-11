@@ -25,7 +25,7 @@ class _ExpansionArticlesState extends State<ExpansionArticles> {
           .padding(left: 48.rpx),
       Icon(this.expandedStatus ? Icons.expand_less : Icons.expand_more)
           .iconColor(Colors.white)
-          .padding(right: 48.rpx)
+          .padding(right: 40.rpx)
     ]
         .toRow(mainAxisAlignment: MainAxisAlignment.spaceAround)
         .center()

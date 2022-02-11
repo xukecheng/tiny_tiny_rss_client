@@ -23,7 +23,7 @@ class FeedItem extends StatelessWidget {
           .textColor(
             Tool().colorFromHex("#D35400"),
           )
-          .width(598.rpx),
+          .width(595.rpx),
       IconButton(
         onPressed: () => this.provider.setReadStatus(feedIndex, [], 1),
         icon: Icon(Icons.done_all),

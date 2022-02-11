@@ -1,4 +1,4 @@
-import 'package:moor/moor.dart';
+import 'package:drift/drift.dart';
 
 import 'ttrss.dart';
 import '../Tool/Tool.dart';
@@ -72,7 +72,7 @@ class ArticleStatus {
 
 // this annotation tells moor to prepare a database class that uses both of the
 // tables we just defined. We'll see how to use that database class in a moment.
-@UseMoor(tables: [Articles, Feeds, Categories])
+@DriftDatabase(tables: [Articles, Feeds, Categories])
 class AppDatabase extends _$AppDatabase {
   // we tell the database where to store the data with this constructor
   AppDatabase(QueryExecutor e) : super(e);
