@@ -1,3 +1,7 @@
+# PoweReader
+
+A New RSS Reader Released with SwiftUI: https://powereader.app/
+
 # tiny_tiny_rss_client
 
 A new Flutter project.
