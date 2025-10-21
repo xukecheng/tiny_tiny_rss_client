@@ -47,3 +47,6 @@ samples, guidance on mobile development, and a full API reference.
 - [ ] 文章滑动，切换到上一篇或下一篇文章（Feed 内）
 - [x] 将数据请求切换到 TinyTinyRss 官方接口
 - [ ] 完善登录的状态和数据管理
+
+## A NEW RSS APP
+https://powereader.app
